@@ -7,8 +7,6 @@
 #include "AIController.h"
 #include "HDMonController.generated.h"
 
-class UBehaviorTree;
-class UBlackboardData;
 /**
  * 
  */
@@ -23,19 +21,9 @@ public:
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnUnPossess()override;
 
-	static const FName HomePosKey;
-	static const FName PatrolPosKey;
-
 
 private:
 	void OnRepeatTimer();
 	FTimerHandle RepeatTimerHandle;
 	float RepeatInterval;
-
-	UPROPERTY(EditAnywhere, Category = "AI")
-	UBehaviorTree* BTAsset;
-
-	UPROPERTY(EditAnywhere, Category = "AI")
-	UBlackboardData* BBAsset;
-
 };
