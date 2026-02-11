@@ -15,7 +15,10 @@ class CH03_SHOOTERGAME_API AHDPlayerController : public APlayerController
 public:
 	AHDPlayerController();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputMappingContext* InputMappingContext;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* MoveAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* DashAction;
 };
