@@ -21,4 +21,7 @@ public:
 	UInputAction* MoveAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* DashAction;
+
+protected:
+	virtual void BeginPlay() override;
 };
