@@ -1,11 +1,11 @@
-#include "HDCharacter.h"
+﻿#include "HDCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 AHDCharacter::AHDCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
+	//
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArmComp->SetupAttachment(RootComponent);
 	SpringArmComp->TargetArmLength = 1000.0f;
