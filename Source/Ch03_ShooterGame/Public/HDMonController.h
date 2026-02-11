@@ -1,15 +1,10 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "HDMonController.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class CH03_SHOOTERGAME_API AHDMonController : public AAIController
 {
