@@ -3,10 +3,7 @@
 
 #include "HDGameMode.h"
 #include "HDPlayerCharacter.h"
-#include "HDPlayerController.h"
-
 AHDGameMode::AHDGameMode()
 {
 	DefaultPawnClass = AHDPlayerCharacter::StaticClass();
-	PlayerControllerClass = AHDPlayerController::StaticClass();
 }
