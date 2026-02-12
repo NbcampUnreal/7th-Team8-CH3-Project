@@ -3,3 +3,8 @@
 
 #include "HDGameMode.h"
 
+UCLASS()
+class :public
+{
+
+}
