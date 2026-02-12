@@ -21,11 +21,11 @@ ACh03_ShooterGameCharacter::ACh03_ShooterGameCharacter()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Rotate character to moving direction
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
-	GetCharacterMovement()->bConstrainToPlane = true;
-	GetCharacterMovement()->bSnapToPlaneAtStart = true;
+	// // Configure character movement
+	// GetCharacterMovement()->bOrientRotationToMovement = true; // Rotate character to moving direction
+	// GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
+	// GetCharacterMovement()->bConstrainToPlane = true;
+	// GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
 	// Create a camera boom...
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -48,4 +48,7 @@ ACh03_ShooterGameCharacter::ACh03_ShooterGameCharacter()
 void ACh03_ShooterGameCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+}
+void ACh03_ShooterGameCharacter::DummyFunction()
+{
 }
