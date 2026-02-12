@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Ch03_ShooterGameCharacter.h"
 #include "UObject/ConstructorHelpers.h"
@@ -22,7 +22,7 @@ ACh03_ShooterGameCharacter::ACh03_ShooterGameCharacter()
 	bUseControllerRotationRoll = false;
 
 	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Rotate character to moving direction
+	GetCharacterMovement()->bOrientRotationToMovement = false; // Rotate character to moving direction
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
@@ -48,4 +48,9 @@ ACh03_ShooterGameCharacter::ACh03_ShooterGameCharacter()
 void ACh03_ShooterGameCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+}
+
+void ACh03_ShooterGameCharacter::FooBar()
+{
+
 }
