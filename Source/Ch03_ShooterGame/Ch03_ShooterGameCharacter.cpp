@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Ch03_ShooterGameCharacter.h"
 #include "UObject/ConstructorHelpers.h"
@@ -21,11 +21,11 @@ ACh03_ShooterGameCharacter::ACh03_ShooterGameCharacter()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	// // Configure character movement
-	// GetCharacterMovement()->bOrientRotationToMovement = true; // Rotate character to moving direction
-	// GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
-	// GetCharacterMovement()->bConstrainToPlane = true;
-	// GetCharacterMovement()->bSnapToPlaneAtStart = true;
+	// Configure character movement
+	GetCharacterMovement()->bOrientRotationToMovement = false; // Rotate character to moving direction
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
+	GetCharacterMovement()->bConstrainToPlane = true;
+	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
 	// Create a camera boom...
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -49,6 +49,14 @@ void ACh03_ShooterGameCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 }
+
 void ACh03_ShooterGameCharacter::DummyFunction()
 {
+
+	
+}
+
+void ACh03_ShooterGameCharacter::FooBar()
+{
+
 }
