@@ -43,12 +43,12 @@ void AHDPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	}
 }
 
-void Move(const FInputActionValue& value) 
+void AHDPlayerCharacter::Move(const FInputActionValue& value)
 {
-	if (!Controller) return;
+
 }
 
-void Sprint(const FInputActionValue& value)
+void AHDPlayerCharacter::Dash(const FInputActionValue& value)
 {
 
 }
