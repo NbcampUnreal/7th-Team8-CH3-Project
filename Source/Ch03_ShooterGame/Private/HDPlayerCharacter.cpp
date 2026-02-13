@@ -24,6 +24,12 @@ AHDPlayerCharacter::AHDPlayerCharacter()
 
 		GetCharacterMovement()->RotationRate = FRotator(0.0f, 1200.0f, 0.0f);
 	}
+
+	MaxHP = 100.0f;
+	HP = MaxHP;
+
+	MaxMana = 100.0f;
+	Mana = MaxMana;
 }
 
 void AHDPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

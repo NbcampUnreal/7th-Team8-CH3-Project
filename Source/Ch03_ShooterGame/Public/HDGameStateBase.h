@@ -16,6 +16,10 @@ class CH03_SHOOTERGAME_API AHDGameStateBase : public AGameStateBase
 
 public:
 	AHDGameStateBase();
+	
+	int CurrentStageIndex;
+
+	FTimerHandle StageTimerHandle;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Score")
 	int32 Score;
@@ -25,4 +29,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Score")
 	void AddScore(int32 Amount);
+
+	void UpdateHUD();
 };

@@ -1,7 +1,5 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "HDMonCharacter.h"
+﻿#include "HDMonCharacter.h"
+#include "Components/ProgressBar.h"
 #include "HDMonController.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
@@ -15,9 +13,12 @@
 #include "Materials/Material.h"
 #include "Engine/World.h"
 
-// Sets default values
 AHDMonCharacter::AHDMonCharacter()
 {
+    OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
+    OverheadWidget->SetupAttachment(GetMesh());
+    OverheadWidget->SetWidgetSpace(EWidgetSpace::Screen);
+
     PrimaryActorTick.bCanEverTick = false;
     PrimaryActorTick.bStartWithTickEnabled = false;
 
@@ -39,8 +40,6 @@ AHDMonCharacter::AHDMonCharacter()
     MonHP = MonMaxHP;
     MonAtk = 20.f;
     GetCharacterMovement()->MaxWalkSpeed = MonMoveSpeed;
-
-
 }
 
 float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -132,8 +131,19 @@ void AHDMonCharacter::AttackHitCheck()
 
 }
 
+void AHDMonCharacter::UpdateOverheadHP()   // 이 함수는 몬스터 CPP로 옮겨야함
+{
+    if (!OverheadWidget) return;
 
+    UUserWidget* OverheadWidgetInstacne = OverheadWidget->GetUserWidgetObject();
+    if (OverheadWidgetInstacne) return;
 
-
-
-
+    if (UProgressBar* MonsterOverheadHPBar = Cast<UProgressBar>(OverheadWidgetInstacne->GetWidgetFromName("MonsterOverheadHP")))
+    {
+        if (AHDMonCharacter* HDMonCharacter = Cast<AHDMonCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn()))
+        {
+            float Precent = (float)HDMonCharacter->MonHP / HDMonCharacter->MonMaxHP;
+            MonsterOverheadHPBar->SetPercent(Precent);
+        }
+    }
+}

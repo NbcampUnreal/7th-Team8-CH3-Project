@@ -18,9 +18,6 @@ AHDPlayerController::AHDPlayerController():
 	MainMenuWidgetClass(nullptr),
 	MainMenuWidgetInstacne(nullptr)
 {
-	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));  // 여기 세줄 캐릭터 CPP로 옮겨야함
-	OverheadWidget->SetupAttachment(GetMesh());
-	OverheadWidget->SetWidgetSpace(EWidgetSpace::Screen);
 }
 
 void AHDPlayerController::BeginPlay()
@@ -57,10 +54,10 @@ void AHDPlayerController::BeginPlay()
 
 void AHDPlayerController::StartGame()
 {
-	if (UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(UGameplayStatics::GetGameInstance(this)))
+	if (AHDGameStateBase* HDGameStateBase = Cast<AHDGameStateBase>(UGameplayStatics::GetGameInstance(this)))
 	{
-		HDGameInstance->CurrentStageIndex = 0;
-		HDGameInstance->TotalScore = 0;
+		HDGameStateBase->CurrentStageIndex = 0;
+		HDGameStateBase->Score = 0;
 	}
 
 	UGameplayStatics::OpenLevel(this, FName("Stage1"));
@@ -147,9 +144,9 @@ void AHDPlayerController::ShowMainMenu(bool bIsRestart)
 
 			if (UTextBlock* TotalScoreText = Cast<UTextBlock>(MainMenuWidgetInstacne->GetWidgetFromName("TotalScoreText")))
 			{
-				if (UHDGameInstance* HDGameInstacne = Cast<UHDGameInstance>(UGameplayStatics::GetGameInstance(this)))
+				if (AHDGameStateBase* HDGameStateBase = Cast<AHDGameStateBase>(UGameplayStatics::GetGameInstance(this)))
 				{
-					TotalScoreText->SetText(FText::FromString(FString::Printf(TEXT("Total Score: %d"), HDGameInstacne->TotalScore)));
+					TotalScoreText->SetText(FText::FromString(FString::Printf(TEXT("Total Score: %d"), HDGameStateBase->Score)));
 				}
 			}
 		}
@@ -159,74 +156,4 @@ void AHDPlayerController::ShowMainMenu(bool bIsRestart)
 UUserWidget* AHDPlayerController::GetHUDWidget() const
 {
 	return HUDWidgetInstance;
-}
-
-void AHDPlayerController::UpdateHUD()  // 이 함수 게임 스테이트로 옮겨야함, StageTimerHandle, TotalScore, CurrentStageIndex 변수 필요
-{
-	if (APlayerController* PlayerController = Cast<APlayerController>(PlayerController))
-	{
-		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(HDPlayerController))
-		{
-			if (UUserWidget* HUDWidget = HDPlayerController->GetHUDWidget())
-			{
-				if (UProgressBar* PlayerHPProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("CharacterHPBar"))))
-				{
-					if (AHDPlayerCharacter* HDPlayerCharacter = Cast<AHDPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn()))
-					{
-						float Precent = (float)HDPlayerCharacter->HP / HDPlayerCharacter->MaxHP;
-						PlayerHPProgressBar->SetPercent(Precent);
-					}
-				}
-
-				if (UProgressBar* PlayerManaProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("CharacterManaBar"))))
-				{
-					if (AHDPlayerCharacter* HDPlayerCharacter = Cast<AHDPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn()))
-					{
-						float Precent = (float)HDPlayerCharacter->Mana / HDPlayerCharacter->MaxMana;
-						PlayerManaProgressBar->SetPercent(Precent);
-					}
-				}
-
-				if (UTextBlock* TimeText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("TimeText"))))
-				{
-					float RemainingTime = GetWorldTimerManager().GetTimerRemaining(StageTimerHandle);
-					TimeText->SetText(FText::FromString(FString::Printf(TEXT("Time : %.1f"), RemainingTime)));
-				}
-
-				if (UTextBlock* ScoreText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("ScoreText"))))
-				{
-					if (UGameInstance* GameInstance = GetGameInstance())
-					{
-						UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(GameInstance);
-						if (HDGameInstance)
-						{
-							ScoreText->SetText(FText::FromString(FString::Printf(TEXT("Score: %d"), HDGameInstance->TotalScore)));
-						}
-					}
-				}
-
-				if (UTextBlock* StageIndexText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("StageText"))))
-				{
-					StageIndexText->SetText(FText::FromString(FString::Printf(TEXT("%d Stage"), CurrentStageIndex + 1)));
-				}
-			}
-		}
-	}
-}
-
-void AHDPlayerController::UpdateOverheadHP()   // 이 함수는 몬스터 CPP로 옮겨야함
-{
-	if (!OverheadWidget) return;
-
-	UUserWidget* OverheadWidgetInstacne = OverheadWidget->GetUserWidgetObject();
-	if (OverheadWidgetInstacne) return;
-	
-	if (UProgressBar* MonsterOverheadHPBar = Cast<UProgressBar>(OverheadWidgetInstacne->GetWidgetFromName("MonsterOverheadHP")))
-	{
-		if (AHDMonCharacter* HDMonCharacter = Cast<AHDMonCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn()))
-		{
-			float Precent = (float)HDMonCharacter->HP / HDMonCharacter->MaxHP;
-			MonsterOverheadHPBar->SetPercent(Precent);
-		}
-	}
 }

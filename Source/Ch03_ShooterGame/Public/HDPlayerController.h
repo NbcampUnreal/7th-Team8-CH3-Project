@@ -31,21 +31,15 @@ public:
 	TSubclassOf<UUserWidget> MainMenuWidgetClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "HUD")
 	UUserWidget* MainMenuWidgetInstacne;
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")  // 이건 몬스터 헤더로 옮겨야함
-	UWidgetComponent* OverheadWidget;
 	
 	UFUNCTION(BlueprintPure, Category = "HUD")
 	UUserWidget* GetHUDWidget() const;
 	UFUNCTION(BlueprintCallable, Category = "HUD")
 	void ShowCharacterHUD();
-	UFUNCTION(BlueprintCallable, Category = "Munu")
+	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void ShowMainMenu(bool bIsRestart);
-	UFUNCTION(BlueprintCallable, Category = "Munu")
+	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void StartGame();
 
 	virtual void BeginPlay() override;
-	void UpdateHUD();
-	void UpdateOverheadHP();
 };
