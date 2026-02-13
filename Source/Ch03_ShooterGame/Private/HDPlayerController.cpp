@@ -1,4 +1,4 @@
-#include "HDPlayerController.h"
+﻿#include "HDPlayerController.h"
 #include "EnhancedInputSubsystems.h"
 
 AHDPlayerController::AHDPlayerController()
@@ -15,6 +15,13 @@ void AHDPlayerController::BeginPlay()
 
 	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
 	{
-
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+			LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+		{
+			if (InputMappingContext)
+			{
+				Subsystem->AddMappingContext(InputMappingContext, 0);
+			}
+		}
 	}
 }
