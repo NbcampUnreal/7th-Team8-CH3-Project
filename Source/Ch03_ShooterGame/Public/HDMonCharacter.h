@@ -6,24 +6,37 @@
 #include "GameFramework/Character.h"
 #include "HDMonCharacter.generated.h"
 
+class GameplayStatics;
 UCLASS()
 class CH03_SHOOTERGAME_API AHDMonCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
-	AHDMonCharacter();
 
+	AHDMonCharacter();
+	
+	
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Monster")
+	float MonHP;
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite, Category = "Monster")
+	float MonMaxHP;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Monster")
+	float MonMoveSpeed;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Monster")
+	float MonAtk;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
+	UAnimMontage* TakeDamageMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
+	UAnimMontage* DeathMontage;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	
+	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+	UFUNCTION(BlueprintCallable)
+	void AttackHitCheck();
+	void OnDeath();
 };
