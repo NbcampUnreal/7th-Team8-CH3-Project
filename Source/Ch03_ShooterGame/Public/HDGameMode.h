@@ -14,4 +14,6 @@ class CH03_SHOOTERGAME_API AHDGameMode : public AGameMode
 {
 	GENERATED_BODY()
 	
+public:
+	AHDGameMode();
 };

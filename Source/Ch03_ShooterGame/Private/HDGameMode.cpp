@@ -3,3 +3,7 @@
 
 #include "HDGameMode.h"
 
+AHDGameMode::AHDGameMode()
+{
+
+}
