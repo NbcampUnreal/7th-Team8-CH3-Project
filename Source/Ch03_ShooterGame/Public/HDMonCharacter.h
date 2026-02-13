@@ -6,28 +6,37 @@
 #include "GameFramework/Character.h"
 #include "HDMonCharacter.generated.h"
 
+class GameplayStatics;
 UCLASS()
 class CH03_SHOOTERGAME_API AHDMonCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
-	AHDMonCharacter();
-	// Called every frame.
-	virtual void Tick(float DeltaSeconds) override;
 
-	/** Returns TopDownCameraComponent subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	AHDMonCharacter();
+	
+	
 protected:
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Monster")
+	float MonHP;
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite, Category = "Monster")
+	float MonMaxHP;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Monster")
+	float MonMoveSpeed;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Monster")
+	float MonAtk;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
+	UAnimMontage* TakeDamageMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
+	UAnimMontage* DeathMontage;
 
 public:	
 	
-
-	/** Camera boom positioning the camera above the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
-
+	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+	UFUNCTION(BlueprintCallable)
+	void AttackHitCheck();
+	void OnDeath();
 };
