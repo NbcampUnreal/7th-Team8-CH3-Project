@@ -4,8 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "HDBowProjectile.generated.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "HDBowProjectile.generated.h"
+
+
 
 
 UCLASS()
@@ -28,4 +31,12 @@ public:
 	// 스피어 콜리전 컴포넌트입니다.
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
 	USphereComponent* CollisionComponent;
+
+	// 발사체 이동 컴포넌트입니다.
+	UPROPERTY(VisibleAnywhere, Category = Movement)
+	UProjectileMovementComponent* ProjectileMovementComponent;
+
+	// 발사 방향으로의 발사체 속도를 초기화하는 함수입니다.
+	void FireInDirection(const FVector& ShootDirection);
+
 };
