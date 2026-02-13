@@ -5,6 +5,8 @@
 #include "Components/BoxComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
+#include "HDCharacter.h"
+#include "HDMonCharacter.h"
 
 ASpawnVolume::ASpawnVolume()
 {
@@ -38,7 +40,7 @@ void ASpawnVolume::SpawnMonster(TSubclassOf<ACharacter> AHDMonCharacter)
 {
     if (!AHDMonCharacter) return;
 
-    GetWorld()->SpawnActor<ACharacter>(
+    GetWorld()->SpawnActor<AActor>(
         AHDMonCharacter,
         GetRandomPointInVolume(),
         FRotator::ZeroRotator
