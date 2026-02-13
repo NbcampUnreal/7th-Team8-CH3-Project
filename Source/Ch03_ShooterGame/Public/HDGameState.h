@@ -6,9 +6,7 @@
 #include "GameFramework/GameState.h"
 #include "HDGameState.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class CH03_SHOOTERGAME_API AHDGameState : public AGameState
 {

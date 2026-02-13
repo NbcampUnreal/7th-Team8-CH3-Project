@@ -3,12 +3,12 @@
 
 #include "HDGameState.h"
 #include "Kismet/GameplayStatics.h"
-//#include "SpawnVolume.h"
+#include "SpawnVolume.h"
 
 AHDGameState::AHDGameState()
 {
 	Score = 0;
-	LevelDuration = 60.0f; // 한 레벨당 30초
+	LevelDuration = 60.0f; // 레벨당 초
 	CurrentLevelIndex = 0;
 	MaxLevels = 3;
 }
@@ -35,10 +35,10 @@ void AHDGameState::AddScore(int32 Amount)
 void AHDGameState::StartLevel()
 {
 	// 현재 맵에 배치된 모든 SpawnVolume을 찾아 아이템 40개를 스폰
-	TArray<AActor*> FoundVolumes;
+	//TArray<AActor*> FoundVolumes;
 	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnVolume::StaticClass(), FoundVolumes);
 
-	const int32 ItemToSpawn = 40;
+	//const int32 ItemToSpawn = 40;
 
 	//for (int32 i = 0; i < ItemToSpawn; i++)
 	//{
