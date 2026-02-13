@@ -72,9 +72,7 @@ void AHDPlayerCharacter::Dash(const FInputActionValue& value)
 
 		bCanDash = false;
 
-		// 3. 3초 뒤에 ResetDash 함수를 호출하도록 타이머 설정
 		GetWorldTimerManager().SetTimer(DashCooldownTimerHandle,this,&AHDPlayerCharacter::ResetDash,3.0f,false);
-		// (선택) 로그로 확인하고 싶다면 추가
 		// GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Dash Cooldown Started (3s)"));
 	}
 }
@@ -82,6 +80,5 @@ void AHDPlayerCharacter::Dash(const FInputActionValue& value)
 void AHDPlayerCharacter::ResetDash()
 {
 	bCanDash = true;
-	// (선택) 로그로 확인
 	// GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Dash Ready!"));
 }
