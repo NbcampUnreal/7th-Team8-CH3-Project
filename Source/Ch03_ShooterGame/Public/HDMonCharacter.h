@@ -6,6 +6,7 @@
 #include "HDMonCharacter.generated.h"
 
 class GameplayStatics;
+
 UCLASS()
 class CH03_SHOOTERGAME_API AHDMonCharacter : public ACharacter
 {
@@ -36,4 +37,5 @@ public:
 	void AttackHitCheck();
 	void OnDeath();
 	void UpdateOverheadHP();
+
 };

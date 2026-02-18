@@ -2,12 +2,11 @@
 #include "Components/ProgressBar.h"
 #include "HDMonController.h"
 #include "UObject/ConstructorHelpers.h"
-#include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
-#include "GameFramework/SpringArmComponent.h"
+#include "HDTask_Attack.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/Material.h"
@@ -40,6 +39,8 @@ AHDMonCharacter::AHDMonCharacter()
     MonHP = MonMaxHP;
     MonAtk = 20.f;
     GetCharacterMovement()->MaxWalkSpeed = MonMoveSpeed;
+
+   
 }
 
 float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -117,7 +118,6 @@ void AHDMonCharacter::AttackHitCheck()
             // 로그 확인
             UE_LOG(LogTemp, Warning, TEXT("Hit Target: %s"), *Target->GetName());
 
-            // 데미지 적용 (ApplyDamage)
             UGameplayStatics::ApplyDamage(
                 Target,
                 MonAtk,      // 헤더에 선언한 공격력 변수
@@ -136,7 +136,7 @@ void AHDMonCharacter::UpdateOverheadHP()   // 이 함수는 몬스터 CPP로 옮
     if (!OverheadWidget) return;
 
     UUserWidget* OverheadWidgetInstacne = OverheadWidget->GetUserWidgetObject();
-    if (OverheadWidgetInstacne) return;
+    if (!OverheadWidgetInstacne) return;
 
     if (UProgressBar* MonsterOverheadHPBar = Cast<UProgressBar>(OverheadWidgetInstacne->GetWidgetFromName("MonsterOverheadHP")))
     {
