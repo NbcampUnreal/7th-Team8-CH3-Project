@@ -20,6 +20,19 @@ void AHDGameStateBase::AddScore(int32 Amount)
 	Score += Amount;
 }
 
+void AHDGameStateBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	GetWorldTimerManager().SetTimer(
+		HUDUpdateTimerHandle,
+		this,
+		&AHDGameStateBase::UpdateHUD,
+		0.1f,
+		true
+	);
+}
+
 void AHDGameStateBase::UpdateHUD()
 {
 	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
@@ -28,18 +41,15 @@ void AHDGameStateBase::UpdateHUD()
 		{
 			if (UUserWidget* HUDWidget = HDPlayerController->GetHUDWidget())
 			{
-				if (UProgressBar* PlayerHPProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("CharacterHPBar"))))
+				if (AHDPlayerCharacter* HDPlayerCharacter = Cast<AHDPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn()))
 				{
-					if (AHDPlayerCharacter* HDPlayerCharacter = Cast<AHDPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn()))
+					if (UProgressBar* PlayerHPProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("CharacterHPBar"))))
 					{
 						float Precent = (float)HDPlayerCharacter->HP / HDPlayerCharacter->MaxHP;
 						PlayerHPProgressBar->SetPercent(Precent);
 					}
-				}
 
-				if (UProgressBar* PlayerManaProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("CharacterManaBar"))))
-				{
-					if (AHDPlayerCharacter* HDPlayerCharacter = Cast<AHDPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn()))
+					if (UProgressBar* PlayerManaProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("CharacterManaBar"))))
 					{
 						float Precent = (float)HDPlayerCharacter->Mana / HDPlayerCharacter->MaxMana;
 						PlayerManaProgressBar->SetPercent(Precent);

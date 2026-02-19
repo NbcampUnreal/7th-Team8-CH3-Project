@@ -34,6 +34,8 @@ public:
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 	UFUNCTION(BlueprintCallable)
 	void AttackHitCheck();
+	
+	virtual void BeginPlay() override;
 	void OnDeath();
 	void UpdateOverheadHP();
 };

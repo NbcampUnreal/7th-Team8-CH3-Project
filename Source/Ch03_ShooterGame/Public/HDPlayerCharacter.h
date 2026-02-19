@@ -24,8 +24,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* CameraComp;
 
-	float HP;
-	float MaxHP;
+	int HP;
+	int MaxHP;
 	float Mana;
 	float MaxMana;
 

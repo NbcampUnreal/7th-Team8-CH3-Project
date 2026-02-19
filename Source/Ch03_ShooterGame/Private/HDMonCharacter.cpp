@@ -36,10 +36,16 @@ AHDMonCharacter::AHDMonCharacter()
     GetCharacterMovement()->GetNavMovementProperties()->bUseAccelerationForPaths = true;
 
     MonMoveSpeed = 300.0f;
-    MonMaxHP = 300.f;
+    MonMaxHP = 100;
     MonHP = MonMaxHP;
     MonAtk = 20.f;
     GetCharacterMovement()->MaxWalkSpeed = MonMoveSpeed;
+}
+
+void AHDMonCharacter::BeginPlay()
+{
+    Super::BeginPlay();
+    UpdateOverheadHP();
 }
 
 float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -131,19 +137,16 @@ void AHDMonCharacter::AttackHitCheck()
 
 }
 
-void AHDMonCharacter::UpdateOverheadHP()   // 이 함수는 몬스터 CPP로 옮겨야함
+void AHDMonCharacter::UpdateOverheadHP()
 {
     if (!OverheadWidget) return;
 
     UUserWidget* OverheadWidgetInstacne = OverheadWidget->GetUserWidgetObject();
-    if (OverheadWidgetInstacne) return;
+    if (!OverheadWidgetInstacne) return;
 
-    if (UProgressBar* MonsterOverheadHPBar = Cast<UProgressBar>(OverheadWidgetInstacne->GetWidgetFromName("MonsterOverheadHP")))
+    if (UProgressBar* MonsterOverheadHPBar = Cast<UProgressBar>(OverheadWidgetInstacne->GetWidgetFromName("OverheadHP")))
     {
-        if (AHDMonCharacter* HDMonCharacter = Cast<AHDMonCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn()))
-        {
-            float Precent = (float)HDMonCharacter->MonHP / HDMonCharacter->MonMaxHP;
-            MonsterOverheadHPBar->SetPercent(Precent);
-        }
+        float Precent = (float)MonHP / MonMaxHP;
+        MonsterOverheadHPBar->SetPercent(Precent);
     }
 }
