@@ -6,7 +6,7 @@
 #include "HDMonCharacter.generated.h"
 
 class GameplayStatics;
-
+class UHDTask_Attack;
 UCLASS()
 class CH03_SHOOTERGAME_API AHDMonCharacter : public ACharacter
 {

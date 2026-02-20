@@ -26,8 +26,7 @@ EBTNodeResult::Type UHDTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	{
 		return EBTNodeResult::Failed;
 	}
-	HDMonCharactor->AttackHitCheck();
-	
+		
 	HDMonCharactor->PlayAnimMontage(AttackMontage);
 	
 	return EBTNodeResult::InProgress;

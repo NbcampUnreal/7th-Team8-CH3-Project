@@ -35,7 +35,7 @@ AHDMonCharacter::AHDMonCharacter()
     GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
     GetCharacterMovement()->GetNavMovementProperties()->bUseAccelerationForPaths = true;
 
-    MonMoveSpeed = 200.0f;
+    MonMoveSpeed = 150.0f;
     MonMaxHP = 300.f;
     MonHP = MonMaxHP;
     MonAtk = 20.f;
@@ -46,37 +46,44 @@ AHDMonCharacter::AHDMonCharacter()
 
 float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-    float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-    if (ActualDamage <= 0.0f)
-    {
-        return 0.0f;
-    }
-    UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-    if (AnimInstance && TakeDamageMontage)
-    {
-        AnimInstance->Montage_Play(TakeDamageMontage);
-    }
-   
-    if (DamageCauser)
-    {
-        FVector PushDirection = GetActorLocation() - DamageCauser->GetActorLocation();
-        PushDirection.Z = 0.0f; 
-        PushDirection.Normalize();
+	if (ActualDamage <= 0.0f)
+	{
+		return 0.0f;
+	}
 
-        float KnockbackForce = 1000.0f;
-
-        LaunchCharacter(PushDirection * KnockbackForce, true, false);
-    }
-    GetCharacterMovement()->StopMovementImmediately();
-
-    MonHP = FMath::Clamp(MonHP - ActualDamage, 0.0f, MonMaxHP);
-
+	MonHP = FMath::Clamp(MonHP - ActualDamage, 0.0f, MonMaxHP);
+	UE_LOG(LogTemp, Warning, TEXT("Hit damage: %f / %f"), MonHP, MonMaxHP);
+	
     if (MonHP <= 0.0f)
-    {
-        OnDeath();
-    }
+	{
+		OnDeath();
+		return ActualDamage;
+	}
+	
+    UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	
+    if (AnimInstance && TakeDamageMontage)
+	{
+		AnimInstance->Montage_Play(TakeDamageMontage);
+	}
 
+	if (DamageCauser)
+	{
+		FVector PushDirection = GetActorLocation() - DamageCauser->GetActorLocation();
+		PushDirection.Z = 0.0f;
+		PushDirection.Normalize();
+
+		float KnockbackForce = 1000.0f;
+		LaunchCharacter(PushDirection * KnockbackForce, true, false);
+	}
+
+	//if (AAIController* AICon = Cast<AAIController>(GetController()))
+	//{
+	//	AICon->StopMovement();
+	//}
+    
     return ActualDamage;
 }
 
