@@ -17,3 +17,5 @@ class CH03_SHOOTERGAME_API AHDGameMode : public AGameMode
 public:
 	AHDGameMode();
 };
+
+
