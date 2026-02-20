@@ -1,29 +1,39 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/WidgetComponent.h"
 #include "HDMonCharacter.generated.h"
 
+class GameplayStatics;
 UCLASS()
 class CH03_SHOOTERGAME_API AHDMonCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
+
 	AHDMonCharacter();
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Monster")
+	float MonHP;
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite, Category = "Monster")
+	float MonMaxHP;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Monster")
+	float MonMoveSpeed;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Monster")
+	float MonAtk;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
+	UAnimMontage* TakeDamageMontage;
+	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
+	UAnimMontage* DeathMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")  // 이건 몬스터 헤더로 옮겨야함
+	UWidgetComponent* OverheadWidget;
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
+	UFUNCTION(BlueprintCallable)
+	void AttackHitCheck();
+	void OnDeath();
+	void UpdateOverheadHP();
 };

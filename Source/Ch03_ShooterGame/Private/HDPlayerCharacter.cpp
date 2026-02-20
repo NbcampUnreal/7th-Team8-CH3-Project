@@ -1,61 +1,36 @@
-﻿// Copyright Epic Games, Inc. All Rights Reserved.
-
-#include "HDPlayerCharacter.h"
+﻿#include "HDPlayerCharacter.h"
+#include "HDPlayerController.h"
+#include "EnhancedInputComponent.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 
 // 디폴트값 설정
 AHDPlayerCharacter::AHDPlayerCharacter()
 {
-    // 이 캐릭터가 프레임마다 Tick()을 호출하도록 설정합니다. 이 설정이 필요 없는 경우 비활성화하면 퍼포먼스가 향상됩니다.
-    PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	SpringArmComp->SetupAttachment(RootComponent);
+	SpringArmComp->TargetArmLength = 1000.0f;
 
-    // 일인칭 카메라 컴포넌트를 생성합니다.
-    FPSCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
-    check(FPSCameraComponent != nullptr);
+	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
 
-    // 캡슐 컴포넌트에 카메라 컴포넌트를 어태치합니다.
-    FPSCameraComponent->SetupAttachment(CastChecked<USceneComponent, UCapsuleComponent>(GetCapsuleComponent()));
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
 
-    // 카메라가 눈 약간 위에 위치하도록 합니다.
-    FPSCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 50.0f + BaseEyeHeight));
+	if (GetCharacterMovement())
+	{
+		GetCharacterMovement()->bOrientRotationToMovement = true;
 
-    // 폰이 카메라 회전을 제어하도록 합니다.
-    FPSCameraComponent->bUsePawnControlRotation = true;
+		GetCharacterMovement()->RotationRate = FRotator(0.0f, 1200.0f, 0.0f);
+	}
 
-    // 소유 플레이어의 일인칭 메시 컴포넌트를 생성합니다.
-    FPSMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
-    check(FPSMesh != nullptr);
+	MaxHP = 100.0f;
+	HP = MaxHP;
 
-    // 소유 플레이어만 이 메시를 볼 수 있습니다.
-    FPSMesh->SetOnlyOwnerSee(true);
-
-    // FPS 메시를 FPS 카메라에 어태치합니다.
-    FPSMesh->SetupAttachment(FPSCameraComponent);
-
-    // 일부 인바이런먼트 섀도잉을 비활성화하여 단일 메시 같은 느낌을 보존합니다.
-    FPSMesh->bCastDynamicShadow = false;
-    FPSMesh->CastShadow = false;
-
-    // 소유 플레이어가 일반(삼인칭) 바디 메시를 볼 수 없습니다.
-    GetMesh()->SetOwnerNoSee(true);
-}
-
-// 게임 시작 또는 스폰 시 호출
-void AHDPlayerCharacter::BeginPlay()
-{
-    Super::BeginPlay();
-
-    check(GEngine != nullptr);
-
-    // 디버그 메시지를 5초간 표시합니다. 
-    // -1 '키' 값 실행인자가 메시지가 업데이트되거나 새로고침되지 않도록 방지합니다.
-    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("We are using HDPlayerCharacter."));
-}
-
-// 프레임마다 호출
-void AHDPlayerCharacter::Tick(float DeltaTime)
-{
-    Super::Tick(DeltaTime);
-
+	MaxMana = 100.0f;
+	Mana = MaxMana;
 }
 
 //함수 기능을 입력에 바인딩하기 위해 호출
@@ -139,4 +114,55 @@ void AHDPlayerCharacter::Fire()
             }
         }
     }
+	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		if (AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController()))
+		{
+			EnhancedInput->BindAction(
+				PlayerController->MoveAction,ETriggerEvent::Triggered,this,&AHDPlayerCharacter::Move);
+		}
+
+		if (AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController()))
+		{
+			EnhancedInput->BindAction(PlayerController->DashAction,ETriggerEvent::Triggered,this,&AHDPlayerCharacter::Dash);
+		}
+	}
+}
+
+void AHDPlayerCharacter::Move(const FInputActionValue& value)
+{
+	if (!Controller) return;
+
+	const FVector2D MoveInput = value.Get<FVector2D>();
+
+	if (!FMath::IsNearlyZero(MoveInput.X))
+	{
+		AddMovementInput(FVector::ForwardVector, MoveInput.X);
+	}
+	if (!FMath::IsNearlyZero(MoveInput.Y))
+	{
+		AddMovementInput(FVector::RightVector, MoveInput.Y);
+	}
+}
+
+void AHDPlayerCharacter::Dash(const FInputActionValue& value)
+{
+	if (value.Get<bool>() && bCanDash)
+	{
+		const float DashStrength = 2500.0f;
+		const FVector DashDir = GetActorForwardVector();
+
+		LaunchCharacter(DashDir * DashStrength, true, false);
+
+		bCanDash = false;
+
+		GetWorldTimerManager().SetTimer(DashCooldownTimerHandle,this,&AHDPlayerCharacter::ResetDash,3.0f,false);
+		// GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Dash Cooldown Started (3s)"));
+	}
+}
+
+void AHDPlayerCharacter::ResetDash()
+{
+	bCanDash = true;
+	// GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Dash Ready!"));
 }
