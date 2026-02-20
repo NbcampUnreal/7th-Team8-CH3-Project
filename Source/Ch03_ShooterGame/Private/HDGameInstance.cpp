@@ -1,5 +1,12 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "HDGameInstance.h"
 
+UHDGameInstance::UHDGameInstance()
+{
+	TotalScore = 0;
+	CurrentStageIndex = 0;
+}
 
-#include "HDGameInstance.h"
-
+void UHDGameInstance::AddToScore(int32 Amount)
+{
+	TotalScore += Amount;
+}

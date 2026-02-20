@@ -16,13 +16,21 @@ class CH03_SHOOTERGAME_API AHDGameStateBase : public AGameStateBase
 
 public:
 	AHDGameStateBase();
+
+	virtual void BeginPlay() override;
 	
-	int CurrentStageIndex;
-
-	FTimerHandle StageTimerHandle;
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level")
+	int32 CurrentStageIndex;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Score")
 	int32 Score;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level")
+	float StageDuration;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level")
+	int32 MaxStages;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level")
+	TArray<FName> StageMapNames;
+
+	FTimerHandle StageTimerHandle;
 
 	UFUNCTION(BlueprintPure, Category = "Score")
 	int32 GetScore() const;
@@ -31,4 +39,8 @@ public:
 	void AddScore(int32 Amount);
 
 	void UpdateHUD();
+	void StartLevel();
+	void OnStageTimeUp();
+	void EndStage();
+	void OnGameOver();
 };

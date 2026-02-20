@@ -1,6 +1,8 @@
 ﻿#include "HDGameStateBase.h"
+#include "HDGameInstance.h"
 #include "HDPlayerCharacter.h"
 #include "HDPlayerController.h"
+#include "Kismet/GameplayStatics.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 
@@ -8,6 +10,8 @@
 {
 	 Score = 0;
 	 CurrentStageIndex = 0;
+	 StageDuration = 60.0f;
+	 MaxStages = 2;
 }
 
 int32 AHDGameStateBase::GetScore() const
@@ -72,3 +76,82 @@ void AHDGameStateBase::UpdateHUD()
 		}
 	}
 }
+
+void AHDGameStateBase::StartLevel()
+{
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
+		{
+			HDPlayerController->ShowCharacterHUD();
+		}
+	}
+
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(GameInstance);
+
+		if (HDGameInstance)
+		{
+			CurrentStageIndex = HDGameInstance->CurrentStageIndex;
+		}
+	}
+
+	GetWorldTimerManager().SetTimer(
+		StageTimerHandle,
+		this,
+		&AHDGameStateBase::OnStageTimeUp,
+		StageDuration,
+		false
+	);
+}
+
+void AHDGameStateBase::OnStageTimeUp()
+{
+	EndStage();
+}
+
+void AHDGameStateBase::EndStage()
+{
+	GetWorldTimerManager().ClearTimer(StageTimerHandle);
+
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(GameInstance);
+
+		if (HDGameInstance)
+		{
+			AddScore(Score);
+			CurrentStageIndex++;
+			HDGameInstance->CurrentStageIndex = CurrentStageIndex;
+		}
+	}
+
+	if (CurrentStageIndex >= MaxStages)
+	{
+		OnGameOver();
+		return;
+	}
+
+	if (StageMapNames.IsValidIndex(CurrentStageIndex))
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), StageMapNames[CurrentStageIndex]);
+	}
+	else
+	{
+		OnGameOver();
+	}
+}
+
+void AHDGameStateBase::OnGameOver()
+{
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
+		{
+			HDPlayerController->SetPause(true);
+			HDPlayerController->ShowMainMenu(true);
+		}
+	}
+}
+
