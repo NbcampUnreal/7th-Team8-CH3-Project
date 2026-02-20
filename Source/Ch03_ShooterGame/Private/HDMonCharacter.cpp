@@ -12,6 +12,7 @@
 #include "Materials/Material.h"
 #include "Engine/World.h"
 
+
 AHDMonCharacter::AHDMonCharacter()
 {
     OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
@@ -34,7 +35,7 @@ AHDMonCharacter::AHDMonCharacter()
     GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
     GetCharacterMovement()->GetNavMovementProperties()->bUseAccelerationForPaths = true;
 
-    MonMoveSpeed = 300.0f;
+    MonMoveSpeed = 200.0f;
     MonMaxHP = 300.f;
     MonHP = MonMaxHP;
     MonAtk = 20.f;
@@ -57,6 +58,18 @@ float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damage
         AnimInstance->Montage_Play(TakeDamageMontage);
     }
    
+    if (DamageCauser)
+    {
+        FVector PushDirection = GetActorLocation() - DamageCauser->GetActorLocation();
+        PushDirection.Z = 0.0f; 
+        PushDirection.Normalize();
+
+        float KnockbackForce = 1000.0f;
+
+        LaunchCharacter(PushDirection * KnockbackForce, true, false);
+    }
+    GetCharacterMovement()->StopMovementImmediately();
+
     MonHP = FMath::Clamp(MonHP - ActualDamage, 0.0f, MonMaxHP);
 
     if (MonHP <= 0.0f)
@@ -66,6 +79,8 @@ float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 
     return ActualDamage;
 }
+
+
 
 void AHDMonCharacter::OnDeath()
 {
@@ -85,7 +100,7 @@ void AHDMonCharacter::OnDeath()
     
     DetachFromControllerPendingDestroy();
 
-    SetLifeSpan(5.0f);
+    SetLifeSpan(4.0f);
 }
 
 void AHDMonCharacter::AttackHitCheck()
@@ -131,7 +146,7 @@ void AHDMonCharacter::AttackHitCheck()
 
 }
 
-void AHDMonCharacter::UpdateOverheadHP()   // 이 함수는 몬스터 CPP로 옮겨야함
+void AHDMonCharacter::UpdateOverheadHP()   
 {
     if (!OverheadWidget) return;
 

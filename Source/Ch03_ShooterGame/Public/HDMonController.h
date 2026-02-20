@@ -23,6 +23,9 @@ public:
 	
 	virtual void OnPossess(APawn* InPawn) override;
 
+
+
+
 private:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
