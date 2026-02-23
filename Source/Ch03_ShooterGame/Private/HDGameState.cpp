@@ -40,7 +40,7 @@ void AHDGameState::StartLevel()
 	{
 		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
 		{
-			HDPlayerController->StartGame();
+			HDPlayerController->ShowCharacterHUD();
 		}
 	}
 	// 현재 맵에 배치된 모든 SpawnVolume을 찾아 아이템 40개를 스폰
