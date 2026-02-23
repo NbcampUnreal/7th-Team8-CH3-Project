@@ -28,21 +28,6 @@ void AHDGameStateBase::StartStage()
 {
 	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("PlayerController Found"));
-
-		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Cast Success"));
-			HDPlayerController->ShowCharacterHUD();
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("Cast Failed"));
-		}
-	}
-
-	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
-	{
 		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
 		{
 			HDPlayerController->ShowCharacterHUD();
@@ -71,6 +56,8 @@ void AHDGameStateBase::StartStage()
 void AHDGameStateBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	StartStage();
 
 	GetWorldTimerManager().SetTimer(
 		HUDUpdateTimerHandle,
