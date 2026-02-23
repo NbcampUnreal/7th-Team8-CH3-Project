@@ -13,6 +13,7 @@ AHDPlayerController::AHDPlayerController():
 	InputMappingContext(nullptr),
 	MoveAction(nullptr),
 	DashAction(nullptr),
+	AttackAction(nullptr),
 	HUDWidgetclass(nullptr),
 	HUDWidgetInstance(nullptr),
 	MainMenuWidgetClass(nullptr),

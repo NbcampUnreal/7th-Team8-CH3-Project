@@ -52,8 +52,6 @@ public:
 	// 발사체가 어딘가에 부딪힐 때 호출되는 함수입니다.
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
-
-
 };
 
 

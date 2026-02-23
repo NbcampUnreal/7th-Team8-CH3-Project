@@ -1,6 +1,9 @@
 ﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "HDBowProjectile.h"
+#include "HDPlayerCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/Controller.h"
 
 // 디폴트값 설정
 AHDBowProjectile::AHDBowProjectile()
@@ -13,21 +16,38 @@ AHDBowProjectile::AHDBowProjectile()
         RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("ProjectileSceneComponent"));
     }
 
+    //if (!CollisionComponent)
+    //{
+    //    // 스피어를 단순 콜리전 표현으로 사용합니다.
+    //    CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
+
+    //    // 스피어의 콜리전 프로파일 이름을 'Projectile'로 설정합니다.
+    //    CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("Projectile"));
+
+    //    // 컴포넌트가 어딘가에 부딪힐 때 호출되는 이벤트입니다.
+    //    CollisionComponent->OnComponentHit.AddDynamic(this, &AHDBowProjectile::OnHit);
+
+    //    // 스피어의 콜리전 반경을 설정합니다.
+    //    CollisionComponent->InitSphereRadius(15.0f);
+
+    //    // 루트 컴포넌트가 콜리전 컴포넌트가 되도록 설정합니다.
+    //    RootComponent = CollisionComponent;
+    //}
     if (!CollisionComponent)
     {
-        // 스피어를 단순 콜리전 표현으로 사용합니다.
         CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 
-        // 스피어의 콜리전 프로파일 이름을 'Projectile'로 설정합니다.
         CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("Projectile"));
 
-        // 컴포넌트가 어딘가에 부딪힐 때 호출되는 이벤트입니다.
+        CollisionComponent->SetNotifyRigidBodyCollision(true);
+
+        CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+        CollisionComponent->SetCollisionResponseToAllChannels(ECR_Block);
+
         CollisionComponent->OnComponentHit.AddDynamic(this, &AHDBowProjectile::OnHit);
 
-        // 스피어의 콜리전 반경을 설정합니다.
         CollisionComponent->InitSphereRadius(15.0f);
 
-        // 루트 컴포넌트가 콜리전 컴포넌트가 되도록 설정합니다.
         RootComponent = CollisionComponent;
     }
 
@@ -89,14 +109,25 @@ void AHDBowProjectile::FireInDirection(const FVector& ShootDirection)
     ProjectileMovementComponent->Velocity = ShootDirection * ProjectileMovementComponent->InitialSpeed;
 }
 
-// 발사체가 어딘가에 부딪힐 때 호출되는 함수입니다.
+
 void AHDBowProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
-    if (OtherActor != this && OtherComponent->IsSimulatingPhysics())
+    if (OtherActor && GEngine)
     {
-        OtherComponent->AddImpulseAtLocation(ProjectileMovementComponent->Velocity * 100.0f, Hit.ImpactPoint);
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString::Printf(TEXT("Arrow Hit: %s"), *OtherActor->GetName()));
     }
 
+    if (OtherActor != nullptr && OtherActor != this)
+    {
+        float TestDamage = 20.0f;
+        UGameplayStatics::ApplyDamage(
+            OtherActor,
+            TestDamage,
+            GetInstigatorController(),
+            this, 
+            UDamageType::StaticClass()
+        );
+    }
     Destroy();
 
 } 
