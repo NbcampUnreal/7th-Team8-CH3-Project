@@ -36,17 +36,8 @@ void AHDPlayerController::BeginPlay()
 		}
 	}
 
-	if (HUDWidgetclass)
-	{
-		HUDWidgetInstance = CreateWidget<UUserWidget>(this, HUDWidgetclass);
-		if (HUDWidgetInstance)
-		{
-			HUDWidgetInstance->AddToViewport();
-		}
-	}
-
 	FString CurrentStageName = GetWorld()->GetMapName();
-	if (CurrentStageName.Contains("MenuStage"))
+	if (CurrentStageName.Contains("L_MainMenu"))
 	{
 		ShowMainMenu(false);
 	}
@@ -54,13 +45,13 @@ void AHDPlayerController::BeginPlay()
 
 void AHDPlayerController::StartGame()
 {
-	if (AHDGameStateBase* HDGameStateBase = Cast<AHDGameStateBase>(UGameplayStatics::GetGameInstance(this)))
+	if (AHDGameStateBase* HDGameStateBase = GetWorld()->GetGameState<AHDGameStateBase>())
 	{
 		HDGameStateBase->CurrentStageIndex = 0;
 		HDGameStateBase->Score = 0;
 	}
 
-	UGameplayStatics::OpenLevel(this, FName("Stage1"));
+	UGameplayStatics::OpenLevel(this, FName("L_Prototyping"));
 	SetPause(false);
 }
 

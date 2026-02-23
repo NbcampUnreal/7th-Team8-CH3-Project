@@ -26,8 +26,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	class UAnimMontage* DashMontage;
 
-	float HP;
-	float MaxHP;
+	int HP;
+	int MaxHP;
 	float Mana;
 	float MaxMana;
 
