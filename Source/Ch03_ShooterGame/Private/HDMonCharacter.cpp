@@ -1,16 +1,19 @@
 ﻿#include "HDMonCharacter.h"
 #include "Components/ProgressBar.h"
 #include "HDMonController.h"
+#include "HDGameState.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/GameStateBase.h"
 #include "HDTask_Attack.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+
 
 
 AHDMonCharacter::AHDMonCharacter()
@@ -39,6 +42,7 @@ AHDMonCharacter::AHDMonCharacter()
     MonMaxHP = 300.f;
     MonHP = MonMaxHP;
     MonAtk = 20.f;
+    PointValue = 100;
     GetCharacterMovement()->MaxWalkSpeed = MonMoveSpeed;
 
    
@@ -99,6 +103,14 @@ void AHDMonCharacter::OnDeath()
 {
 
     UE_LOG(LogTemp, Warning, TEXT("Monster Died!"));
+
+    if (UWorld* World = GetWorld())
+    {
+        if (AHDGameState* GameState = World->GetGameState<AHDGameState>())
+        {
+            GameState->AddScore(PointValue);
+        }
+    }
 
     UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
     if (AnimInstance && DeathMontage)

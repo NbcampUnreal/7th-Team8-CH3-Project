@@ -1,9 +1,11 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "HDGameState.h"
 #include "GameFramework/Character.h"
 #include "Components/WidgetComponent.h"
 #include "HDMonCharacter.generated.h"
+
 
 class GameplayStatics;
 class UHDTask_Attack;
@@ -24,6 +26,8 @@ public:
 	float MonMoveSpeed;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Monster")
 	float MonAtk;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Monster")
+	int PointValue;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
 	UAnimMontage* TakeDamageMontage;

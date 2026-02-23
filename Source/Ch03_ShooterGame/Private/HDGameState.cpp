@@ -4,6 +4,7 @@
 #include "HDGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "SpawnVolume.h"
+#include "HDPlayerController.h"
 
 AHDGameState::AHDGameState()
 {
@@ -34,6 +35,14 @@ void AHDGameState::AddScore(int32 Amount)
 
 void AHDGameState::StartLevel()
 {
+
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
+		{
+			HDPlayerController->StartGame();
+		}
+	}
 	// 현재 맵에 배치된 모든 SpawnVolume을 찾아 아이템 40개를 스폰
 	//TArray<AActor*> FoundVolumes;
 	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnVolume::StaticClass(), FoundVolumes);
@@ -103,5 +112,12 @@ void AHDGameState::EndLevel()
 void AHDGameState::OnGameOver()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Game Over!!"));
-	// 여기서 UI를 띄운다거나, 재시작 기능을 넣을 수도 있음
+
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
+		{
+			HDPlayerController->ShowMainMenu(true);
+		}
+	}
 }
