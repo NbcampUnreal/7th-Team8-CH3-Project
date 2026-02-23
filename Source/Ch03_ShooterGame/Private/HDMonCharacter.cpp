@@ -2,16 +2,16 @@
 #include "Components/ProgressBar.h"
 #include "HDMonController.h"
 #include "UObject/ConstructorHelpers.h"
-#include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
-#include "GameFramework/SpringArmComponent.h"
+#include "HDTask_Attack.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+
 
 AHDMonCharacter::AHDMonCharacter()
 {
@@ -35,36 +35,59 @@ AHDMonCharacter::AHDMonCharacter()
     GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
     GetCharacterMovement()->GetNavMovementProperties()->bUseAccelerationForPaths = true;
 
-    MonMoveSpeed = 300.0f;
+    MonMoveSpeed = 150.0f;
     MonMaxHP = 300.f;
     MonHP = MonMaxHP;
     MonAtk = 20.f;
     GetCharacterMovement()->MaxWalkSpeed = MonMoveSpeed;
+
+   
 }
 
 float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-    float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-    if (ActualDamage <= 0.0f)
-    {
-        return 0.0f;
-    }
-    UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-    if (AnimInstance && TakeDamageMontage)
-    {
-        AnimInstance->Montage_Play(TakeDamageMontage);
-    }
-   
-    MonHP = FMath::Clamp(MonHP - ActualDamage, 0.0f, MonMaxHP);
+	if (ActualDamage <= 0.0f)
+	{
+		return 0.0f;
+	}
 
+	MonHP = FMath::Clamp(MonHP - ActualDamage, 0.0f, MonMaxHP);
+	UE_LOG(LogTemp, Warning, TEXT("Hit damage: %f / %f"), MonHP, MonMaxHP);
+	
     if (MonHP <= 0.0f)
-    {
-        OnDeath();
-    }
+	{
+		OnDeath();
+		return ActualDamage;
+	}
+	
+    UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	
+    if (AnimInstance && TakeDamageMontage)
+	{
+		AnimInstance->Montage_Play(TakeDamageMontage);
+	}
 
+	if (DamageCauser)
+	{
+		FVector PushDirection = GetActorLocation() - DamageCauser->GetActorLocation();
+		PushDirection.Z = 0.0f;
+		PushDirection.Normalize();
+
+		float KnockbackForce = 1000.0f;
+		LaunchCharacter(PushDirection * KnockbackForce, true, false);
+	}
+
+	//if (AAIController* AICon = Cast<AAIController>(GetController()))
+	//{
+	//	AICon->StopMovement();
+	//}
+    
     return ActualDamage;
 }
+
+
 
 void AHDMonCharacter::OnDeath()
 {
@@ -84,7 +107,7 @@ void AHDMonCharacter::OnDeath()
     
     DetachFromControllerPendingDestroy();
 
-    SetLifeSpan(5.0f);
+    SetLifeSpan(4.0f);
 }
 
 void AHDMonCharacter::AttackHitCheck()
@@ -117,7 +140,6 @@ void AHDMonCharacter::AttackHitCheck()
             // 로그 확인
             UE_LOG(LogTemp, Warning, TEXT("Hit Target: %s"), *Target->GetName());
 
-            // 데미지 적용 (ApplyDamage)
             UGameplayStatics::ApplyDamage(
                 Target,
                 MonAtk,      // 헤더에 선언한 공격력 변수
@@ -131,12 +153,12 @@ void AHDMonCharacter::AttackHitCheck()
 
 }
 
-void AHDMonCharacter::UpdateOverheadHP()   // 이 함수는 몬스터 CPP로 옮겨야함
+void AHDMonCharacter::UpdateOverheadHP()   
 {
     if (!OverheadWidget) return;
 
     UUserWidget* OverheadWidgetInstacne = OverheadWidget->GetUserWidgetObject();
-    if (OverheadWidgetInstacne) return;
+    if (!OverheadWidgetInstacne) return;
 
     if (UProgressBar* MonsterOverheadHPBar = Cast<UProgressBar>(OverheadWidgetInstacne->GetWidgetFromName("MonsterOverheadHP")))
     {

@@ -1,0 +1,4 @@
+폴더명,파일명 구별
+FPSProject = Ch03_ShooterGame
+FPSCharacter.h = HDPlayerCharacter.h
+FPSProjectile.cpp = HDBowprojectile.cpp
