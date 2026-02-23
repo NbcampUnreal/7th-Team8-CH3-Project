@@ -27,4 +27,4 @@ public:
     // HUD의 기본 드로 콜입니다.
     virtual void DrawHUD() override;
 
-};
+}; 
