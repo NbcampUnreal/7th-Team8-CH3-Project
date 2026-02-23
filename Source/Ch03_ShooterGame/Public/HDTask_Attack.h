@@ -6,9 +6,9 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "HDTask_Attack.generated.h"
 
-/**
- * 
- */
+
+class AHDMonCharacter;
+
 UCLASS()
 class CH03_SHOOTERGAME_API UHDTask_Attack : public UBTTaskNode
 {
