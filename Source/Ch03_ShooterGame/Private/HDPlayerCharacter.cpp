@@ -135,16 +135,16 @@ void AHDPlayerCharacter::Attack(const FInputActionValue& value)
 {
 	if (!Controller) return;
 
-	bool bIsPressed = value.Get<bool>();
-
-	if(bIsPressed)
+	if (GEngine)
 	{
-		if (AttackMontage)
-		{
-			PlayAnimMontage(AttackMontage);
-		}
-		Fire();
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Attack Function Called!"));
 	}
+
+	if (AttackMontage)
+	{
+		PlayAnimMontage(AttackMontage);
+	}
+	Fire();
 }
 
 float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

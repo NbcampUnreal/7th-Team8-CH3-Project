@@ -9,6 +9,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 struct FInputActionValue;
+class AHDBowProjectile;
 
 UCLASS()
 
@@ -50,7 +51,7 @@ protected:
 	void ResetDash();
 
 	UPROPERTY(EditAnywhere, Category = Projectile)
-	TSubclassOf<class AHDBowProjectile> ProjectileClass;
+	TSubclassOf<AHDBowProjectile> ProjectileClass;
 
 	// 발사체를 발사하는 함수입니다.
 	UFUNCTION()
