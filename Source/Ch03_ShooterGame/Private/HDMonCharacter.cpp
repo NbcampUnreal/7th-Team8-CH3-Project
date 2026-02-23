@@ -17,7 +17,7 @@ AHDMonCharacter::AHDMonCharacter()
 {
     OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
     OverheadWidget->SetupAttachment(GetMesh());
-    OverheadWidget->SetWidgetSpace(EWidgetSpace::Screen);
+    OverheadWidget->SetWidgetSpace(EWidgetSpace::World);
 
     PrimaryActorTick.bCanEverTick = false;
     PrimaryActorTick.bStartWithTickEnabled = false;
@@ -60,6 +60,7 @@ float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 	}
 
 	MonHP = FMath::Clamp(MonHP - ActualDamage, 0.0f, MonMaxHP);
+    UpdateOverheadHP();
 	UE_LOG(LogTemp, Warning, TEXT("Hit damage: %f / %f"), MonHP, MonMaxHP);
 	
     if (MonHP <= 0.0f)
