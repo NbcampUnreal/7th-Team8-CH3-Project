@@ -71,6 +71,10 @@ void AHDPlayerCharacter::Dash(const FInputActionValue& value)
 {
 	if (value.Get<bool>() && bCanDash)
 	{
+		if (DashMontage)
+		{
+			PlayAnimMontage(DashMontage);
+		}
 		const float DashStrength = 2500.0f;
 		const FVector DashDir = GetActorForwardVector();
 
