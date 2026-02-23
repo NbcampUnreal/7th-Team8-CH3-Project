@@ -34,6 +34,9 @@ public:
 	float Mana;
 	float MaxMana;
 
+	
+
+
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 

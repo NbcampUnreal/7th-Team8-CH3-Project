@@ -94,7 +94,6 @@ void AHDPlayerCharacter::Dash(const FInputActionValue& value)
 	}
 }
 
-
 void AHDPlayerCharacter::ResetDash()
 {
 	bCanDash = true;
@@ -107,9 +106,8 @@ void AHDPlayerCharacter::Fire()
 	{
 		FVector CharacterLocation = GetActorLocation();
 		FRotator CharacterRotation = GetActorRotation();
-
 		
-		MuzzleOffset.Set(100.0f, 0.0f, 50.0f);		
+		MuzzleOffset.Set(100.0f, 0.0f, 00.0f);		
 		FVector MuzzleLocation = CharacterLocation + FTransform(CharacterRotation).TransformVector(MuzzleOffset);
 		FRotator MuzzleRotation = CharacterRotation;		
 		MuzzleRotation.Pitch += 10.0f;
@@ -128,6 +126,7 @@ void AHDPlayerCharacter::Fire()
 				FVector LaunchDirection = MuzzleRotation.Vector();
 				Projectile->FireInDirection(LaunchDirection);
 			}
+			
 		}
 	}
 }
@@ -162,7 +161,7 @@ float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	}
 
 	HP = FMath::Clamp(HP - ActualDamage, 0.0f, MaxHP);
-	UE_LOG(LogTemp, Warning, TEXT("Hit damage: %f / %f"), HP, MaxHP);
+	UE_LOG(LogTemp, Warning, TEXT("Hit damage: %d / %d"), HP, MaxHP);
 
 
 	return ActualDamage;
