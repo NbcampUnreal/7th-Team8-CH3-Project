@@ -44,6 +44,12 @@ AHDMonCharacter::AHDMonCharacter()
    
 }
 
+void AHDMonCharacter::BeginPlay()
+{
+    Super::BeginPlay();
+    UpdateOverheadHP();
+}
+
 float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
@@ -160,12 +166,9 @@ void AHDMonCharacter::UpdateOverheadHP()
     UUserWidget* OverheadWidgetInstacne = OverheadWidget->GetUserWidgetObject();
     if (!OverheadWidgetInstacne) return;
 
-    if (UProgressBar* MonsterOverheadHPBar = Cast<UProgressBar>(OverheadWidgetInstacne->GetWidgetFromName("MonsterOverheadHP")))
+    if (UProgressBar* MonsterOverheadHPBar = Cast<UProgressBar>(OverheadWidgetInstacne->GetWidgetFromName("OverheadHP")))
     {
-        if (AHDMonCharacter* HDMonCharacter = Cast<AHDMonCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn()))
-        {
-            float Precent = (float)HDMonCharacter->MonHP / HDMonCharacter->MonMaxHP;
-            MonsterOverheadHPBar->SetPercent(Precent);
-        }
+        float Precent = (float)MonHP / MonMaxHP;
+        MonsterOverheadHPBar->SetPercent(Precent);
     }
 }
