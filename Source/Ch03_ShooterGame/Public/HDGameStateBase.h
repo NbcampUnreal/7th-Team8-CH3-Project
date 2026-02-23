@@ -17,8 +17,14 @@ public:
 	FTimerHandle StageTimerHandle;
 	FTimerHandle HUDUpdateTimerHandle;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level")
+	int32 MaxStages;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Score")
 	int32 Score;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level")
+	float LevelDuration;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level")
+	TArray<FName> StageMapNames;
 
 	UFUNCTION(BlueprintPure, Category = "Score")
 	int32 GetScore() const;
@@ -28,4 +34,8 @@ public:
 
 	virtual void BeginPlay() override;
 	void UpdateHUD();
+	void StartStage();
+	void OnLevelTimeUp();
+	void EndStage();
+	void OnGameOver();
 };

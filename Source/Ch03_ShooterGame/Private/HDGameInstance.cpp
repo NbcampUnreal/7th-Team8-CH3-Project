@@ -3,3 +3,7 @@
 
 #include "HDGameInstance.h"
 
+UHDGameInstance::UHDGameInstance()
+{
+	CurrentStageIndex = 0;
+}
