@@ -23,6 +23,3 @@ Saved/
 # Visual Studio cache
 .vs/
 *.ipch
-
-# Developer Plugins
-Plugins/Developer/*
