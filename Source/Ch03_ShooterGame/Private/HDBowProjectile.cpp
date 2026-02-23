@@ -99,4 +99,4 @@ void AHDBowProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 
     Destroy();
 
-}
+} 
