@@ -36,7 +36,7 @@ AHDMonCharacter::AHDMonCharacter()
     GetCharacterMovement()->GetNavMovementProperties()->bUseAccelerationForPaths = true;
 
     MonMoveSpeed = 150.0f;
-    MonMaxHP = 300.f;
+    MonMaxHP = 60.f;
     MonHP = MonMaxHP;
     MonAtk = 20.f;
     GetCharacterMovement()->MaxWalkSpeed = MonMoveSpeed;
@@ -114,7 +114,7 @@ void AHDMonCharacter::OnDeath()
     
     DetachFromControllerPendingDestroy();
 
-    SetLifeSpan(4.0f);
+    SetLifeSpan(2.0f);
 }
 
 void AHDMonCharacter::AttackHitCheck()
@@ -124,10 +124,10 @@ void AHDMonCharacter::AttackHitCheck()
 
     FVector TraceStart = GetActorLocation();
     FVector TraceEnd = GetActorLocation() + GetActorForwardVector() * 100.0f;
-    float AttackRadius = 50.0f;
+  //  float AttackRadius = 50.0f;
 
     // 1. 눈에 보이는 빨간 공 그리기 (2초 동안 유지됨)
-    DrawDebugSphere(GetWorld(), TraceEnd, AttackRadius, 12, FColor::Red, false, 2.0f);
+   // DrawDebugSphere(GetWorld(), TraceEnd, AttackRadius, 12, FColor::Red, false, 2.0f);
 
 
     bool bResult = GetWorld()->SweepSingleByChannel(
