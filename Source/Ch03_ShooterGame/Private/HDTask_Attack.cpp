@@ -4,6 +4,7 @@
 #include "HDTask_Attack.h"
 #include "AIController.h"
 #include "GameFramework/Character.h"
+#include "HDMonCharacter.h"
 
 
 UHDTask_Attack::UHDTask_Attack()
@@ -18,14 +19,16 @@ EBTNodeResult::Type UHDTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	{
 		return EBTNodeResult::Aborted;
 	}
+	auto AIController = OwnerComp.GetAIOwner();
+	auto HDMonCharactor = Cast<AHDMonCharacter>(Owner->GetPawn());
 
-	ACharacter* AiController = Cast<ACharacter>(Owner->GetPawn());
-	if (AiController == nullptr || AttackMontage == nullptr)
+	if (HDMonCharactor == nullptr || AttackMontage == nullptr)
 	{
 		return EBTNodeResult::Failed;
 	}
-
-	AiController->PlayAnimMontage(AttackMontage);
+		
+	HDMonCharactor->PlayAnimMontage(AttackMontage);
+	
 	return EBTNodeResult::InProgress;
 }
 
@@ -38,14 +41,14 @@ void UHDTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 		return;
 	}
 
-	ACharacter* AICharacter = Cast<ACharacter>(Owner->GetPawn());
-	if (AICharacter == nullptr || AttackMontage == nullptr)
+	auto HDMonCharacter = Cast<AHDMonCharacter>(Owner->GetPawn());
+	if (HDMonCharacter == nullptr || AttackMontage == nullptr)
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
 
-	UAnimInstance* AnimInstance = AICharacter->GetMesh()->GetAnimInstance();
+	UAnimInstance* AnimInstance = HDMonCharacter->GetMesh()->GetAnimInstance();
 	if (AnimInstance == nullptr)
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
@@ -57,6 +60,7 @@ void UHDTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
+
 }
 
 EBTNodeResult::Type UHDTask_Attack::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
