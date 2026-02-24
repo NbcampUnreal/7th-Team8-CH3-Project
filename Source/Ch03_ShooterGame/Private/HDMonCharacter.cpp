@@ -90,10 +90,25 @@ float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 		LaunchCharacter(PushDirection * KnockbackForce, true, false);
 	}
 
-	//if (AAIController* AICon = Cast<AAIController>(GetController()))
-	//{
-	//	AICon->StopMovement();
-	//}
+    if (AAIController* AICon = Cast<AAIController>(GetController()))
+    {
+      
+        AICon->StopMovement();
+
+        if (AICon->GetBrainComponent())
+        {
+            AICon->GetBrainComponent()->PauseLogic("HitStun");
+        }
+
+      
+        GetWorld()->GetTimerManager().SetTimer(
+            HitRecoverTimerHandle,
+            this,
+            &AHDMonCharacter::RecoverFromHit,
+            1.0f, 
+            false
+        );
+    }
     
     return ActualDamage;
 }
@@ -123,7 +138,7 @@ void AHDMonCharacter::OnDeath()
     GetCharacterMovement()->DisableMovement();
     
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    
+    GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     DetachFromControllerPendingDestroy();
 
     SetLifeSpan(2.0f);
@@ -183,5 +198,19 @@ void AHDMonCharacter::UpdateOverheadHP()
     {
         float Precent = (float)MonHP / MonMaxHP;
         MonsterOverheadHPBar->SetPercent(Precent);
+    }
+}
+
+void AHDMonCharacter::RecoverFromHit()
+{
+    if (MonHP > 0.0f)
+    {
+        if (AAIController* AICon = Cast<AAIController>(GetController()))
+        {
+            if (AICon->GetBrainComponent())
+            {
+                AICon->GetBrainComponent()->ResumeLogic("HitStun");
+            }
+        }
     }
 }
