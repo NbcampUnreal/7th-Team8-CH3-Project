@@ -48,10 +48,13 @@ protected:
 	void Attack(const FInputActionValue& value);
 	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
 	UAnimMontage* TakeDamageMontage;
-	
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* BowStaticMesh;
+
 	bool bCanDash = true;
 	FTimerHandle DashCooldownTimerHandle;
 	void ResetDash();
+	void InitializationWeaponMesh();
 
 	UPROPERTY(EditAnywhere, Category = Projectile)
 	TSubclassOf<AHDBowProjectile> ProjectileClass;

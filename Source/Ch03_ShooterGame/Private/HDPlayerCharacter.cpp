@@ -29,6 +29,8 @@ AHDPlayerCharacter::AHDPlayerCharacter()
 		GetCharacterMovement()->RotationRate = FRotator(0.0f, 1200.0f, 0.0f);
 	}
 
+	InitializationWeaponMesh();
+
 	MaxHP = 100.0f;
 	HP = MaxHP;
 
@@ -165,4 +167,19 @@ float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 
 
 	return ActualDamage;
+}
+
+void AHDPlayerCharacter::InitializationWeaponMesh()
+{
+	BowStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Bow"));
+	BowStaticMesh->SetupAttachment(RootComponent);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Bow(TEXT("/Script/Engine.StaticMesh'/Game/Fab/Survival_Kit_-_Bow/survival_kit_bow.survival_kit_bow'"));
+
+	if (Bow.Succeeded())
+	{
+		BowStaticMesh->SetStaticMesh(Bow.Object);
+	}
+
+	BowStaticMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Bow_Socket"));
 }
