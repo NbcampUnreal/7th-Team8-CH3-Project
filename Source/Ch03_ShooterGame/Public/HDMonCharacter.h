@@ -44,4 +44,9 @@ public:
 	void OnDeath();
 	void UpdateOverheadHP();
 
+protected:
+	FTimerHandle HitRecoverTimerHandle;
+
+	void RecoverFromHit();
+
 };
