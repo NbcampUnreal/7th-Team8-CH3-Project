@@ -3,8 +3,7 @@
 
 #include "HDTask_Attack.h"
 #include "AIController.h"
-#include "GameFramework/Character.h"
-#include "HDMonCharacter.h"
+#include "Actor/Character/HDMonCharacter.h"
 
 
 UHDTask_Attack::UHDTask_Attack()

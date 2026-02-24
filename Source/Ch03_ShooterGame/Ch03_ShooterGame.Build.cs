@@ -8,6 +8,19 @@ public class Ch03_ShooterGame : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem", "AIModule", "Niagara", "EnhancedInput", "UMG", "GameplayTasks" });
-    }
+		PublicDependencyModuleNames.AddRange([
+			"Core",
+			"CoreUObject",
+			"Engine",
+			"InputCore",
+			"NavigationSystem",
+			"AIModule",
+			"Niagara",
+			"EnhancedInput",
+			"UMG",
+			"GameplayTasks"
+		]);
+
+		PublicIncludePaths.AddRange([ModuleDirectory]);
+	}
 }

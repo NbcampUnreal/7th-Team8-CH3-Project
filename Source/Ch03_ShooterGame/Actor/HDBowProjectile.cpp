@@ -1,7 +1,6 @@
 ﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "HDBowProjectile.h"
-#include "HDPlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Controller.h"
 

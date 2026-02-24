@@ -2,9 +2,8 @@
 
 
 #include "HDGameState.h"
-#include "Kismet/GameplayStatics.h"
-#include "SpawnVolume.h"
-#include "HDPlayerController.h"
+
+#include "Actor/Character/HDPlayerController.h"
 
 AHDGameState::AHDGameState()
 {

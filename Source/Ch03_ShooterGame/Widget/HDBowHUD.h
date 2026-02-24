@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
-#include "Engine/Canvas.h"
+
 // 공식 문서 표준에 따라 UTexture2D 인식을 위해 class 키워드를 추가했습니다.
 #include "HDBowHUD.generated.h"
 

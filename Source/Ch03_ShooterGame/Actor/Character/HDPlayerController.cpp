@@ -1,12 +1,9 @@
 ﻿#include "HDPlayerController.h"
-#include "HDPlayerCharacter.h"
-#include "HDMonCharacter.h"
-#include "HDGameStateBase.h"
-#include "HDGameInstance.h"
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
+#include "Core/HDGameStateBase.h"
 #include "Kismet/GameplayStatics.h"
 
 AHDPlayerController::AHDPlayerController():

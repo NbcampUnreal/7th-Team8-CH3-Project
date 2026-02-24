@@ -5,8 +5,7 @@
 #include "Components/BoxComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
-#include "HDCharacter.h"
-#include "HDMonCharacter.h"
+#include "GameFramework/Character.h"
 
 ASpawnVolume::ASpawnVolume()
 {

@@ -2,9 +2,9 @@
 
 
 #include "HDGameMode.h"
-#include "HDPlayerCharacter.h"
-#include "HDPlayerController.h"
 #include "HDGameStateBase.h"
+#include "Actor/Character/HDPlayerCharacter.h"
+#include "Actor/Character/HDPlayerController.h"
 
 AHDGameMode::AHDGameMode()
 {

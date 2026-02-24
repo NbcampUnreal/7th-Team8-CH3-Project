@@ -1,12 +1,13 @@
 ﻿#include "HDPlayerCharacter.h"
 #include "HDPlayerController.h"
-#include "HDBowProjectile.h"
 #include "HDMonCharacter.h"
-#include "HDBowHUD.h"
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include <Kismet/GameplayStatics.h>
+
+#include "Actor/HDBowProjectile.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AHDPlayerCharacter::AHDPlayerCharacter()
 {

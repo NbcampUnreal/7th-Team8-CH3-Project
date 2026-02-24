@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "HDGameState.h"
 #include "GameFramework/Character.h"
 #include "Components/WidgetComponent.h"
 #include "HDMonCharacter.generated.h"
