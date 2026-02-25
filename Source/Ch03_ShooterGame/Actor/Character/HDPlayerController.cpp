@@ -62,7 +62,7 @@ void AHDPlayerController::StartGame()
 		HDGameState->Score = 0;
 	}
 
-	UGameplayStatics::OpenLevel(this, FName("L_Prototyping"));
+	UGameplayStatics::OpenLevel(this, FName("L_Geunjeongjeon"));
 	SetPause(false);
 }
 

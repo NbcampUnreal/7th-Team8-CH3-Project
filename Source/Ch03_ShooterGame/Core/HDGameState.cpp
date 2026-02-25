@@ -64,6 +64,34 @@ void AHDGameState::UpdateHUD()
 						float Precent = (float)HDPlayerCharacter->Mana / HDPlayerCharacter->MaxMana;
 						PlayerManaProgressBar->SetPercent(Precent);
 					}
+					
+					if (UProgressBar* PlayerDashProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("Dash_CoolDown"))))
+					{
+						float Cooldown = HDPlayerCharacter->GetDashCooldownPercent();
+						if (Cooldown > 0.0f)
+						{
+							PlayerDashProgressBar->SetVisibility(ESlateVisibility::Visible);
+							PlayerDashProgressBar->SetPercent(1.0 - HDPlayerCharacter->GetDashCooldownPercent());
+						}
+						else
+						{
+							PlayerDashProgressBar->SetVisibility(ESlateVisibility::Hidden);
+						}
+					}
+					
+					if (UProgressBar* PlayerAttackProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("Attack_CoolDown"))))
+					{
+						float Cooldown = HDPlayerCharacter->GetAttackCooldownPercent();
+						if (Cooldown > 0.0f)
+						{
+							PlayerAttackProgressBar->SetVisibility(ESlateVisibility::Visible);
+							PlayerAttackProgressBar->SetPercent(1.0 - HDPlayerCharacter->GetAttackCooldownPercent());
+						}
+						else
+						{
+							PlayerAttackProgressBar->SetVisibility(ESlateVisibility::Hidden);
+						}
+					}
 				}
 
 				if (UTextBlock* TimeText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("TimeText"))))

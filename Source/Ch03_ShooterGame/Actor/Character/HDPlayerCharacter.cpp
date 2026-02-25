@@ -37,6 +37,9 @@ AHDPlayerCharacter::AHDPlayerCharacter()
 
 	MaxMana = 100.0f;
 	Mana = MaxMana;
+
+	DashCooldown = 3.0f;
+	AttackCooldown = 0.3f;
 }
 
 void AHDPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -48,16 +51,16 @@ void AHDPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		if (AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController()))
 		{
 			EnhancedInput->BindAction(
-				PlayerController->MoveAction,ETriggerEvent::Triggered,this,&AHDPlayerCharacter::Move);
+				PlayerController->MoveAction, ETriggerEvent::Triggered, this, &AHDPlayerCharacter::Move);
 			EnhancedInput->BindAction(
 				PlayerController->AttackAction, ETriggerEvent::Started, this, &AHDPlayerCharacter::Attack);
 		}
 
 		if (AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController()))
 		{
-			EnhancedInput->BindAction(PlayerController->DashAction,ETriggerEvent::Triggered,this,&AHDPlayerCharacter::Dash);
+			EnhancedInput->BindAction(PlayerController->DashAction, ETriggerEvent::Triggered, this,
+			                          &AHDPlayerCharacter::Dash);
 		}
-		
 	}
 }
 
@@ -92,7 +95,12 @@ void AHDPlayerCharacter::Dash(const FInputActionValue& value)
 
 		bCanDash = false;
 
-		GetWorldTimerManager().SetTimer(DashCooldownTimerHandle,this,&AHDPlayerCharacter::ResetDash,3.0f,false);
+		GetWorldTimerManager().SetTimer(
+			DashCooldownTimerHandle,
+			this,
+			&AHDPlayerCharacter::ResetDash,
+			DashCooldown,
+			false);
 		// GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Dash Cooldown Started (3s)"));
 	}
 }
@@ -103,9 +111,13 @@ void AHDPlayerCharacter::ResetDash()
 	// GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Dash Ready!"));
 }
 
+void AHDPlayerCharacter::ResetAttack()
+{
+	bCanAttack = true;
+}
+
 void AHDPlayerCharacter::Fire()
 {
-	
 	if (ProjectileClass)
 	{
 		FVector CharacterLocation = GetActorLocation();
@@ -117,20 +129,23 @@ void AHDPlayerCharacter::Fire()
 		MuzzleRotation.Pitch += 10.0f;
 
 		UWorld* World = GetWorld();
+
 		if (World)
 		{
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = this;
 			SpawnParams.Instigator = GetInstigator();
-			
-			AHDBowProjectile* Projectile = World->SpawnActor<AHDBowProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+
+			AHDBowProjectile* Projectile = World->SpawnActor<AHDBowProjectile>(
+				ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
 			if (Projectile)
 			{
 				FVector LaunchDirection = MuzzleRotation.Vector();
 				Projectile->FireInDirection(LaunchDirection);
 			}
-			
 		}
+		
+		ResetAttack();
 	}
 }
 
@@ -142,15 +157,27 @@ void AHDPlayerCharacter::Attack(const FInputActionValue& value)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Attack Function Called!"));
 	}
-
-	if (AttackMontage)
+	
+	if (bCanAttack)
 	{
-		PlayAnimMontage(AttackMontage);
+		if (AttackMontage)
+		{
+			PlayAnimMontage(AttackMontage);
+		}
+		
+		GetWorldTimerManager().SetTimer(
+			AttackCooldownTimerHandle,
+			this,
+			&AHDPlayerCharacter::Fire,
+			AttackCooldown,
+			false
+			);
+		bCanAttack = false;
 	}
-	Fire();
 }
 
-float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+                                     AActor* DamageCauser)
 {
 	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
@@ -158,13 +185,13 @@ float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	{
 		return 0.0f;
 	}
-	
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && TakeDamageMontage)
 	{
 		AnimInstance->Montage_Play(TakeDamageMontage);
 	}
-	
+
 	if (HP <= 0)
 	{
 		OnDeath();
@@ -179,15 +206,16 @@ float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 
 void AHDPlayerCharacter::OnDeath()
 {
-	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController()) // 게임 스테이트에 옮기고 OnGameOver 함수 선언 후 OnGameOver 함수 안으로 옮기기
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	// 게임 스테이트에 옮기고 OnGameOver 함수 선언 후 OnGameOver 함수 안으로 옮기기
 	{
-	 	if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
-	 	{
-	 		HDPlayerController->SetPause(true);
-	 		HDPlayerController->ShowMainMenu(true);
-	 	}
+		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
+		{
+			HDPlayerController->SetPause(true);
+			HDPlayerController->ShowMainMenu(true);
+		}
 	}
-	
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && DeathMontage)
 	{
@@ -202,7 +230,8 @@ void AHDPlayerCharacter::InitializationWeaponMesh()
 	BowStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Bow"));
 	BowStaticMesh->SetupAttachment(RootComponent);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Bow(TEXT("/Script/Engine.StaticMesh'/Game/Fab/Survival_Kit_-_Bow/survival_kit_bow.survival_kit_bow'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Bow(
+		TEXT("/Script/Engine.StaticMesh'/Game/Fab/Survival_Kit_-_Bow/survival_kit_bow.survival_kit_bow'"));
 
 	if (Bow.Succeeded())
 	{
@@ -210,4 +239,22 @@ void AHDPlayerCharacter::InitializationWeaponMesh()
 	}
 
 	BowStaticMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Bow_Socket"));
+}
+
+float AHDPlayerCharacter::GetDashCooldownPercent() const
+{
+	if (!GetWorldTimerManager().IsTimerActive(DashCooldownTimerHandle))
+		return 0.0f;
+
+	float RemainingTime = GetWorldTimerManager().GetTimerElapsed(DashCooldownTimerHandle);
+	return RemainingTime / DashCooldown;
+}
+
+float AHDPlayerCharacter::GetAttackCooldownPercent() const
+{
+	if (!GetWorldTimerManager().IsTimerActive(AttackCooldownTimerHandle))
+		return 0.0f;
+	
+	float RemainingTime = GetWorldTimerManager().GetTimerElapsed(AttackCooldownTimerHandle);
+	return RemainingTime / AttackCooldown;
 }

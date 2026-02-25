@@ -41,6 +41,11 @@ public:
 	int MaxHP;
 	float Mana;
 	float MaxMana;
+	float DashCooldown;
+	float AttackCooldown;
+	
+	float GetDashCooldownPercent() const;
+	float GetAttackCooldownPercent() const;
 	
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -70,10 +75,13 @@ protected:
 
 	void OnDeath();
 	void ResetDash();
+	void ResetAttack();
 	void InitializationWeaponMesh();
 	
 	bool bCanDash = true;
+	bool bCanAttack = true;
 	FTimerHandle DashCooldownTimerHandle;
+	FTimerHandle AttackCooldownTimerHandle;
 	
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 };
