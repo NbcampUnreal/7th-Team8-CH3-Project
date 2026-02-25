@@ -3,7 +3,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
-#include "Core/HDGameStateBase.h"
+#include "Core/HDGameState.h"
 #include "Kismet/GameplayStatics.h"
 
 AHDPlayerController::AHDPlayerController():
@@ -56,10 +56,10 @@ void AHDPlayerController::Tick(float DeltaSeconds)
 
 void AHDPlayerController::StartGame()
 {
-	if (AHDGameStateBase* HDGameStateBase = GetWorld()->GetGameState<AHDGameStateBase>())
+	if (AHDGameState* HDGameState = GetWorld()->GetGameState<AHDGameState>())
 	{
-		HDGameStateBase->CurrentStageIndex = 0;
-		HDGameStateBase->Score = 0;
+		HDGameState->CurrentLevelIndex = 0;
+		HDGameState->Score = 0;
 	}
 
 	UGameplayStatics::OpenLevel(this, FName("L_Prototyping"));
@@ -91,10 +91,10 @@ void AHDPlayerController::ShowCharacterHUD()
 			SetInputMode(FInputModeGameOnly());
 		}
 
-		AHDGameStateBase* HDGameStateBase = GetWorld() ? GetWorld()->GetGameState<AHDGameStateBase>() : nullptr;
-		if (HDGameStateBase)
+		AHDGameState* HDGameState = GetWorld() ? GetWorld()->GetGameState<AHDGameState>() : nullptr;
+		if (HDGameState)
 		{
-			HDGameStateBase->UpdateHUD();
+			HDGameState->UpdateHUD();
 		}
 	}
 }
@@ -146,9 +146,9 @@ void AHDPlayerController::ShowMainMenu(bool bIsRestart)
 
 			if (UTextBlock* TotalScoreText = Cast<UTextBlock>(MainMenuWidgetInstance->GetWidgetFromName("TotalScoreText")))
 			{
-				if (AHDGameStateBase* HDGameStateBase = Cast<AHDGameStateBase>(UGameplayStatics::GetGameInstance(this)))
+				if (AHDGameState* HDGameState = Cast<AHDGameState>(UGameplayStatics::GetGameInstance(this)))
 				{
-					TotalScoreText->SetText(FText::FromString(FString::Printf(TEXT("Total Score: %d"), HDGameStateBase->Score)));
+					TotalScoreText->SetText(FText::FromString(FString::Printf(TEXT("Total Score: %d"), HDGameState->Score)));
 				}
 			}
 		}
