@@ -11,16 +11,21 @@ AHDPlayerController::AHDPlayerController():
 	MoveAction(nullptr),
 	DashAction(nullptr),
 	AttackAction(nullptr),
-	HUDWidgetclass(nullptr),
+	HUDWidgetClass(nullptr),
 	HUDWidgetInstance(nullptr),
 	MainMenuWidgetClass(nullptr),
-	MainMenuWidgetInstacne(nullptr)
+	MainMenuWidgetInstance(nullptr)
 {
 }
 
 void AHDPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	bShowMouseCursor = true;
+	FInputModeGameOnly InputMode;
+	InputMode.SetConsumeCaptureMouseDown(false);
+	SetInputMode(InputMode);
 
 	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
 	{
@@ -39,6 +44,13 @@ void AHDPlayerController::BeginPlay()
 	{
 		ShowMainMenu(false);
 	}
+}
+
+void AHDPlayerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	
+	LookAtMouseCursor(DeltaSeconds);
 }
 
 void AHDPlayerController::StartGame()
@@ -61,15 +73,15 @@ void AHDPlayerController::ShowCharacterHUD()
 		HUDWidgetInstance = nullptr;
 	}
 
-	if (MainMenuWidgetInstacne)
+	if (MainMenuWidgetInstance)
 	{
-		MainMenuWidgetInstacne->RemoveFromParent();
-		MainMenuWidgetInstacne = nullptr;
+		MainMenuWidgetInstance->RemoveFromParent();
+		MainMenuWidgetInstance = nullptr;
 	}
 
-	if (HUDWidgetclass)
+	if (HUDWidgetClass)
 	{
-		HUDWidgetInstance = CreateWidget<UUserWidget>(this, HUDWidgetclass);
+		HUDWidgetInstance = CreateWidget<UUserWidget>(this, HUDWidgetClass);
 		if (HUDWidgetInstance)
 		{
 			HUDWidgetInstance->AddToViewport();
@@ -94,24 +106,24 @@ void AHDPlayerController::ShowMainMenu(bool bIsRestart)
 		HUDWidgetInstance = nullptr;
 	}
 
-	if (MainMenuWidgetInstacne)
+	if (MainMenuWidgetInstance)
 	{
-		MainMenuWidgetInstacne->RemoveFromParent();
-		MainMenuWidgetInstacne = nullptr;
+		MainMenuWidgetInstance->RemoveFromParent();
+		MainMenuWidgetInstance = nullptr;
 	}
 
 	if (MainMenuWidgetClass)
 	{
-		MainMenuWidgetInstacne = CreateWidget<UUserWidget>(this, MainMenuWidgetClass);
-		if (MainMenuWidgetInstacne)
+		MainMenuWidgetInstance = CreateWidget<UUserWidget>(this, MainMenuWidgetClass);
+		if (MainMenuWidgetInstance)
 		{
-			MainMenuWidgetInstacne->AddToViewport();
+			MainMenuWidgetInstance->AddToViewport();
 
 			bShowMouseCursor = true;
 			SetInputMode(FInputModeUIOnly());
 		}
 
-		if (UTextBlock* ButtonText = Cast<UTextBlock>(MainMenuWidgetInstacne->GetWidgetFromName(TEXT("StartButtonText"))))
+		if (UTextBlock* ButtonText = Cast<UTextBlock>(MainMenuWidgetInstance->GetWidgetFromName(TEXT("StartButtonText"))))
 		{
 			if (bIsRestart)
 			{
@@ -125,13 +137,13 @@ void AHDPlayerController::ShowMainMenu(bool bIsRestart)
 
 		if (bIsRestart)
 		{
-			UFunction* PlayAnimFunc = MainMenuWidgetInstacne->FindFunction(FName("PlayGameOverAnim"));
+			UFunction* PlayAnimFunc = MainMenuWidgetInstance->FindFunction(FName("PlayGameOverAnim"));
 			if (PlayAnimFunc)
 			{
-				MainMenuWidgetInstacne->ProcessEvent(PlayAnimFunc, nullptr);
+				MainMenuWidgetInstance->ProcessEvent(PlayAnimFunc, nullptr);
 			}
 
-			if (UTextBlock* TotalScoreText = Cast<UTextBlock>(MainMenuWidgetInstacne->GetWidgetFromName("TotalScoreText")))
+			if (UTextBlock* TotalScoreText = Cast<UTextBlock>(MainMenuWidgetInstance->GetWidgetFromName("TotalScoreText")))
 			{
 				if (AHDGameStateBase* HDGameStateBase = Cast<AHDGameStateBase>(UGameplayStatics::GetGameInstance(this)))
 				{
@@ -142,7 +154,27 @@ void AHDPlayerController::ShowMainMenu(bool bIsRestart)
 	}
 }
 
-UUserWidget* AHDPlayerController::GetHUDWidget() const
+void AHDPlayerController::LookAtMouseCursor(float DeltaTime)
 {
-	return HUDWidgetInstance;
+	// 조종 중인 캐릭터 가져오기, 없으면 리턴
+	AActor* ControlledActor = GetPawn();
+	if (!ControlledActor) return;
+	
+	FHitResult HitResult;
+	bool bHitSuccessful = GetHitResultUnderCursor(ECC_Visibility, true, HitResult);
+	if (bHitSuccessful)
+	{
+		float RotationSpeed = 20.0f;
+		FVector TargetLocation = HitResult.Location;
+		FVector PawnLocation = ControlledActor->GetActorLocation();
+		
+		TargetLocation.Z = PawnLocation.Z;
+		
+		FVector Direction = TargetLocation - PawnLocation;
+		FRotator CurrentRotation = ControlledActor->GetActorRotation();
+		FRotator TargetRotation = Direction.Rotation();
+		FRotator SmoothRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, RotationSpeed);
+		
+		ControlledActor->SetActorRotation(SmoothRotation);
+	}
 }

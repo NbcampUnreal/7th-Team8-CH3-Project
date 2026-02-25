@@ -4,7 +4,6 @@
 #include "GameFramework/Character.h"
 #include "HDPlayerCharacter.generated.h"
 
-
 class USpringArmComponent;
 class UCameraComponent;
 struct FInputActionValue;
@@ -21,10 +20,13 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	USpringArmComponent* SpringArmComp;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* CameraComp;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	class UAnimMontage* DashMontage;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	class UAnimMontage* AttackMontage;
 
@@ -32,39 +34,41 @@ public:
 	int MaxHP;
 	float Mana;
 	float MaxMana;
-
 	
-
-
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	UFUNCTION()
-	void Move(const FInputActionValue& value);
-	UFUNCTION()
-	void Dash(const FInputActionValue& value);
-	UFUNCTION()
-	void Attack(const FInputActionValue& value);
-	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
-	UAnimMontage* TakeDamageMontage;
-	UPROPERTY(EditAnywhere)
-	class UStaticMeshComponent* BowStaticMesh;
-
-	bool bCanDash = true;
-	FTimerHandle DashCooldownTimerHandle;
-	void ResetDash();
-	void InitializationWeaponMesh();
-
-	UPROPERTY(EditAnywhere, Category = Projectile)
-	TSubclassOf<AHDBowProjectile> ProjectileClass;
 
 	// 발사체를 발사하는 함수입니다.
 	UFUNCTION()
 	void Fire();
+	
+	UFUNCTION()
+	void Move(const FInputActionValue& value);
+	
+	UFUNCTION()
+	void Dash(const FInputActionValue& value);
+	
+	UFUNCTION()
+	void Attack(const FInputActionValue& value);
+	
+	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
+	UAnimMontage* TakeDamageMontage;
+	
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* BowStaticMesh;
+
+	UPROPERTY(EditAnywhere, Category = Projectile)
+	TSubclassOf<AHDBowProjectile> ProjectileClass;
 
 	// 카메라 위치로부터의 총구 오프셋입니다.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	FVector MuzzleOffset;
 
+	void ResetDash();
+	void InitializationWeaponMesh();
+	
+	bool bCanDash = true;
+	FTimerHandle DashCooldownTimerHandle;
+	
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 };
