@@ -68,7 +68,7 @@ void AHDGameState::UpdateHUD()
 
 				if (UTextBlock* TimeText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("TimeText"))))
 				{
-					float RemainingTime = GetWorldTimerManager().GetTimerRemaining(StageTimerHandle);
+					float RemainingTime = GetWorldTimerManager().GetTimerRemaining(LevelTimerHandle);
 					TimeText->SetText(FText::FromString(FString::Printf(TEXT("Time : %.1f"), RemainingTime)));
 				}
 
@@ -79,7 +79,7 @@ void AHDGameState::UpdateHUD()
 
 				if (UTextBlock* StageIndexText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("StageText"))))
 				{
-					StageIndexText->SetText(FText::FromString(FString::Printf(TEXT("%d Stage"), CurrentStageIndex + 1)));
+					StageIndexText->SetText(FText::FromString(FString::Printf(TEXT("%d Stage"), CurrentLevelIndex + 1)));
 				}
 			}
 		}
@@ -103,7 +103,7 @@ void AHDGameState::StartLevel()
 
 		if (HDGameInstance)
 		{
-			CurrentStageIndex = HDGameInstance->CurrentStageIndex;
+			CurrentLevelIndex = HDGameInstance->CurrentLevelIndex;
 		}
 	}
 	// 현재 맵에 배치된 모든 SpawnVolume을 찾아 아이템 40개를 스폰
@@ -156,42 +156,25 @@ void AHDGameState::EndLevel()
 		if (HDGameInstance)
 		{
 			//AddScore(Score);
-			CurrentStageIndex++;
-			HDGameInstance->CurrentStageIndex = CurrentStageIndex;
+			CurrentLevelIndex++;
+			HDGameInstance->CurrentLevelIndex = CurrentLevelIndex;
 		}
 	}
 
-	if (CurrentStageIndex >= MaxStages)
+	if (CurrentLevelIndex >= MaxLevels)
 	{
 		OnGameOver();
 		return;
 	}
 
-	if (StageMapNames.IsValidIndex(CurrentStageIndex))
+	if (LevelMapNames.IsValidIndex(CurrentLevelIndex))
 	{
-		UGameplayStatics::OpenLevel(GetWorld(), StageMapNames[CurrentStageIndex]);
+		UGameplayStatics::OpenLevel(GetWorld(), LevelMapNames[CurrentLevelIndex]);
 	}
 	else
 	{
 		OnGameOver();
 	}
-	// 모든 레벨을 다 돌았다면 게임 오버 처리
-	//if (CurrentLevelIndex >= MaxLevels)
-	//{
-	//	OnGameOver();
-	//	return;
-	//}
-
-	//// 레벨 맵 이름이 있다면 해당 맵 불러오기
-	//if (LevelMapNames.IsValidIndex(CurrentLevelIndex))
-	//{
-	//	UGamePlayStatics::OpenLevel(GetWorld(), LevelMapNames[CurrentLevelIndex]);
-	//}
-	//else
-	//{
-	//	// 맵 이름이 없으면 게임오버
-	//	OnGameOver();
-	//}
 }
 
 void AHDGameState::OnGameOver()
