@@ -113,7 +113,7 @@ void AHDPlayerCharacter::Fire()
 		MuzzleOffset.Set(100.0f, 0.0f, 00.0f);		
 		FVector MuzzleLocation = CharacterLocation + FTransform(CharacterRotation).TransformVector(MuzzleOffset);
 		FRotator MuzzleRotation = CharacterRotation;		
-		MuzzleRotation.Pitch += 10.0f;
+		//MuzzleRotation.Pitch += 10.0f;
 
 		UWorld* World = GetWorld();
 		if (World)

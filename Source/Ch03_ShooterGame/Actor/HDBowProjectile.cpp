@@ -1,6 +1,7 @@
 ﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "HDBowProjectile.h"
+#include "Character/HDPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Controller.h"
 
@@ -55,51 +56,48 @@ AHDBowProjectile::AHDBowProjectile()
         // 이 컴포넌트를 사용하여 이 발사체의 이동을 주도합니다.
         ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
         ProjectileMovementComponent->SetUpdatedComponent(CollisionComponent);
-        ProjectileMovementComponent->InitialSpeed = 3000.0f;
-        ProjectileMovementComponent->MaxSpeed = 3000.0f;
+        ProjectileMovementComponent->InitialSpeed = 1100.0f;
+        ProjectileMovementComponent->MaxSpeed = 1100.0f;
         ProjectileMovementComponent->bRotationFollowsVelocity = true;
         ProjectileMovementComponent->bShouldBounce = true;
         ProjectileMovementComponent->Bounciness = 0.3f;
         ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
     }
 
-
     if (!ProjectileMeshComponent)
     {
         ProjectileMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMeshComponent"));
-        static ConstructorHelpers::FObjectFinder<UStaticMesh>Mesh(TEXT("'/Game/Projectile/Sphere.Sphere'"));
+        ProjectileMeshComponent->SetupAttachment(RootComponent);
+        ProjectileMeshComponent->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
+        
+        static ConstructorHelpers::FObjectFinder<UStaticMesh>Mesh(TEXT("/Game/Fab/CC0_-_Wooden_Arrow/cc0_wooden_arrow.cc0_wooden_arrow"));
         if (Mesh.Succeeded())
         {
             ProjectileMeshComponent->SetStaticMesh(Mesh.Object);
+            ProjectileMeshComponent->SetRelativeRotation(FRotator(0.0f, -53.f, -50.0f));
         }
 
-        static ConstructorHelpers::FObjectFinder<UMaterial>Material(TEXT("'/Game/Projectile/SphereMaterial.SphereMaterial'"));
+        static ConstructorHelpers::FObjectFinder<UMaterialInterface>Material(TEXT("/Game/Fab/CC0_-_Wooden_Arrow/WoodenArrow.WoodenArrow"));
         if (Material.Succeeded())
         {
-            ProjectileMaterialInstance = UMaterialInstanceDynamic::Create(Material.Object, ProjectileMeshComponent);
+            ProjectileMeshComponent->SetMaterial(0, Material.Object);
         }
-            
-        ProjectileMeshComponent->SetMaterial(0, ProjectileMaterialInstance);
-        ProjectileMeshComponent->SetRelativeScale3D(FVector(0.09f, 0.09f, 0.09f));
-        ProjectileMeshComponent->SetupAttachment(RootComponent);
     }
 
     // 3초 후 발사체를 제거합니다.
     InitialLifeSpan = 3.0f;
-
 }
+
 // 게임 시작 또는 스폰 시 호출
 void AHDBowProjectile::BeginPlay()
 {
     Super::BeginPlay();
-
 }
 
 // 프레임마다 호출
 void AHDBowProjectile::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-
 }
 
 // 발사 방향으로의 발사체 속도를 초기화하는 함수입니다.
@@ -128,5 +126,4 @@ void AHDBowProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
         );
     }
     Destroy();
-
 } 
