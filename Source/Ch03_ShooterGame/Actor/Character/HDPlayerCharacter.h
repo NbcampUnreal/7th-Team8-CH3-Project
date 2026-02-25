@@ -8,6 +8,7 @@ class USpringArmComponent;
 class UCameraComponent;
 struct FInputActionValue;
 class AHDBowProjectile;
+class UAnimMontage;
 
 UCLASS()
 
@@ -25,11 +26,17 @@ public:
 	UCameraComponent* CameraComp;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	class UAnimMontage* DashMontage;
+	UAnimMontage* DashMontage;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	class UAnimMontage* AttackMontage;
-
+	UAnimMontage* AttackMontage;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	UAnimMontage* TakeDamageMontage;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	UAnimMontage* DeathMontage;
+	
 	int HP;
 	int MaxHP;
 	float Mana;
@@ -51,9 +58,6 @@ protected:
 	UFUNCTION()
 	void Attack(const FInputActionValue& value);
 	
-	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
-	UAnimMontage* TakeDamageMontage;
-	
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* BowStaticMesh;
 
@@ -64,6 +68,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	FVector MuzzleOffset;
 
+	void OnDeath();
 	void ResetDash();
 	void InitializationWeaponMesh();
 	

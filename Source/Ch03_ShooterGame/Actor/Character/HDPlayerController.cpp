@@ -23,8 +23,9 @@ void AHDPlayerController::BeginPlay()
 	Super::BeginPlay();
 	
 	bShowMouseCursor = true;
-	FInputModeGameOnly InputMode;
-	InputMode.SetConsumeCaptureMouseDown(false);
+	FInputModeGameAndUI InputMode;
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
+	InputMode.SetHideCursorDuringCapture(false);
 	SetInputMode(InputMode);
 
 	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())

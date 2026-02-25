@@ -4,9 +4,9 @@
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include <Kismet/GameplayStatics.h>
 
 #include "Actor/HDBowProjectile.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 AHDPlayerCharacter::AHDPlayerCharacter()
@@ -102,6 +102,7 @@ void AHDPlayerCharacter::ResetDash()
 	bCanDash = true;
 	// GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Dash Ready!"));
 }
+
 void AHDPlayerCharacter::Fire()
 {
 	
@@ -110,10 +111,10 @@ void AHDPlayerCharacter::Fire()
 		FVector CharacterLocation = GetActorLocation();
 		FRotator CharacterRotation = GetActorRotation();
 		
-		MuzzleOffset.Set(100.0f, 0.0f, 00.0f);		
+		MuzzleOffset.Set(150.0f, 0.0f, 00.0f);		
 		FVector MuzzleLocation = CharacterLocation + FTransform(CharacterRotation).TransformVector(MuzzleOffset);
 		FRotator MuzzleRotation = CharacterRotation;		
-		//MuzzleRotation.Pitch += 10.0f;
+		MuzzleRotation.Pitch += 10.0f;
 
 		UWorld* World = GetWorld();
 		if (World)
@@ -121,7 +122,6 @@ void AHDPlayerCharacter::Fire()
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = this;
 			SpawnParams.Instigator = GetInstigator();
-
 			
 			AHDBowProjectile* Projectile = World->SpawnActor<AHDBowProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
 			if (Projectile)
@@ -133,6 +133,7 @@ void AHDPlayerCharacter::Fire()
 		}
 	}
 }
+
 void AHDPlayerCharacter::Attack(const FInputActionValue& value)
 {
 	if (!Controller) return;
@@ -157,10 +158,16 @@ float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	{
 		return 0.0f;
 	}
+	
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && TakeDamageMontage)
 	{
 		AnimInstance->Montage_Play(TakeDamageMontage);
+	}
+	
+	if (HP <= 0)
+	{
+		OnDeath();
 	}
 
 	HP = FMath::Clamp(HP - ActualDamage, 0.0f, MaxHP);
@@ -168,6 +175,26 @@ float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 
 
 	return ActualDamage;
+}
+
+void AHDPlayerCharacter::OnDeath()
+{
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController()) // 게임 스테이트에 옮기고 OnGameOver 함수 선언 후 OnGameOver 함수 안으로 옮기기
+	{
+	 	if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
+	 	{
+	 		HDPlayerController->SetPause(true);
+	 		HDPlayerController->ShowMainMenu(true);
+	 	}
+	}
+	
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && DeathMontage)
+	{
+		AnimInstance->Montage_SetPlayRate(DeathMontage, 0.0f);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
 
 void AHDPlayerCharacter::InitializationWeaponMesh()

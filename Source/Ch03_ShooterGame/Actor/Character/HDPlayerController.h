@@ -15,7 +15,7 @@ class CH03_SHOOTERGAME_API AHDPlayerController : public APlayerController
 	
 public:
 	AHDPlayerController();
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputMappingContext* InputMappingContext;
 	
@@ -36,6 +36,7 @@ public:
 	TSubclassOf<UUserWidget> MainMenuWidgetClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "HUD")
 	UUserWidget* MainMenuWidgetInstance;
+	
 	
 	UFUNCTION(BlueprintPure, Category = "HUD")
 	UUserWidget* GetHUDWidget() const { return HUDWidgetInstance; }

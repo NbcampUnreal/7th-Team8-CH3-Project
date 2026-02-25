@@ -43,8 +43,6 @@ AHDMonCharacter::AHDMonCharacter()
     MonAtk = 20.f;
     PointValue = 100;
     GetCharacterMovement()->MaxWalkSpeed = MonMoveSpeed;
-
-   
 }
 
 void AHDMonCharacter::BeginPlay()
@@ -112,11 +110,8 @@ float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damage
     return ActualDamage;
 }
 
-
-
 void AHDMonCharacter::OnDeath()
 {
-
     UE_LOG(LogTemp, Warning, TEXT("Monster Died!"));
 
     if (UWorld* World = GetWorld())
@@ -182,8 +177,6 @@ void AHDMonCharacter::AttackHitCheck()
             );
         }
     }
-
-
 }
 
 void AHDMonCharacter::UpdateOverheadHP()   
