@@ -174,7 +174,7 @@ void AHDPlayerController::LookAtMouseCursor(float DeltaTime) // 마우스 위치
 	if (bHitSuccessful)
 	{
 		// 캐릭터 회전 속도 설정
-		float RotationSpeed = 20.0f;
+		float RotationSpeed = 60.0f;
 		// 마우스 커서의 보이지 않는 레이저에 맞은 월드의 위치를 저장
 		FVector TargetLocation = HitResult.Location;
 		// 현재 캐릭터의 위치 가져오기

@@ -198,15 +198,14 @@ float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		AnimInstance->Montage_Play(TakeDamageMontage);
 	}
 
+	HP = FMath::Clamp(HP - ActualDamage, 0.0f, MaxHP);
+	UE_LOG(LogTemp, Warning, TEXT("Hit damage: %d / %d"), HP, MaxHP);
+	
 	if (HP <= 0)
 	{
 		OnDeath();
 	}
-
-	HP = FMath::Clamp(HP - ActualDamage, 0.0f, MaxHP);
-	UE_LOG(LogTemp, Warning, TEXT("Hit damage: %d / %d"), HP, MaxHP);
-
-
+	
 	return ActualDamage;
 }
 
