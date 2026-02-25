@@ -97,17 +97,17 @@ void AHDGameState::UpdateHUD()
 				if (UTextBlock* TimeText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("TimeText"))))
 				{
 					float RemainingTime = GetWorldTimerManager().GetTimerRemaining(LevelTimerHandle);
-					TimeText->SetText(FText::FromString(FString::Printf(TEXT("Time : %.1f"), RemainingTime)));
+					TimeText->SetText(FText::FromString(FString::Printf(TEXT("남은시간 : %.1f"), RemainingTime)));
 				}
 
 				if (UTextBlock* ScoreText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("ScoreText"))))
 				{
-					ScoreText->SetText(FText::FromString(FString::Printf(TEXT("Score: %d"), Score)));
+					ScoreText->SetText(FText::FromString(FString::Printf(TEXT("점수: %d"), Score)));
 				}
 
 				if (UTextBlock* StageIndexText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("StageText"))))
 				{
-					StageIndexText->SetText(FText::FromString(FString::Printf(TEXT("%d Stage"), CurrentLevelIndex + 1)));
+					StageIndexText->SetText(FText::FromString(FString::Printf(TEXT("제 %d 장"), CurrentLevelIndex + 1)));
 				}
 			}
 		}

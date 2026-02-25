@@ -79,7 +79,7 @@ protected:
 	void InitializationWeaponMesh();
 	
 	bool bCanDash = true;
-	bool bCanAttack = true;
+	bool bCanAttack = false;
 	FTimerHandle DashCooldownTimerHandle;
 	FTimerHandle AttackCooldownTimerHandle;
 	

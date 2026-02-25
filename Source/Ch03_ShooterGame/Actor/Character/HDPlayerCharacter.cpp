@@ -7,6 +7,7 @@
 
 #include "Actor/HDBowProjectile.h"
 #include "Components/CapsuleComponent.h"
+#include "Core/HDGameState.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 AHDPlayerCharacter::AHDPlayerCharacter()
@@ -113,7 +114,7 @@ void AHDPlayerCharacter::ResetDash()
 
 void AHDPlayerCharacter::ResetAttack()
 {
-	bCanAttack = true;
+	bCanAttack = false;
 }
 
 void AHDPlayerCharacter::Fire()
@@ -145,6 +146,7 @@ void AHDPlayerCharacter::Fire()
 			}
 		}
 		
+		// bCanAttack false로 초기화
 		ResetAttack();
 	}
 }
@@ -158,13 +160,16 @@ void AHDPlayerCharacter::Attack(const FInputActionValue& value)
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Attack Function Called!"));
 	}
 	
-	if (bCanAttack)
+	// 플레이어가 공격 중인지 조건 확인
+	if (!bCanAttack)
 	{
+		// 플레이어 공격 몽타주 실행
 		if (AttackMontage)
 		{
 			PlayAnimMontage(AttackMontage);
 		}
 		
+		// 기본 공격 난사를 막기 위해 타이머를 통해 기본공격에 쿨타임 적용, 쿨타임은 0.3초
 		GetWorldTimerManager().SetTimer(
 			AttackCooldownTimerHandle,
 			this,
@@ -172,7 +177,8 @@ void AHDPlayerCharacter::Attack(const FInputActionValue& value)
 			AttackCooldown,
 			false
 			);
-		bCanAttack = false;
+		
+		bCanAttack = true;
 	}
 }
 
@@ -204,23 +210,22 @@ float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	return ActualDamage;
 }
 
-void AHDPlayerCharacter::OnDeath()
+void AHDPlayerCharacter::OnDeath() // 플레이어 죽었을 때 호출되는 함수
 {
-	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
-	// 게임 스테이트에 옮기고 OnGameOver 함수 선언 후 OnGameOver 함수 안으로 옮기기
+	AHDGameState* GameState = Cast<AHDGameState>(GetWorld()->GetGameState());
+	if (GameState)
 	{
-		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
-		{
-			HDPlayerController->SetPause(true);
-			HDPlayerController->ShowMainMenu(true);
-		}
+		GameState->OnGameOver();
 	}
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && DeathMontage)
 	{
-		AnimInstance->Montage_SetPlayRate(DeathMontage, 0.0f);
+		// DeathMontage를 실행시켜주는 함수
+		AnimInstance->Montage_Play(DeathMontage);
+		// 캐릭터의 캡슐 콜리전을 끈다
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		// 캐릭터 매쉬의 충돌을 끈다
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 }
@@ -241,7 +246,7 @@ void AHDPlayerCharacter::InitializationWeaponMesh()
 	BowStaticMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Bow_Socket"));
 }
 
-float AHDPlayerCharacter::GetDashCooldownPercent() const
+float AHDPlayerCharacter::GetDashCooldownPercent() const // 대쉬 타이머 핸들을 이용해 대쉬의 현재 쿨타임을 반환하는 함수
 {
 	if (!GetWorldTimerManager().IsTimerActive(DashCooldownTimerHandle))
 		return 0.0f;
@@ -250,7 +255,7 @@ float AHDPlayerCharacter::GetDashCooldownPercent() const
 	return RemainingTime / DashCooldown;
 }
 
-float AHDPlayerCharacter::GetAttackCooldownPercent() const
+float AHDPlayerCharacter::GetAttackCooldownPercent() const // 공격 타이머 핸들을 이용해 대쉬의 현재 쿨타임을 반환하는 함수
 {
 	if (!GetWorldTimerManager().IsTimerActive(AttackCooldownTimerHandle))
 		return 0.0f;

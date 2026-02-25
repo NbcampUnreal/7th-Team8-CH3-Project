@@ -69,6 +69,7 @@ AHDBowProjectile::AHDBowProjectile()
         ProjectileMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMeshComponent"));
         ProjectileMeshComponent->SetupAttachment(RootComponent);
         ProjectileMeshComponent->SetRelativeScale3D(FVector(1.0f, 1.0f, 1.0f));
+        ProjectileMeshComponent->CastShadow = false;
         
         static ConstructorHelpers::FObjectFinder<UStaticMesh>Mesh(TEXT("/Game/Fab/CC0_-_Wooden_Arrow/cc0_wooden_arrow.cc0_wooden_arrow"));
         if (Mesh.Succeeded())
@@ -92,6 +93,7 @@ AHDBowProjectile::AHDBowProjectile()
 void AHDBowProjectile::BeginPlay()
 {
     Super::BeginPlay();
+    
 }
 
 // 프레임마다 호출
