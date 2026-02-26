@@ -14,7 +14,6 @@ class CH03_SHOOTERGAME_API AHDMonCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-
 	AHDMonCharacter();
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Monster")
@@ -34,7 +33,11 @@ public:
 	UAnimMontage* DeathMontage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")  // 이건 몬스터 헤더로 옮겨야함
 	UWidgetComponent* OverheadWidget;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")  // 이건 몬스터 헤더로 옮겨야함
+	UWidgetComponent* OverheadTakeDamageWidget;
+	
+	FTimerHandle HideOverheadTakeDamageHUDHandle;
+	
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 	UFUNCTION(BlueprintCallable)
 	void AttackHitCheck();
@@ -42,10 +45,11 @@ public:
 	virtual void BeginPlay() override;
 	void OnDeath();
 	void UpdateOverheadHP();
+	void UpdateOverheadTakeDamage(float DamageAmount);
+	void HideOverheadTakeDamage();
 
 protected:
 	FTimerHandle HitRecoverTimerHandle;
 
 	void RecoverFromHit();
-
 };
