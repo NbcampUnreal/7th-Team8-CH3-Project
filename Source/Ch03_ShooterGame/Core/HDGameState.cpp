@@ -64,22 +64,50 @@ void AHDGameState::UpdateHUD()
 						float Precent = (float)HDPlayerCharacter->Mana / HDPlayerCharacter->MaxMana;
 						PlayerManaProgressBar->SetPercent(Precent);
 					}
+					
+					if (UProgressBar* PlayerDashProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("Dash_CoolDown"))))
+					{
+						float Cooldown = HDPlayerCharacter->GetDashCooldownPercent();
+						if (Cooldown > 0.0f)
+						{
+							PlayerDashProgressBar->SetVisibility(ESlateVisibility::Visible);
+							PlayerDashProgressBar->SetPercent(1.0 - HDPlayerCharacter->GetDashCooldownPercent());
+						}
+						else
+						{
+							PlayerDashProgressBar->SetVisibility(ESlateVisibility::Hidden);
+						}
+					}
+					
+					if (UProgressBar* PlayerAttackProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("Attack_CoolDown"))))
+					{
+						float Cooldown = HDPlayerCharacter->GetAttackCooldownPercent();
+						if (Cooldown > 0.0f)
+						{
+							PlayerAttackProgressBar->SetVisibility(ESlateVisibility::Visible);
+							PlayerAttackProgressBar->SetPercent(1.0 - HDPlayerCharacter->GetAttackCooldownPercent());
+						}
+						else
+						{
+							PlayerAttackProgressBar->SetVisibility(ESlateVisibility::Hidden);
+						}
+					}
 				}
 
 				if (UTextBlock* TimeText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("TimeText"))))
 				{
 					float RemainingTime = GetWorldTimerManager().GetTimerRemaining(LevelTimerHandle);
-					TimeText->SetText(FText::FromString(FString::Printf(TEXT("Time : %.1f"), RemainingTime)));
+					TimeText->SetText(FText::FromString(FString::Printf(TEXT("남은시간 : %.1f"), RemainingTime)));
 				}
 
 				if (UTextBlock* ScoreText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("ScoreText"))))
 				{
-					ScoreText->SetText(FText::FromString(FString::Printf(TEXT("Score: %d"), Score)));
+					ScoreText->SetText(FText::FromString(FString::Printf(TEXT("점수: %d"), Score)));
 				}
 
 				if (UTextBlock* StageIndexText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("StageText"))))
 				{
-					StageIndexText->SetText(FText::FromString(FString::Printf(TEXT("%d Stage"), CurrentLevelIndex + 1)));
+					StageIndexText->SetText(FText::FromString(FString::Printf(TEXT("제 %d 장"), CurrentLevelIndex + 1)));
 				}
 			}
 		}

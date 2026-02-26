@@ -15,33 +15,42 @@ class CH03_SHOOTERGAME_API AHDPlayerController : public APlayerController
 	
 public:
 	AHDPlayerController();
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputMappingContext* InputMappingContext;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* MoveAction;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* DashAction;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* AttackAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
-	TSubclassOf<UUserWidget> HUDWidgetclass;
+	TSubclassOf<UUserWidget> HUDWidgetClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "HUD")
 	UUserWidget* HUDWidgetInstance;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
 	TSubclassOf<UUserWidget> MainMenuWidgetClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "HUD")
-	UUserWidget* MainMenuWidgetInstacne;
+	UUserWidget* MainMenuWidgetInstance;
+	
 	
 	UFUNCTION(BlueprintPure, Category = "HUD")
-	UUserWidget* GetHUDWidget() const;
+	UUserWidget* GetHUDWidget() const { return HUDWidgetInstance; }
+	
 	UFUNCTION(BlueprintCallable, Category = "HUD")
 	void ShowCharacterHUD();
+	
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void ShowMainMenu(bool bIsRestart);
+	
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void StartGame();
 
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
+	void LookAtMouseCursor(float DeltaTime);
 };
