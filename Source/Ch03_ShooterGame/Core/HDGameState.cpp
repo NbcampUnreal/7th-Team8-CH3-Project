@@ -14,7 +14,7 @@
 AHDGameState::AHDGameState()
 {
 	Score = 0;
-	LevelDuration = 10.0f; 
+	LevelDuration = 15.0f; 
 	CurrentLevelIndex = 0;
 	MaxLevels = 10;
 }
@@ -140,17 +140,19 @@ void AHDGameState::StartLevel()
 	TArray<AActor*> FoundVolumes;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnVolume::StaticClass(), FoundVolumes);
 
-	const int32 MonsterToSpawn = CurrentLevelIndex*3;
+	const int32 MonsterToSpawn = 5;
 
-	for (int32 i = 0; i < MonsterToSpawn; i++)
+	if (FoundVolumes.Num() > 0)
 	{
-		if (FoundVolumes.Num() > 0)
+		int32 TargetIdx = FMath::RandRange(0, FoundVolumes.Num() - 1);
+		ASpawnVolume* SpawnVolume = Cast<ASpawnVolume>(FoundVolumes[TargetIdx]);
+		
+		if (SpawnVolume)
 		{
-			ASpawnVolume* SpawnVolume = Cast<ASpawnVolume>(FoundVolumes[0]);
-			if (SpawnVolume)
+			for (int32 i = 0; i < MonsterToSpawn; i++)
 			{
 				AActor* SpawnedMonster = SpawnVolume->SpawnRandomMonster();
-			
+
 			}
 		}
 	}

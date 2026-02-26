@@ -20,6 +20,9 @@ ASpawnVolume::ASpawnVolume()
 
 AActor* ASpawnVolume::SpawnRandomMonster()
 {
+    FActorSpawnParameters SpawnParams;
+    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
     if (FMonsterSpawnRow* SelectedRow = GetRandomMonster())
     {
         if (UClass* ActualClass = SelectedRow->MonsterClass.Get())
