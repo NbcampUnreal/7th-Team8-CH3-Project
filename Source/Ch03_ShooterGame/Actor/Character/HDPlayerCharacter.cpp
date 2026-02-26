@@ -92,7 +92,12 @@ void AHDPlayerCharacter::Dash(const FInputActionValue& value)
 
 		bCanDash = false;
 
-		GetWorldTimerManager().SetTimer(DashCooldownTimerHandle,this,&AHDPlayerCharacter::ResetDash,3.0f,false);
+		GetWorldTimerManager().SetTimer(
+		DashCooldownTimerHandle,
+		this,
+		&AHDPlayerCharacter::ResetDash,
+		3.0f,
+		false);
 		// GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Dash Cooldown Started (3s)"));
 	}
 }
