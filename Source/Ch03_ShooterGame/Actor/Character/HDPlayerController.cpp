@@ -5,6 +5,7 @@
 #include "Components/ProgressBar.h"
 #include "Core/HDGameState.h"
 #include "Kismet/GameplayStatics.h"
+#include "HDPlayerCharacter.h"
 
 AHDPlayerController::AHDPlayerController():
 	InputMappingContext(nullptr),
@@ -55,8 +56,13 @@ void AHDPlayerController::BeginPlay()
 void AHDPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	
-	LookAtMouseCursor(DeltaSeconds);
+
+	AHDPlayerCharacter* MyCharacter = Cast<AHDPlayerCharacter>(GetPawn());
+
+	if (MyCharacter && MyCharacter->bIsRolling == false)
+	{
+		LookAtMouseCursor(DeltaSeconds);
+	}
 }
 
 void AHDPlayerController::StartGame()
