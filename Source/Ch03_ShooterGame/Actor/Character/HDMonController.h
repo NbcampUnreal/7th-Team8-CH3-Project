@@ -1,7 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
-
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "AIController.h"
@@ -9,22 +6,25 @@
 
 class UBehaviorTree;
 class UBlackboardData;
-/**
- * 
- */
+
 UCLASS()
 class CH03_SHOOTERGAME_API AHDMonController : public AAIController
 {
 	GENERATED_BODY()
 	
-
 public:
 	AHDMonController();
 	
 	virtual void OnPossess(APawn* InPawn) override;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+	TSubclassOf<UUserWidget> HUDWidgetClass;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "HUD")
+	UUserWidget* HUDWidgetInstance;
 
-
-
+	UFUNCTION(BlueprintPure, Category = "HUD")
+	UUserWidget* GetHUDWidget() const { return HUDWidgetInstance; }
 
 private:
 	
