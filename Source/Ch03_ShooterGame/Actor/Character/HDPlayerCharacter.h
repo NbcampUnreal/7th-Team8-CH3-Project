@@ -39,6 +39,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
 	bool bIsRolling = false;
+
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+	float GetMovementDirection() const;
 	
 	int HP;
 	int MaxHP;

@@ -18,8 +18,9 @@ public class Ch03_ShooterGame : ModuleRules
 			"Niagara",
 			"EnhancedInput",
 			"UMG",
-			"GameplayTasks"
-		]);
+			"GameplayTasks",
+            "AnimGraphRuntime"
+        ]);
 
 		PublicIncludePaths.AddRange([ModuleDirectory]);
 	}

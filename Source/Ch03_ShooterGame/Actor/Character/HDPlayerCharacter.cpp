@@ -9,6 +9,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Core/HDGameState.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "KismetAnimationLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AHDPlayerCharacter::AHDPlayerCharacter()
 {
@@ -261,3 +263,9 @@ float AHDPlayerCharacter::GetAttackCooldownPercent() const
 	return RemainingTime / AttackCooldown;
 }
 
+float AHDPlayerCharacter::GetMovementDirection() const
+{
+	if (GetVelocity().IsNearlyZero()) return 0.0f;
+
+	return UKismetAnimationLibrary::CalculateDirection(GetVelocity(), GetActorRotation());
+}
