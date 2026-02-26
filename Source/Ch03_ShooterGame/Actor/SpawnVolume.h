@@ -19,16 +19,15 @@ public:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
     USceneComponent* Scene;
-    // 스폰 영역을 담당할 박스 컴포넌트
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
     UBoxComponent* SpawningBox;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawning")
     UDataTable* MonsterDataTable;
 
     UFUNCTION(BlueprintCallable, Category = "Spawning")
-    void SpawnRandomMonster();
+    AActor* SpawnRandomMonster();
     FMonsterSpawnRow* GetRandomMonster() const;
-    void SpawnMonster(TSubclassOf<ACharacter> AHDMonCharacter);
+    AActor* SpawnMonster(TSubclassOf<ACharacter> AHDMonCharacter);
     FVector GetRandomPointInVolume() const;
 
 };

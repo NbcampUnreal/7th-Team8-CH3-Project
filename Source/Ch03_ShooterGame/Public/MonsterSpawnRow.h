@@ -17,4 +17,5 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float SpawnChance;
+
 };

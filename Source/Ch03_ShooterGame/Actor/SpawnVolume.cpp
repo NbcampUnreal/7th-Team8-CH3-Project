@@ -18,15 +18,16 @@ ASpawnVolume::ASpawnVolume()
     SpawningBox->SetupAttachment(Scene);
 }
 
-void ASpawnVolume::SpawnRandomMonster()
+AActor* ASpawnVolume::SpawnRandomMonster()
 {
     if (FMonsterSpawnRow* SelectedRow = GetRandomMonster())
     {
         if (UClass* ActualClass = SelectedRow->MonsterClass.Get())
         {
-            SpawnMonster(ActualClass);
+            return SpawnMonster(ActualClass);
         }
     }
+    return nullptr;
 }
 
 FMonsterSpawnRow* ASpawnVolume::GetRandomMonster() const
@@ -75,13 +76,13 @@ FVector ASpawnVolume::GetRandomPointInVolume() const
     );
 }
 
-void ASpawnVolume::SpawnMonster(TSubclassOf<ACharacter> AHDMonCharacter)
+AActor* ASpawnVolume::SpawnMonster(TSubclassOf<ACharacter> AHDMonCharacter)
 {
-    if (!AHDMonCharacter) return;
-
-    GetWorld()->SpawnActor<AActor>(
+    if (!AHDMonCharacter) return nullptr;
+    AActor* SpawnedMonster = GetWorld()->SpawnActor<AActor>(
         AHDMonCharacter,
         GetRandomPointInVolume(),
         FRotator::ZeroRotator
     );
+    return SpawnedMonster;
 }

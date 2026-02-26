@@ -6,6 +6,8 @@
 #include "Actor/Character/HDPlayerCharacter.h"
 #include "Actor/Character/HDPlayerController.h"
 #include "Kismet/GameplayStatics.h"
+#include "Actor/SpawnVolume.h"
+#include "Actor/Character/HDMonCharacter.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 
@@ -14,7 +16,7 @@ AHDGameState::AHDGameState()
 	Score = 0;
 	LevelDuration = 10.0f; 
 	CurrentLevelIndex = 0;
-	MaxLevels = 3;
+	MaxLevels = 10;
 }
 
 int32 AHDGameState::GetScore() const
@@ -134,30 +136,25 @@ void AHDGameState::StartLevel()
 			CurrentLevelIndex = HDGameInstance->CurrentLevelIndex;
 		}
 	}
-	// 현재 맵에 배치된 모든 SpawnVolume을 찾아 아이템 40개를 스폰
-	//TArray<AActor*> FoundVolumes;
-	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnVolume::StaticClass(), FoundVolumes);
+	
+	TArray<AActor*> FoundVolumes;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnVolume::StaticClass(), FoundVolumes);
 
-	//const int32 ItemToSpawn = 40;
+	const int32 MonsterToSpawn = CurrentLevelIndex*3;
 
-	//for (int32 i = 0; i < ItemToSpawn; i++)
-	//{
-		//if (FoundVolume.Num() > 0)
-		//{
-		//	ASpawnVolume* SpawnVolume = Cast<ASpawnVolume>(FoundVolumes[0]);
-		//	if (SpawnVolume)
-		//	{
-		//		AActor* SpawnedActor = SpawnVolume->SpawnRandomItem();
-		//		// 만약 스폰된 액터가 코인 타입이라면 SpawnedCoinCount 증가
-		//		if (SpawnedActor && SpawnedActor->IsA(ACoinItem::StaticClass()))
-		//		{
-		//			SpawnedCoinCount++;
-		//		}
-		//	}
-		//}
-	//}
+	for (int32 i = 0; i < MonsterToSpawn; i++)
+	{
+		if (FoundVolumes.Num() > 0)
+		{
+			ASpawnVolume* SpawnVolume = Cast<ASpawnVolume>(FoundVolumes[0]);
+			if (SpawnVolume)
+			{
+				AActor* SpawnedMonster = SpawnVolume->SpawnRandomMonster();
+			
+			}
+		}
+	}
 
-	// 30초 후에 OnLevelTimeUp()가 호출되도록 타이머 설정
 	GetWorldTimerManager().SetTimer(
 		LevelTimerHandle,
 		this,
@@ -189,7 +186,7 @@ void AHDGameState::EndLevel()
 		}
 	}
 
-	if (CurrentLevelIndex > MaxLevels)
+	if (CurrentLevelIndex >= MaxLevels)
 	{
 		OnGameOver();
 		return;
