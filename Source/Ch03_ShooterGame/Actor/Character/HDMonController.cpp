@@ -1,10 +1,12 @@
 ﻿#include "HDMonController.h"
 
+#include "Blueprint/UserWidget.h"
 
 
-AHDMonController::AHDMonController()
+AHDMonController::AHDMonController():
+HUDWidgetClass(nullptr),
+HUDWidgetInstance(nullptr)
 {
-	
 }
 
 void AHDMonController::OnPossess(APawn* InPawn)
@@ -14,7 +16,4 @@ void AHDMonController::OnPossess(APawn* InPawn)
 	{
 		RunBehaviorTree(BehaviorTreeAsset);
 	}
-	
 }
-
-

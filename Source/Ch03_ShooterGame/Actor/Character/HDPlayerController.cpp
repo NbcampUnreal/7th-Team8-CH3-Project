@@ -1,8 +1,9 @@
 ﻿#include "HDPlayerController.h"
 #include "EnhancedInputSubsystems.h"
+#include "Core/HDGameInstance.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
+#include "Components/TextBlock.h"
 #include "Core/HDGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "HDPlayerCharacter.h"
@@ -15,7 +16,9 @@ AHDPlayerController::AHDPlayerController():
 	HUDWidgetClass(nullptr),
 	HUDWidgetInstance(nullptr),
 	MainMenuWidgetClass(nullptr),
-	MainMenuWidgetInstance(nullptr)
+	MainMenuWidgetInstance(nullptr),
+    GameOverWidgetClass(nullptr),
+    GameOverWidgetInstance(nullptr)
 {
 }
 
@@ -49,7 +52,7 @@ void AHDPlayerController::BeginPlay()
 	FString CurrentStageName = GetWorld()->GetMapName();
 	if (CurrentStageName.Contains("L_MainMenu"))
 	{
-		ShowMainMenu(false);
+		ShowMainMenu();
 	}
 }
 
@@ -68,10 +71,11 @@ void AHDPlayerController::Tick(float DeltaSeconds)
 void AHDPlayerController::StartGame()
 {
 	if (AHDGameState* HDGameState = GetWorld()->GetGameState<AHDGameState>())
-	{
-		HDGameState->CurrentLevelIndex = 0;
-		HDGameState->Score = 0;
-	}
+		if (UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(UGameplayStatics::GetGameInstance(this)))
+		{
+			HDGameState->CurrentLevelIndex = 0;
+			HDGameInstance->TotalScore = 0;
+		}
 
 	UGameplayStatics::OpenLevel(this, FName("L_Geunjeongjeon"));
 	SetPause(false);
@@ -110,7 +114,7 @@ void AHDPlayerController::ShowCharacterHUD()
 	}
 }
 
-void AHDPlayerController::ShowMainMenu(bool bIsRestart)
+void AHDPlayerController::ShowMainMenu()
 {
 	if (HUDWidgetInstance)
 	{
@@ -137,30 +141,42 @@ void AHDPlayerController::ShowMainMenu(bool bIsRestart)
 
 		if (UTextBlock* ButtonText = Cast<UTextBlock>(MainMenuWidgetInstance->GetWidgetFromName(TEXT("StartButtonText"))))
 		{
-			if (bIsRestart)
-			{
-				ButtonText->SetText(FText::FromString(TEXT("게임 재시작")));
-			}
-			else
-			{
 				ButtonText->SetText(FText::FromString(TEXT("게임 시작")));
-			}
 		}
+	}
+}
 
-		if (bIsRestart)
+void AHDPlayerController::ShowGameOverHUD()
+{
+	if (GameOverWidgetInstance)
+		return;
+	
+	if (GameOverWidgetClass)
+	{
+		GameOverWidgetInstance = CreateWidget<UUserWidget>(this, GameOverWidgetClass);
+		if (GameOverWidgetInstance)
 		{
-			UFunction* PlayAnimFunc = MainMenuWidgetInstance->FindFunction(FName("PlayGameOverAnim"));
-			if (PlayAnimFunc)
+			GameOverWidgetInstance->AddToViewport();
+			
+			bShowMouseCursor = true;
+			SetInputMode(FInputModeUIOnly());
+		}
+		
+		if (UTextBlock* MainMenuText = Cast<UTextBlock>(GameOverWidgetInstance->GetWidgetFromName("MainMenuText")))
+		{
+			MainMenuText->SetText(FText::FromString(FString::Printf(TEXT("시작 화면으로"))));
+		}
+		
+		if (UTextBlock* RestartText = Cast<UTextBlock>(GameOverWidgetInstance->GetWidgetFromName("RestartText")))
+		{
+			RestartText->SetText(FText::FromString(FString::Printf(TEXT("재시작"))));
+		}
+		
+		if (UTextBlock* TotalScoreText = Cast<UTextBlock>(GameOverWidgetInstance->GetWidgetFromName("TotalScoreText")))
+		{
+			if (UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(UGameplayStatics::GetGameInstance(this)))
 			{
-				MainMenuWidgetInstance->ProcessEvent(PlayAnimFunc, nullptr);
-			}
-
-			if (UTextBlock* TotalScoreText = Cast<UTextBlock>(MainMenuWidgetInstance->GetWidgetFromName("TotalScoreText")))
-			{
-				if (AHDGameState* HDGameState = Cast<AHDGameState>(UGameplayStatics::GetGameInstance(this)))
-				{
-					TotalScoreText->SetText(FText::FromString(FString::Printf(TEXT("Total Score: %d"), HDGameState->Score)));
-				}
+				TotalScoreText->SetText(FText::FromString(FString::Printf(TEXT("Total Score: %d"), HDGameInstance->TotalScore)));
 			}
 		}
 	}

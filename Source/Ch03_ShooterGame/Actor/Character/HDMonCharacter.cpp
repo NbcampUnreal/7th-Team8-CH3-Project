@@ -8,6 +8,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "DrawDebugHelpers.h"
+#include "HDPlayerCharacter.h"
+#include "HDPlayerController.h"
+#include "Components/TextBlock.h"
 #include "Core/HDGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/Material.h"
@@ -15,12 +18,18 @@
 
 
 
-AHDMonCharacter::AHDMonCharacter()
+AHDMonCharacter::AHDMonCharacter():
+OverheadWidget(nullptr),
+OverheadTakeDamageWidget(nullptr)
 {
     OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
     OverheadWidget->SetupAttachment(GetMesh());
     OverheadWidget->SetWidgetSpace(EWidgetSpace::World);
-
+    
+    OverheadTakeDamageWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("TakeDamageWidget"));
+    OverheadTakeDamageWidget->SetupAttachment(GetMesh());
+    OverheadTakeDamageWidget->SetWidgetSpace(EWidgetSpace::World);
+    
     PrimaryActorTick.bCanEverTick = false;
     PrimaryActorTick.bStartWithTickEnabled = false;
 
@@ -62,6 +71,7 @@ float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 
 	MonHP = FMath::Clamp(MonHP - ActualDamage, 0.0f, MonMaxHP);
     UpdateOverheadHP();
+    UpdateOverheadTakeDamage(ActualDamage);
 	UE_LOG(LogTemp, Warning, TEXT("Hit damage: %f / %f"), MonHP, MonMaxHP);
 	
     if (MonHP <= 0.0f)
@@ -190,6 +200,42 @@ void AHDMonCharacter::UpdateOverheadHP()
     {
         float Precent = (float)MonHP / MonMaxHP;
         MonsterOverheadHPBar->SetPercent(Precent);
+    }
+}
+
+void AHDMonCharacter::UpdateOverheadTakeDamage(float DamageAmount)
+{
+    if (!OverheadTakeDamageWidget) return;
+    
+    UUserWidget* OverheadTakeDamageWidgetInstance = OverheadTakeDamageWidget->GetUserWidgetObject();
+    if (!OverheadTakeDamageWidgetInstance) return;
+    
+    if (UTextBlock* OverheadTakeDamageText = Cast<UTextBlock>(OverheadTakeDamageWidgetInstance->GetWidgetFromName("OverheadTakeDamageText")))
+    {
+        OverheadTakeDamageText->SetVisibility(ESlateVisibility::Visible);
+        
+        OverheadTakeDamageText->SetText(FText::FromString(FString::Printf(TEXT("%.1f"), DamageAmount)));
+        
+        GetWorldTimerManager().SetTimer(
+        HideOverheadTakeDamageHUDHandle,
+        this,
+        &AHDMonCharacter::HideOverheadTakeDamage,
+        1,
+        false
+        );
+    }
+}
+
+void AHDMonCharacter::HideOverheadTakeDamage()
+{
+    if (!OverheadTakeDamageWidget) return;
+    
+    UUserWidget* OverheadTakeDamageWidgetInstance = OverheadTakeDamageWidget->GetUserWidgetObject();
+    if (!OverheadTakeDamageWidgetInstance) return;
+    
+    if (UTextBlock* OverheadTakeDamageText = Cast<UTextBlock>(OverheadTakeDamageWidgetInstance->GetWidgetFromName("OverheadTakeDamageText")))
+    {
+        OverheadTakeDamageText->SetVisibility(ESlateVisibility::Hidden);
     }
 }
 
