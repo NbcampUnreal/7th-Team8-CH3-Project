@@ -12,7 +12,7 @@
 AHDGameState::AHDGameState()
 {
 	Score = 0;
-	LevelDuration = 60.0f; 
+	LevelDuration = 10.0f; 
 	CurrentLevelIndex = 0;
 	MaxLevels = 3;
 }
@@ -183,13 +183,13 @@ void AHDGameState::EndLevel()
 
 		if (HDGameInstance)
 		{
-			//AddScore(Score);
+			HDGameInstance->TotalScore += Score;
 			CurrentLevelIndex++;
 			HDGameInstance->CurrentLevelIndex = CurrentLevelIndex;
 		}
 	}
 
-	if (CurrentLevelIndex >= MaxLevels)
+	if (CurrentLevelIndex > MaxLevels)
 	{
 		OnGameOver();
 		return;
@@ -207,7 +207,17 @@ void AHDGameState::EndLevel()
 
 void AHDGameState::OnGameOver()
 {
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(GameInstance);
 
+		if (HDGameInstance)
+		{
+			//AddScore(Score);
+			CurrentLevelIndex = 0;
+			HDGameInstance->CurrentLevelIndex = CurrentLevelIndex;
+		}
+	}
 	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
 	{
 		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
