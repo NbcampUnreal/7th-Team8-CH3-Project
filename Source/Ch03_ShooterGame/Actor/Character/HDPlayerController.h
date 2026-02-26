@@ -56,6 +56,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void StartGame();
+	bool bIsRolling = false;
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
