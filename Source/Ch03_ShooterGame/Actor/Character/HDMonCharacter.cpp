@@ -1,9 +1,7 @@
 ﻿#include "HDMonCharacter.h"
 
 #include "BrainComponent.h"
-#include "Components/ProgressBar.h"
 #include "HDMonController.h"
-#include "UObject/ConstructorHelpers.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
@@ -45,6 +43,8 @@ OverheadTakeDamageWidget(nullptr)
     GetCharacterMovement()->bOrientRotationToMovement = true;
     GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
     GetCharacterMovement()->GetNavMovementProperties()->bUseAccelerationForPaths = true;
+ 
+}
 
     MonMoveSpeed = 150.0f;
     MonMaxHP = 60.f;
@@ -57,7 +57,7 @@ OverheadTakeDamageWidget(nullptr)
 void AHDMonCharacter::BeginPlay()
 {
     Super::BeginPlay();
-    UpdateOverheadHP();
+    GetCharacterMovement()->bEnablePhysicsInteraction = false;
 }
 
 float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -74,7 +74,7 @@ float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damage
     UpdateOverheadTakeDamage(ActualDamage);
 	UE_LOG(LogTemp, Warning, TEXT("Hit damage: %f / %f"), MonHP, MonMaxHP);
 	
-    if (MonHP <= 0.0f)
+    if (CurrentHP <= 0.0f)
 	{
 		OnDeath();
 		return ActualDamage;
@@ -86,36 +86,6 @@ float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 	{
 		AnimInstance->Montage_Play(TakeDamageMontage);
 	}
-
-	if (DamageCauser)
-	{
-		FVector PushDirection = GetActorLocation() - DamageCauser->GetActorLocation();
-		PushDirection.Z = 0.0f;
-		PushDirection.Normalize();
-
-		float KnockbackForce = 1000.0f;
-		LaunchCharacter(PushDirection * KnockbackForce, true, false);
-	}
-
-    if (AAIController* AICon = Cast<AAIController>(GetController()))
-    {
-      
-        AICon->StopMovement();
-
-        if (AICon->GetBrainComponent())
-        {
-            AICon->GetBrainComponent()->PauseLogic("HitStun");
-        }
-
-      
-        GetWorld()->GetTimerManager().SetTimer(
-            HitRecoverTimerHandle,
-            this,
-            &AHDMonCharacter::RecoverFromHit,
-            1.0f, 
-            false
-        );
-    }
     
     return ActualDamage;
 }
@@ -132,8 +102,7 @@ void AHDMonCharacter::OnDeath()
         }
     }
 
-    UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-    if (AnimInstance && DeathMontage)
+    if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && DeathMontage)
     {
         AnimInstance->Montage_Play(DeathMontage);
     }
@@ -152,14 +121,6 @@ void AHDMonCharacter::AttackHitCheck()
 {
     FHitResult HitResult;
     FCollisionQueryParams Params(NAME_None, false, this);
-
-    FVector TraceStart = GetActorLocation();
-    FVector TraceEnd = GetActorLocation() + GetActorForwardVector() * 100.0f;
-  //  float AttackRadius = 50.0f;
-
-    // 1. 눈에 보이는 빨간 공 그리기 (2초 동안 유지됨)
-   // DrawDebugSphere(GetWorld(), TraceEnd, AttackRadius, 12, FColor::Red, false, 2.0f);
-
 
     bool bResult = GetWorld()->SweepSingleByChannel(
         HitResult,
@@ -180,7 +141,7 @@ void AHDMonCharacter::AttackHitCheck()
 
             UGameplayStatics::ApplyDamage(
                 Target,
-                MonAtk,      // 헤더에 선언한 공격력 변수
+                Atk,      // 헤더에 선언한 공격력 변수
                 GetController(),   // 가해자(몬스터)의 컨트롤러
                 this,              // 가해자(몬스터) 자신
                 UDamageType::StaticClass()
@@ -189,9 +150,6 @@ void AHDMonCharacter::AttackHitCheck()
     }
 }
 
-void AHDMonCharacter::UpdateOverheadHP()   
-{
-    if (!OverheadWidget) return;
 
     UUserWidget* OverheadWidgetInstacne = OverheadWidget->GetUserWidgetObject();
     if (!OverheadWidgetInstacne) return;
@@ -241,7 +199,7 @@ void AHDMonCharacter::HideOverheadTakeDamage()
 
 void AHDMonCharacter::RecoverFromHit()
 {
-    if (MonHP > 0.0f)
+    if (CurrentHP > 0.0f)
     {
         if (AAIController* AICon = Cast<AAIController>(GetController()))
         {
@@ -252,3 +210,5 @@ void AHDMonCharacter::RecoverFromHit()
         }
     }
 }
+
+

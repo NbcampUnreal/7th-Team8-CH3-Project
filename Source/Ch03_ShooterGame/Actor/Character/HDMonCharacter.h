@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Components/WidgetComponent.h"
 #include "HDMonCharacter.generated.h"
 
 
@@ -16,14 +15,18 @@ class CH03_SHOOTERGAME_API AHDMonCharacter : public ACharacter
 public:
 	AHDMonCharacter();
 	
+	AHDMonCharacter();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Monster")
-	float MonHP;
+	float CurrentHP;
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite, Category = "Monster")
-	float MonMaxHP;
+	float MaxHP;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Monster")
-	float MonMoveSpeed;
+	float MoveSpeed;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Monster")
-	float MonAtk;
+	float Atk;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Monster")
+	float Def;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Monster")
 	int PointValue;
 	
@@ -40,7 +43,7 @@ public:
 	
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 	UFUNCTION(BlueprintCallable)
-	void AttackHitCheck();
+	virtual void AttackHitCheck();
 	
 	virtual void BeginPlay() override;
 	void OnDeath();
@@ -50,6 +53,7 @@ public:
 
 protected:
 	FTimerHandle HitRecoverTimerHandle;
+	FTimerHandle SkillTimerHandle;
 
 	void RecoverFromHit();
 };

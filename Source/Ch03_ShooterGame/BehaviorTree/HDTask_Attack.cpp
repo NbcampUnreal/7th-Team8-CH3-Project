@@ -18,7 +18,7 @@ EBTNodeResult::Type UHDTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	{
 		return EBTNodeResult::Aborted;
 	}
-	auto AIController = OwnerComp.GetAIOwner();
+	
 	auto HDMonCharactor = Cast<AHDMonCharacter>(Owner->GetPawn());
 
 	if (HDMonCharactor == nullptr || AttackMontage == nullptr)
