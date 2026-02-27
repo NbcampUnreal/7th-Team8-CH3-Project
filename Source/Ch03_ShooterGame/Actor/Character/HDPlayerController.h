@@ -24,6 +24,8 @@ public:
 	UInputAction* DashAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* AttackAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* MineAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
 	TSubclassOf<UUserWidget> HUDWidgetclass;
@@ -41,6 +43,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void ShowMainMenu(bool bIsRestart);
 	UFUNCTION(BlueprintCallable, Category = "Menu")
+
+
+
+
 	void StartGame();
 
 	virtual void BeginPlay() override;

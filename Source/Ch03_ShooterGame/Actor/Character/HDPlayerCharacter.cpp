@@ -55,6 +55,8 @@ void AHDPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		if (AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController()))
 		{
+
+			EnhancedInput->BindAction(PlayerController->MineAction, ETriggerEvent::Started, this, &AHDPlayerCharacter::UseMineItem);
 			EnhancedInput->BindAction(PlayerController->DashAction,ETriggerEvent::Triggered,this,&AHDPlayerCharacter::Dash);
 		}
 		
@@ -102,6 +104,57 @@ void AHDPlayerCharacter::ResetDash()
 	bCanDash = true;
 	// GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Dash Ready!"));
 }
+
+void AHDPlayerCharacter::UseMineItem()
+{
+	if (bCanUseMine)
+	{
+
+		UWorld* World = GetWorld();
+		if (World && MineClass)
+		{
+			// 1. 캐릭터의 현재 위치와 회전값 가져오기
+			FVector SpawnLocation = GetActorLocation();
+			FRotator SpawnRotation = GetActorRotation();
+
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			SpawnParams.Instigator = GetInstigator();
+
+			// 2. 실제 지뢰 액터 생성
+			AActor* SpawnedMine = World->SpawnActor<AActor>(MineClass, SpawnLocation, SpawnRotation, SpawnParams);
+
+			if (SpawnedMine)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("지뢰 설치 완료!"));
+			}
+		}
+	
+		bCanUseMine = false;
+		float MineCost = 20.0f;
+		GetWorldTimerManager().SetTimer(
+			MineCooldownTimerHandle,
+			this,
+			&AHDPlayerCharacter::ResetMineCooldown,
+			MineCooldownTime,
+			false
+		);
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("지뢰 쿨타임 중입니다!"));
+	}
+}
+
+
+
+
+void AHDPlayerCharacter::ResetMineCooldown()
+{
+	bCanUseMine = true;
+}
+
+
 void AHDPlayerCharacter::Fire()
 {
 	
@@ -184,3 +237,4 @@ void AHDPlayerCharacter::InitializationWeaponMesh()
 
 	BowStaticMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Bow_Socket"));
 }
+
