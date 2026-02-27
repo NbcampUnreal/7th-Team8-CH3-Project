@@ -140,7 +140,7 @@ void AHDGameState::StartLevel()
 	TArray<AActor*> FoundVolumes;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnVolume::StaticClass(), FoundVolumes);
 
-	const int32 MonsterToSpawn = 5;
+	const int32 MonsterToSpawn = (CurrentLevelIndex+1)*3;
 
 	if (FoundVolumes.Num() > 0)
 	{
@@ -151,8 +151,8 @@ void AHDGameState::StartLevel()
 		{
 			for (int32 i = 0; i < MonsterToSpawn; i++)
 			{
-				AActor* SpawnedMonster = SpawnVolume->SpawnRandomMonster();
-
+				AHDMonCharacter* SpawnedMonster = SpawnVolume->SpawnRandomMonster();
+				UE_LOG(LogTemp, Warning, TEXT("Spawned"));
 			}
 		}
 	}

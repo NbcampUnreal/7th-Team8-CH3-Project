@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "Actor/Character/HDMonCharacter.h"
 #include "MonsterSpawnRow.generated.h"
 
 USTRUCT(BlueprintType)
@@ -13,7 +14,7 @@ public:
     FName MonsterName;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TSubclassOf<ACharacter> MonsterClass;
+    TSubclassOf<AHDMonCharacter> MonsterClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float SpawnChance;

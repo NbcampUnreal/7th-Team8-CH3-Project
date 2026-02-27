@@ -25,9 +25,9 @@ public:
     UDataTable* MonsterDataTable;
 
     UFUNCTION(BlueprintCallable, Category = "Spawning")
-    AActor* SpawnRandomMonster();
+    AHDMonCharacter* SpawnRandomMonster();
     FMonsterSpawnRow* GetRandomMonster() const;
-    AActor* SpawnMonster(TSubclassOf<ACharacter> AHDMonCharacter);
+    AHDMonCharacter* SpawnMonster(TSubclassOf<AHDMonCharacter> MonsterClass);
     FVector GetRandomPointInVolume() const;
 
 };
