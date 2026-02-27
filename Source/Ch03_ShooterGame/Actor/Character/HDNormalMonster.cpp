@@ -6,15 +6,22 @@
 #include "AIController.h"
 #include "BrainComponent.h"
 #include "Components/ProgressBar.h"
+#include "Components/TextBlock.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 
-AHDNormalMonster::AHDNormalMonster()
+AHDNormalMonster::AHDNormalMonster():
+OverheadWidget(nullptr),
+OverheadTakeDamageWidget(nullptr)
 {
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	OverheadWidget->SetupAttachment(GetMesh());
 	OverheadWidget->SetWidgetSpace(EWidgetSpace::World);
+    
+	OverheadTakeDamageWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("TakeDamageWidget"));
+	OverheadTakeDamageWidget->SetupAttachment(GetMesh());
+	OverheadTakeDamageWidget->SetWidgetSpace(EWidgetSpace::World);
 }
 void AHDNormalMonster::BeginPlay()
 {
@@ -44,6 +51,8 @@ float AHDNormalMonster::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	
 		LaunchCharacter(PushDirection * 1000.0f, true, false);
 	}
+	UpdateOverheadHP();
+	UpdateOverheadTakeDamage(ActualDamage);
 	if (AAIController* AIController = Cast<AAIController>(GetController()))
 	{
       
@@ -82,7 +91,7 @@ void AHDNormalMonster::OnDeath()
 	Super::OnDeath();
 }
 
-void AHDNormalMonster ::UpdateOverheadHP() const
+void AHDNormalMonster::UpdateOverheadHP() const
 {
 	if (!OverheadWidget) return;
 
@@ -95,6 +104,43 @@ void AHDNormalMonster ::UpdateOverheadHP() const
 		MonsterOverheadHPBar->SetPercent(Precent);
 	}
 }
+
+void AHDNormalMonster::UpdateOverheadTakeDamage(float DamageAmount)
+{
+	if (!OverheadTakeDamageWidget) return;
+    
+	UUserWidget* OverheadTakeDamageWidgetInstance = OverheadTakeDamageWidget->GetUserWidgetObject();
+	if (!OverheadTakeDamageWidgetInstance) return;
+    
+	if (UTextBlock* OverheadTakeDamageText = Cast<UTextBlock>(OverheadTakeDamageWidgetInstance->GetWidgetFromName("OverheadTakeDamageText")))
+	{
+		OverheadTakeDamageText->SetVisibility(ESlateVisibility::Visible);
+        
+		OverheadTakeDamageText->SetText(FText::FromString(FString::Printf(TEXT("%.1f"), DamageAmount)));
+        
+		GetWorldTimerManager().SetTimer(
+		HideOverheadTakeDamageHUDHandle,
+		this,
+		&AHDNormalMonster::HideOverheadTakeDamage,
+		1,
+		false
+		);
+	}
+}
+
+void AHDNormalMonster::HideOverheadTakeDamage() const
+{
+	if (!OverheadTakeDamageWidget) return;
+    
+	UUserWidget* OverheadTakeDamageWidgetInstance = OverheadTakeDamageWidget->GetUserWidgetObject();
+	if (!OverheadTakeDamageWidgetInstance) return;
+    
+	if (UTextBlock* OverheadTakeDamageText = Cast<UTextBlock>(OverheadTakeDamageWidgetInstance->GetWidgetFromName("OverheadTakeDamageText")))
+	{
+		OverheadTakeDamageText->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
 
 void AHDNormalMonster::RecoverFromHit()
 {

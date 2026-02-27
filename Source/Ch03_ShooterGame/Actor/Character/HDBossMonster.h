@@ -1,4 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -34,8 +33,6 @@ class CH03_SHOOTERGAME_API AHDBossMonster : public AHDMonCharacter
 protected:
 	FTimerHandle HitRecoverTimerHandle;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")  
-	UWidgetComponent* OverheadWidget;
-	
+
 	virtual void RecoverFromHit()  override; 
 };

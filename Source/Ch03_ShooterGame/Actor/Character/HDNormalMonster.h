@@ -1,4 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -7,29 +6,30 @@
 #include "HDNormalMonster.generated.h"
 
 class UWidgetComponent;
-/**
- * 
- */
+
 UCLASS()
 class CH03_SHOOTERGAME_API AHDNormalMonster : public AHDMonCharacter
 {
 	GENERATED_BODY()
 public:
 	AHDNormalMonster();
+	
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void AttackHitCheck() override;
 	virtual void BeginPlay() override;
 	virtual void OnDeath() override; 
-	
-	
-	void UpdateOverheadHP() const; 
 
-	
+	void UpdateOverheadHP() const;
+	void UpdateOverheadTakeDamage(float DamageAmount);
+	void HideOverheadTakeDamage() const;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")  
+	UWidgetComponent* OverheadWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")  
+	UWidgetComponent* OverheadTakeDamageWidget;
 protected:
 	FTimerHandle HitRecoverTimerHandle;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")  // 이건 몬스터 헤더로 옮겨야함
-	UWidgetComponent* OverheadWidget;
+	FTimerHandle HideOverheadTakeDamageHUDHandle;
 	
-	virtual void RecoverFromHit() override; // 가상 함수로 변경
+	virtual void RecoverFromHit() override; 
 };
