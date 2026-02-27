@@ -17,14 +17,12 @@ class CH03_SHOOTERGAME_API AHDNormalMonster : public AHDMonCharacter
 public:
 	AHDNormalMonster();
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-    
-	
-	virtual void AttackHitCheck() override; // 가상 함수로 변경
-    
+	virtual void AttackHitCheck() override;
 	virtual void BeginPlay() override;
-    
-	virtual void OnDeath() override; // 가상 함수로 변경
-	void UpdateOverheadHP() const; // 가상 함수로 변경
+	virtual void OnDeath() override; 
+	
+	
+	void UpdateOverheadHP() const; 
 
 	
 protected:

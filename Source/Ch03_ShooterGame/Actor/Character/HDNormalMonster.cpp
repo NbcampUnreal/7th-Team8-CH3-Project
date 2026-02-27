@@ -15,14 +15,6 @@ AHDNormalMonster::AHDNormalMonster()
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	OverheadWidget->SetupAttachment(GetMesh());
 	OverheadWidget->SetWidgetSpace(EWidgetSpace::World);
-
-	MoveSpeed = 150.0f;
-	MaxHP = 60.f;
-	CurrentHP = MaxHP;
-	Atk = 20.f;
-	Def = 4.0f;
-	PointValue = 100;
-	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
 }
 void AHDNormalMonster::BeginPlay()
 {
@@ -49,7 +41,7 @@ float AHDNormalMonster::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 		FVector PushDirection = GetActorLocation() - DamageCauser->GetActorLocation();
 		PushDirection.Z = 0.0f;
 		PushDirection.Normalize();
-
+	
 		LaunchCharacter(PushDirection * 1000.0f, true, false);
 	}
 	if (AAIController* AIController = Cast<AAIController>(GetController()))
