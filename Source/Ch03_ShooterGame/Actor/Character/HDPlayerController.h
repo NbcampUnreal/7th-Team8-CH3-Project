@@ -27,6 +27,8 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* AttackAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* MineAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
 	TSubclassOf<UUserWidget> HUDWidgetClass;
@@ -55,6 +57,10 @@ public:
 	void ShowGameOverHUD();
 	
 	UFUNCTION(BlueprintCallable, Category = "Menu")
+
+
+
+
 	void StartGame();
 	bool bIsRolling = false;
 
