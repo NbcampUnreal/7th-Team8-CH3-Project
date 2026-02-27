@@ -16,8 +16,6 @@ public:
 	
 	AHDGameState();
 
-	  virtual void BeginPlay() override;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Score")
 	int32 Score;
 
@@ -33,15 +31,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level")
 	TArray<FName> LevelMapNames;
 
+	FTimerHandle HUDUpdateTimerHandle;
 	FTimerHandle LevelTimerHandle;
+
 	UFUNCTION(BlueprintPure, Category = "Score")
 	int32 GetScore() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Score")
 	void AddScore(int32 Amount);
-	UFUNCTION(BlueprintCallable, Category = "Level")
-	void OnGameOver();
 
+	virtual void BeginPlay() override;
+	void UpdateHUD();
 	void StartLevel();
 	void OnLevelTimeUp();
 	void EndLevel();
+	UFUNCTION(BlueprintCallable, Category = "Level")
+	void OnGameOver();
 };

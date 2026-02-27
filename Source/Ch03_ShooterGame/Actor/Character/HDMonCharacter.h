@@ -13,6 +13,7 @@ class CH03_SHOOTERGAME_API AHDMonCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
+	AHDMonCharacter();
 	
 	AHDMonCharacter();
 
@@ -33,27 +34,26 @@ public:
 	UAnimMontage* TakeDamageMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
 	UAnimMontage* DeathMontage;
-	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
-	UAnimMontage* SkillMontage;
-	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
-	UAnimMontage* SkillReadyMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")  // 이건 몬스터 헤더로 옮겨야함
+	UWidgetComponent* OverheadWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")  // 이건 몬스터 헤더로 옮겨야함
+	UWidgetComponent* OverheadTakeDamageWidget;
 	
-
-	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	FTimerHandle HideOverheadTakeDamageHUDHandle;
+	
+	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackHitCheck();
 	
 	virtual void BeginPlay() override;
-	virtual void OnDeath();
-	
-	float GetHP(){return CurrentHP;};
-	float GetAtk() const {return Atk;};
-	float GetDef() const {return Def;};
-	float GetMaxHP() const {return MaxHP;};
+	void OnDeath();
+	void UpdateOverheadHP();
+	void UpdateOverheadTakeDamage(float DamageAmount);
+	void HideOverheadTakeDamage();
+
 protected:
 	FTimerHandle HitRecoverTimerHandle;
 	FTimerHandle SkillTimerHandle;
 
-	virtual void RecoverFromHit();
-
+	void RecoverFromHit();
 };

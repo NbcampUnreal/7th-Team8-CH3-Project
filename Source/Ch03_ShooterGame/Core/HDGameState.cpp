@@ -2,23 +2,19 @@
 
 
 #include "HDGameState.h"
-
+#include "HDGameInstance.h"
+#include "Actor/Character/HDPlayerCharacter.h"
 #include "Actor/Character/HDPlayerController.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/TextBlock.h"
+#include "Components/ProgressBar.h"
 
 AHDGameState::AHDGameState()
 {
 	Score = 0;
-	LevelDuration = 60.0f; // 레벨당 초
+	LevelDuration = 10.0f; 
 	CurrentLevelIndex = 0;
 	MaxLevels = 3;
-}
-
-void AHDGameState::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// 게임 시작 시 첫 레벨부터 진행
-	StartLevel();
 }
 
 int32 AHDGameState::GetScore() const
@@ -32,6 +28,92 @@ void AHDGameState::AddScore(int32 Amount)
 	UE_LOG(LogTemp, Warning, TEXT("Score: %d"), Score);
 }
 
+void AHDGameState::BeginPlay()
+{
+	Super::BeginPlay();
+
+	StartLevel();
+
+	GetWorldTimerManager().SetTimer(
+		HUDUpdateTimerHandle,
+		this,
+		&AHDGameState::UpdateHUD,
+		0.1f,
+		true
+	);
+}
+
+void AHDGameState::UpdateHUD()
+{
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
+		{
+			if (UUserWidget* HUDWidget = HDPlayerController->GetHUDWidget())
+			{
+				if (AHDPlayerCharacter* HDPlayerCharacter = Cast<AHDPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn()))
+				{
+					if (UProgressBar* PlayerHPProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("CharacterHPBar"))))
+					{
+						float Precent = (float)HDPlayerCharacter->HP / HDPlayerCharacter->MaxHP;
+						PlayerHPProgressBar->SetPercent(Precent);
+					}
+
+					if (UProgressBar* PlayerManaProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("CharacterManaBar"))))
+					{
+						float Precent = (float)HDPlayerCharacter->Mana / HDPlayerCharacter->MaxMana;
+						PlayerManaProgressBar->SetPercent(Precent);
+					}
+					
+					if (UProgressBar* PlayerDashProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("Dash_CoolDown"))))
+					{
+						float Cooldown = HDPlayerCharacter->GetDashCooldownPercent();
+						if (Cooldown > 0.0f)
+						{
+							PlayerDashProgressBar->SetVisibility(ESlateVisibility::Visible);
+							PlayerDashProgressBar->SetPercent(1.0 - HDPlayerCharacter->GetDashCooldownPercent());
+						}
+						else
+						{
+							PlayerDashProgressBar->SetVisibility(ESlateVisibility::Hidden);
+						}
+					}
+					
+					if (UProgressBar* PlayerAttackProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("Attack_CoolDown"))))
+					{
+						float Cooldown = HDPlayerCharacter->GetAttackCooldownPercent();
+						if (Cooldown > 0.0f)
+						{
+							PlayerAttackProgressBar->SetVisibility(ESlateVisibility::Visible);
+							PlayerAttackProgressBar->SetPercent(1.0 - HDPlayerCharacter->GetAttackCooldownPercent());
+						}
+						else
+						{
+							PlayerAttackProgressBar->SetVisibility(ESlateVisibility::Hidden);
+						}
+					}
+				}
+
+				if (UTextBlock* TimeText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("TimeText"))))
+				{
+					float RemainingTime = GetWorldTimerManager().GetTimerRemaining(LevelTimerHandle);
+					TimeText->SetText(FText::FromString(FString::Printf(TEXT("남은시간 : %.1f"), RemainingTime)));
+				}
+
+				if (UTextBlock* ScoreText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("ScoreText"))))
+				{
+					ScoreText->SetText(FText::FromString(FString::Printf(TEXT("점수: %d"), Score)));
+				}
+
+				if (UTextBlock* StageIndexText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("StageText"))))
+				{
+					StageIndexText->SetText(FText::FromString(FString::Printf(TEXT("제 %d 장"), CurrentLevelIndex + 1)));
+				}
+			}
+		}
+	}
+}
+
 void AHDGameState::StartLevel()
 {
 
@@ -40,6 +122,16 @@ void AHDGameState::StartLevel()
 		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
 		{
 			HDPlayerController->ShowCharacterHUD();
+		}
+	}
+
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(GameInstance);
+
+		if (HDGameInstance)
+		{
+			CurrentLevelIndex = HDGameInstance->CurrentLevelIndex;
 		}
 	}
 	// 현재 맵에 배치된 모든 SpawnVolume을 찾아 아이템 40개를 스폰
@@ -78,45 +170,60 @@ void AHDGameState::StartLevel()
 
 void AHDGameState::OnLevelTimeUp()
 {
-	// 시간이 다 되면 레벨을 종료
 	EndLevel();
 }
 
 void AHDGameState::EndLevel()
 {
-	// 타이머 해제
 	GetWorldTimerManager().ClearTimer(LevelTimerHandle);
-	// 다음 레벨 인덱스로
-	CurrentLevelIndex++;
 
-	// 모든 레벨을 다 돌았다면 게임 오버 처리
-	if (CurrentLevelIndex >= MaxLevels)
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(GameInstance);
+
+		if (HDGameInstance)
+		{
+			HDGameInstance->TotalScore += Score;
+			CurrentLevelIndex++;
+			HDGameInstance->CurrentLevelIndex = CurrentLevelIndex;
+		}
+	}
+
+	if (CurrentLevelIndex > MaxLevels)
 	{
 		OnGameOver();
 		return;
 	}
 
-	//// 레벨 맵 이름이 있다면 해당 맵 불러오기
-	//if (LevelMapNames.IsValidIndex(CurrentLevelIndex))
-	//{
-	//	UGamePlayStatics::OpenLevel(GetWorld(), LevelMapNames[CurrentLevelIndex]);
-	//}
-	//else
-	//{
-	//	// 맵 이름이 없으면 게임오버
-	//	OnGameOver();
-	//}
+	if (LevelMapNames.IsValidIndex(CurrentLevelIndex))
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), LevelMapNames[CurrentLevelIndex]);
+	}
+	else
+	{
+		OnGameOver();
+	}
 }
 
 void AHDGameState::OnGameOver()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Game Over!!"));
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(GameInstance);
 
+		if (HDGameInstance)
+		{
+			//AddScore(Score);
+			CurrentLevelIndex = 0;
+			HDGameInstance->CurrentLevelIndex = CurrentLevelIndex;
+		}
+	}
 	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
 	{
 		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
 		{
-			HDPlayerController->ShowMainMenu(true);
+			HDPlayerController->SetPause(true);
+			HDPlayerController->ShowGameOverHUD();
 		}
 	}
 }
