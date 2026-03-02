@@ -40,3 +40,14 @@ void ASpawnVolume::SpawnMonster(TSubclassOf<ACharacter> AHDMonCharacter)
         FRotator::ZeroRotator
     );
 }
+
+void ASpawnVolume::SpawnHealingItem(TSubclassOf<AActor> AHealingItem)
+{
+    if (!AHealingItem) return;
+
+    GetWorld()->SpawnActor<AActor>(
+        AHealingItem,
+        GetRandomPointInVolume(),
+        FRotator::ZeroRotator
+    );
+}

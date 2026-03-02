@@ -296,6 +296,11 @@ void AHDPlayerCharacter::InitializationWeaponMesh()
 	BowStaticMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Bow_Socket"));
 }
 
+void AHDPlayerCharacter::AddHealth(float Amount)
+{
+	HP = FMath::Clamp(HP + Amount, 0.0f, MaxHP);
+}
+
 float AHDPlayerCharacter::GetDashCooldownPercent() const
 {
 	if (!GetWorldTimerManager().IsTimerActive(DashCooldownTimerHandle))

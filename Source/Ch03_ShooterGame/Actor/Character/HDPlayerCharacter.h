@@ -52,6 +52,7 @@ public:
 	
 	float GetDashCooldownPercent() const;
 	float GetAttackCooldownPercent() const;
+	void AddHealth(float Amount);
 	
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -102,13 +103,6 @@ protected:
 	bool CanUseMP(float Cost);
 	// MP 소모 함수
 	void UseMP(float Cost);
-
-
-
-
-	UFUNCTION()
-	void Fire();
-
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	FVector MuzzleOffset;
