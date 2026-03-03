@@ -8,7 +8,6 @@
 #include "HDPlayerCharacter.h"
 #include "Core/HDGameState.h"
 #include "Kismet/GameplayStatics.h"
-#include "Materials/Material.h"
 #include "Engine/World.h"
 
 
@@ -41,6 +40,25 @@ void AHDMonCharacter::BeginPlay()
     GetCharacterMovement()->bEnablePhysicsInteraction = false;
 }
 
+bool AHDMonCharacter::SkillReadyIsActive()
+{
+    float HPPercentage = CurrentHP / MaxHP;
+    
+    if ( HPPercentage <= 0.3f && !bHasUsed30PercentSkill)
+    {
+        bHasUsed50PercentSkill = true; // 이제 썼다고 기억함
+        return true;
+    }
+    if (HPPercentage <= 0.5f && !bHasUsed30PercentSkill)
+    {
+        bHasUsed30PercentSkill = true; // 이제 썼다고 기억함
+        return true;
+    }    
+    
+    return false;
+}
+
+
 float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
@@ -49,21 +67,15 @@ float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 	{
 		return 0.0f;
 	}
-
+  
 	CurrentHP = FMath::Clamp(CurrentHP - ActualDamage, 0.0f, MaxHP);
 	UE_LOG(LogTemp, Warning, TEXT("Hit damage: %f / %f"), CurrentHP, MaxHP);
-	
+    
+  
     if (CurrentHP <= 0.0f)
 	{
 		OnDeath();
 		return ActualDamage;
-	}
-	
-    UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	
-    if (AnimInstance && TakeDamageMontage)
-	{
-		AnimInstance->Montage_Play(TakeDamageMontage);
 	}
     
     return ActualDamage;
@@ -96,13 +108,23 @@ void AHDMonCharacter::OnDeath()
     SetLifeSpan(2.0f);
 }
 
+void AHDMonCharacter::Skill()
+{
+   
+}
+
+void AHDMonCharacter::WaitSkill()
+{
+    
+}
 
 
 void AHDMonCharacter::AttackHitCheck()
 {
     FHitResult HitResult;
     FCollisionQueryParams Params(NAME_None, false, this);
-
+    
+   
     bool bResult = GetWorld()->SweepSingleByChannel(
         HitResult,
         GetActorLocation(),
@@ -112,6 +134,7 @@ void AHDMonCharacter::AttackHitCheck()
         FCollisionShape::MakeSphere(50.0f),
         Params
     );
+    
 
     if (bResult)
     {
@@ -132,18 +155,18 @@ void AHDMonCharacter::AttackHitCheck()
 }
 
 
+
+
 void AHDMonCharacter::RecoverFromHit()
 {
-    if (CurrentHP > 0.0f)
+    if (CurrentHP <= 0.0f) return;
+
+    if (AAIController* AICon = Cast<AAIController>(GetController()))
     {
-        if (AAIController* AICon = Cast<AAIController>(GetController()))
+        if (UBrainComponent* Brain = AICon->GetBrainComponent())
         {
-            if (AICon->GetBrainComponent())
-            {
-                AICon->GetBrainComponent()->ResumeLogic("HitStun");
-            }
+            Brain->ResumeLogic("HitStun");           
+            Brain->RestartLogic(); 
         }
     }
 }
-
-

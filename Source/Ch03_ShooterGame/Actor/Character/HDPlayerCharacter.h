@@ -47,6 +47,7 @@ public:
 	int MaxHP;
 	float Mana;
 	float MaxMana;
+	float Atk;
 	float DashCooldown;
 	float AttackCooldown;
 	
