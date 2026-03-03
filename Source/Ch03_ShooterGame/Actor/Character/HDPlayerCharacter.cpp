@@ -27,6 +27,12 @@ AHDPlayerCharacter::AHDPlayerCharacter()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 
+	PrimaryActorTick.bCanEverTick = true;
+
+	FootstepAudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("FootstepAudioComp"));
+	FootstepAudioComp->SetupAttachment(RootComponent);
+	FootstepAudioComp->bAutoActivate = false;
+
 	if (GetCharacterMovement())
 	{
 		GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -340,4 +346,29 @@ float AHDPlayerCharacter::GetMovementDirection() const
 	if (GetVelocity().IsNearlyZero()) return 0.0f;
 
 	return UKismetAnimationLibrary::CalculateDirection(GetVelocity(), GetActorRotation());
+}
+
+void AHDPlayerCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	float CurrentSpeed = GetVelocity().Size();
+
+	bool bShouldPlayFootstep = (CurrentSpeed > 10.0f) && !bIsRolling && (HP > 0);
+
+	if (bShouldPlayFootstep)
+	{
+		if (FootstepSound && !FootstepAudioComp->IsPlaying())
+		{
+			FootstepAudioComp->SetSound(FootstepSound);
+			FootstepAudioComp->Play();
+		}
+	}
+	else
+	{
+		if (FootstepAudioComp->IsPlaying())
+		{
+			FootstepAudioComp->Stop();
+		}
+	}
 }
