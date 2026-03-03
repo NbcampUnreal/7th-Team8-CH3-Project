@@ -108,7 +108,7 @@ protected:
 	void UseMineItem();
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
-	float MineCooldownTime = 7.0f;
+	float MineCooldownTime = 5.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
 	float MaxMP;

@@ -57,7 +57,7 @@ void AHDPlayerCharacter::Tick(float DeltaTime)
 
 void AHDPlayerCharacter::RecoverMana(float DeltaTime)
 {
-	if (Mana >= MaxMana) return; // 이미 꽉 차있으면 계산 안함 (최적화)
+	if (Mana >= MaxMana) return; 
 
 	Mana = FMath::Clamp(
 		Mana + ManaRegenRate * DeltaTime,
@@ -169,7 +169,6 @@ void AHDPlayerCharacter::UseMineItem()
 			if (SpawnedMine)
 			{
 				Mana = FMath::Clamp(Mana - MineCost, 0.0f, MaxMana);
-				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("지뢰 설치 완료!"));
 			}
 		}
 	
@@ -183,10 +182,7 @@ void AHDPlayerCharacter::UseMineItem()
 			false
 		);
 	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("지뢰 쿨타임 중입니다!"));
-	}
+	
 }
 
 
@@ -242,10 +238,6 @@ void AHDPlayerCharacter::Attack(const FInputActionValue& value)
 
 	if (bCanAttack) return;
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Attack Function Called!"));
-	}
 	
 	if (AttackMontage)
 	{

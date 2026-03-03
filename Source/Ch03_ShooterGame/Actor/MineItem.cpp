@@ -78,7 +78,6 @@ void AMineItem::Explode()
 
 
             );
-            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Player damaged %d by MineItem"), ExplosionDamage));
         }
     }
     SetActorEnableCollision(false);
