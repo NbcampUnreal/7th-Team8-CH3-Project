@@ -11,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "KismetAnimationLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 AHDPlayerCharacter::AHDPlayerCharacter()
 {
@@ -98,6 +99,11 @@ void AHDPlayerCharacter::Dash(const FInputActionValue& value)
 
 	if (DashMontage) PlayAnimMontage(DashMontage);
 
+	if (DashSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DashSound, GetActorLocation());
+	}
+
 	LaunchCharacter(DashDir * 2500.0f, true, true);
 
 	bCanDash = false;
@@ -111,6 +117,8 @@ void AHDPlayerCharacter::Dash(const FInputActionValue& value)
 			bIsRolling = false;
 			bCanAttack = false;
 		}), 0.6f, false);
+
+
 }
 
 void AHDPlayerCharacter::ResetDash()
@@ -231,6 +239,11 @@ void AHDPlayerCharacter::Attack(const FInputActionValue& value)
 		AttackCooldown,
 		false
 	);
+
+	if (AttackSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, AttackSound, GetActorLocation());
+	}
 }
 
 float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
@@ -251,11 +264,17 @@ float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 
 	HP = FMath::Clamp(HP - ActualDamage, 0.0f, MaxHP);
 	UE_LOG(LogTemp, Warning, TEXT("Hit damage: %d / %d"), HP, MaxHP);
+
+	if (HitSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, HitSound, GetActorLocation());
+	}
 	
 	if (HP <= 0)
 	{
 		OnDeath();
 	}
+
 	
 	return ActualDamage;
 }

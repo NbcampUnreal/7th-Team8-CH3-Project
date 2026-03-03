@@ -40,7 +40,18 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
 	bool bIsRolling = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	class USoundBase* DashSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	class USoundBase* AttackSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	class USoundBase* HitSound;
+
 	UFUNCTION(BlueprintCallable, Category = "Animation")
+
+
 	float GetMovementDirection() const;
 	
 	int HP;
@@ -102,13 +113,6 @@ protected:
 	bool CanUseMP(float Cost);
 	// MP 소모 함수
 	void UseMP(float Cost);
-
-
-
-
-	UFUNCTION()
-	void Fire();
-
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	FVector MuzzleOffset;
