@@ -223,7 +223,7 @@ void AHDGameState::OnGameOver()
 		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
 		{
 			HDPlayerController->SetPause(true);
-			HDPlayerController->ShowGameOverHUD();
+			HDPlayerController->ShowGameOverUI();
 		}
 	}
 }
