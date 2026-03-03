@@ -14,6 +14,7 @@ class CH03_SHOOTERGAME_API AHDNormalMonster : public AHDMonCharacter
 public:
 	AHDNormalMonster();
 	
+	
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void AttackHitCheck() override;
 	virtual void BeginPlay() override;
@@ -31,5 +32,5 @@ protected:
 	FTimerHandle HitRecoverTimerHandle;
 	FTimerHandle HideOverheadTakeDamageHUDHandle;
 	
-	virtual void RecoverFromHit() override; 
+	virtual void RecoverFromHit() override;
 };

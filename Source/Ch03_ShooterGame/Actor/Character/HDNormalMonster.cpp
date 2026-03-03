@@ -9,6 +9,7 @@
 #include "Components/TextBlock.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 AHDNormalMonster::AHDNormalMonster():
@@ -26,14 +27,14 @@ OverheadTakeDamageWidget(nullptr)
 void AHDNormalMonster::BeginPlay()
 {
 	Super::BeginPlay();
-	UpdateOverheadHP();
 	MoveSpeed = 150.0f;
-	MaxHP = 60.f;
+	MaxHP = 100.f;
 	CurrentHP = MaxHP;
 	Atk = 20.f;
 	Def = 4.0f;
 	PointValue = 100;
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+	UpdateOverheadHP();
 }
 
 
@@ -41,8 +42,7 @@ float AHDNormalMonster::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	AActor* DamageCauser)
 {
 	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	
-	UpdateOverheadHP();	
+
 	if (DamageCauser && CurrentHP > 0.0f) 
 	{
 		FVector PushDirection = GetActorLocation() - DamageCauser->GetActorLocation();
@@ -51,8 +51,19 @@ float AHDNormalMonster::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	
 		LaunchCharacter(PushDirection * 1000.0f, true, false);
 	}
+	if (CurrentHP <= 0.0f)
+	{
+		OnDeath();
+		return ActualDamage;
+	}
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		if (TakeDamageMontage) AnimInstance->Montage_Play(TakeDamageMontage,1.2f);
+	}
+	
 	UpdateOverheadHP();
 	UpdateOverheadTakeDamage(ActualDamage);
+	
 	if (AAIController* AIController = Cast<AAIController>(GetController()))
 	{
       
@@ -71,7 +82,7 @@ float AHDNormalMonster::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 			HitRecoverTimerHandle,
 			this,
 			&AHDNormalMonster::RecoverFromHit,
-			1.0f, 
+			0.6f, 
 			false
 		);
 	}
@@ -81,9 +92,35 @@ float AHDNormalMonster::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 void AHDNormalMonster::AttackHitCheck()
 {
 	Super::AttackHitCheck();
-	
-	
-	
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
+
+	bool bResult = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		GetActorLocation(),
+		GetActorLocation() + GetActorForwardVector() * 100.0f, // 사거리 100
+		FQuat::Identity,
+		ECollisionChannel::ECC_Pawn,
+		FCollisionShape::MakeSphere(50.0f),
+		Params
+	);
+
+	if (bResult)
+	{
+		if (AActor* Target = HitResult.GetActor())
+		{
+			// 로그 확인
+			UE_LOG(LogTemp, Warning, TEXT("Hit Target: %s"), *Target->GetName());
+
+			UGameplayStatics::ApplyDamage(
+				Target,
+				Atk, 
+				GetController(),
+				this,
+				UDamageType::StaticClass()
+			);
+		}
+	}
 }
 
 void AHDNormalMonster::OnDeath()
@@ -141,9 +178,9 @@ void AHDNormalMonster::HideOverheadTakeDamage() const
 	}
 }
 
-
 void AHDNormalMonster::RecoverFromHit()
 {
 	Super::RecoverFromHit();
-
 }
+
+

@@ -19,14 +19,14 @@ EBTNodeResult::Type UHDTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 		return EBTNodeResult::Aborted;
 	}
 	
-	auto HDMonCharactor = Cast<AHDMonCharacter>(Owner->GetPawn());
+	auto HadMonCharacter = Cast<AHDMonCharacter>(Owner->GetPawn());
 
-	if (HDMonCharactor == nullptr || AttackMontage == nullptr)
+	if (HadMonCharacter == nullptr || AttackMontage == nullptr)
 	{
 		return EBTNodeResult::Failed;
 	}
 		
-	HDMonCharactor->PlayAnimMontage(AttackMontage);
+	HadMonCharacter->PlayAnimMontage(AttackMontage);
 	
 	return EBTNodeResult::InProgress;
 }

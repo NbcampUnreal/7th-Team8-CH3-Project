@@ -64,6 +64,7 @@ public:
 	int MaxHP;
 	float Mana;
 	float MaxMana;
+	float Atk;
 	float DashCooldown;
 	float AttackCooldown;
 	
@@ -120,7 +121,7 @@ protected:
 	bool CanUseMP(float Cost);
 	// MP 소모 함수
 	void UseMP(float Cost);
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	FVector MuzzleOffset;
 
