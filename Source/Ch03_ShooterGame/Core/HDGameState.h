@@ -47,4 +47,5 @@ public:
 	void EndLevel();
 	UFUNCTION(BlueprintCallable, Category = "Level")
 	void OnGameOver();
+	void GameClear();
 };

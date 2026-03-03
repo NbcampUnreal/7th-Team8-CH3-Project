@@ -144,18 +144,19 @@ void AHDGameState::StartLevel()
 
 	if (FoundVolumes.Num() > 0)
 	{
-		int32 TargetIdx = FMath::RandRange(0, FoundVolumes.Num() - 1);
-		ASpawnVolume* SpawnVolume = Cast<ASpawnVolume>(FoundVolumes[TargetIdx]);
-		
-		if (SpawnVolume)
+		for (int32 i = 0; i < MonsterToSpawn; i++)
 		{
-			for (int32 i = 0; i < MonsterToSpawn; i++)
+			int32 TargetIdx = FMath::RandRange(0, FoundVolumes.Num() - 1);
+			ASpawnVolume* SpawnVolume = Cast<ASpawnVolume>(FoundVolumes[TargetIdx]);
+
+			if (SpawnVolume)
 			{
 				AHDMonCharacter* SpawnedMonster = SpawnVolume->SpawnRandomMonster();
-				UE_LOG(LogTemp, Warning, TEXT("Spawned"));
+				UE_LOG(LogTemp, Warning, TEXT("Spawned at Volume Index: %d"), TargetIdx);
 			}
 		}
 	}
+
 
 	GetWorldTimerManager().SetTimer(
 		LevelTimerHandle,
@@ -190,7 +191,7 @@ void AHDGameState::EndLevel()
 
 	if (CurrentLevelIndex >= MaxLevels)
 	{
-		OnGameOver();
+		GameClear();
 		return;
 	}
 
@@ -212,7 +213,7 @@ void AHDGameState::OnGameOver()
 
 		if (HDGameInstance)
 		{
-			//AddScore(Score);
+			HDGameInstance->TotalScore += Score;
 			CurrentLevelIndex = 0;
 			HDGameInstance->CurrentLevelIndex = CurrentLevelIndex;
 		}
@@ -223,6 +224,21 @@ void AHDGameState::OnGameOver()
 		{
 			HDPlayerController->SetPause(true);
 			HDPlayerController->ShowMainMenu(true);
+		}
+	}
+}
+
+void AHDGameState::GameClear()
+{
+	if (UGameInstance* GameInstance = GetGameInstance())
+	{
+		UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(GameInstance);
+
+		if (HDGameInstance)
+		{
+			HDGameInstance->TotalScore += Score;
+			CurrentLevelIndex = 0;
+			HDGameInstance->CurrentLevelIndex = CurrentLevelIndex;
 		}
 	}
 }
