@@ -71,12 +71,6 @@ float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 	CurrentHP = FMath::Clamp(CurrentHP - ActualDamage, 0.0f, MaxHP);
 	UE_LOG(LogTemp, Warning, TEXT("Hit damage: %f / %f"), CurrentHP, MaxHP);
     
-  
-    if (CurrentHP <= 0.0f)
-	{
-		OnDeath();
-		return ActualDamage;
-	}
     
     return ActualDamage;
 }
