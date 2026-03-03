@@ -15,7 +15,7 @@
 
 AHDPlayerCharacter::AHDPlayerCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArmComp->SetupAttachment(RootComponent);
 	SpringArmComp->TargetArmLength = 1000.0f;
@@ -44,6 +44,26 @@ AHDPlayerCharacter::AHDPlayerCharacter()
 
 	DashCooldown = 3.0f;
 	AttackCooldown = 0.3f;
+
+
+}
+
+void AHDPlayerCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	RecoverMana(DeltaTime);
+}
+
+void AHDPlayerCharacter::RecoverMana(float DeltaTime)
+{
+	if (Mana >= MaxMana) return; // 이미 꽉 차있으면 계산 안함 (최적화)
+
+	Mana = FMath::Clamp(
+		Mana + ManaRegenRate * DeltaTime,
+		0.0f,
+		MaxMana
+	);
 }
 
 void AHDPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -341,3 +361,4 @@ float AHDPlayerCharacter::GetMovementDirection() const
 
 	return UKismetAnimationLibrary::CalculateDirection(GetVelocity(), GetActorRotation());
 }
+

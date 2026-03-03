@@ -74,7 +74,7 @@ protected:
 	void RecoverMana(float DeltaTime);
 
 	UPROPERTY(EditAnywhere, Category = "Stat")
-	float ManaRegenRate = 0.5f; // 초당 회복량
+	float ManaRegenRate = 1.5f; // 초당 회복량
 
 
 	// 발사체를 발사하는 함수입니다.
@@ -108,7 +108,7 @@ protected:
 	void UseMineItem();
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
-	float MineCooldownTime = 7.0f;
+	float MineCooldownTime = 10.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
 	float MaxMP;
