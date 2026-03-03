@@ -128,7 +128,8 @@ void AHDPlayerCharacter::ResetDash()
 
 void AHDPlayerCharacter::UseMineItem()
 {
-	if (bCanUseMine)
+	float MineCost = 20.0f;
+	if (bCanUseMine && Mana >= MineCost)
 	{
 
 		UWorld* World = GetWorld();
@@ -147,12 +148,13 @@ void AHDPlayerCharacter::UseMineItem()
 
 			if (SpawnedMine)
 			{
+				Mana = FMath::Clamp(Mana - MineCost, 0.0f, MaxMana);
 				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("지뢰 설치 완료!"));
 			}
 		}
 	
 		bCanUseMine = false;
-		float MineCost = 20.0f;
+	
 		GetWorldTimerManager().SetTimer(
 			MineCooldownTimerHandle,
 			this,

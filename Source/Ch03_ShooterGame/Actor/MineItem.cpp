@@ -32,7 +32,6 @@ void AMineItem::ActivateItem(AActor* Activator)
     Super::ActivateItem(Activator);
 
    
-    GetWorld()->GetTimerManager().SetTimer(ExplosionTimerHandle, this, &AMineItem::Explode, ExplosionDelay);
 }
 
 void AMineItem::Explode()
