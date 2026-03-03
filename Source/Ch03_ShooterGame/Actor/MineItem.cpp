@@ -11,7 +11,7 @@ AMineItem::AMineItem()
 {
 	ExplosionDelay = 2.0f;
 	ExplosionRadius = 300.0f;
-	ExplosionDamage = 30.0f;
+	ExplosionDamage = 50.0f;
 	ItemType = "Mine";
     bHasExploded = false;
 
