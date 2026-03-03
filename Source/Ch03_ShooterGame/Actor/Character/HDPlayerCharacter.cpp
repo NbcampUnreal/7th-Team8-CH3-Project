@@ -23,7 +23,8 @@ AHDPlayerCharacter::AHDPlayerCharacter()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
 
-	bUseControllerRotationYaw = false;
+	bUseControllerRotationYaw = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 

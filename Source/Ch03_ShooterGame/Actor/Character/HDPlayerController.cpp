@@ -249,6 +249,6 @@ void AHDPlayerController::LookAtMouseCursor(float DeltaTime) // 마우스 위치
 		FRotator SmoothRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, RotationSpeed);
 		
 		// 계산된 회전을 캐릭터에 적용
-		ControlledActor->SetActorRotation(SmoothRotation);
+		SetControlRotation(SmoothRotation);
 	}
 }
