@@ -31,7 +31,13 @@ public:
 	int PointValue;
 	
 	bool bHasUsed50PercentSkill = false;
-	bool bHasUsed30PercentSkill = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	class USoundBase* FootstepSound;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sound")
+	class UAudioComponent* FootstepAudioComp;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	class USoundBase* AttackSound;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
 	UAnimMontage* TakeDamageMontage;
@@ -43,10 +49,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
 	UAnimMontage* SkillReadyMontage;
 
-	bool SkillReadyIsActive();
+	virtual bool SkillReadyIsActive();
 	
 	FTimerHandle HideOverheadTakeDamageHUDHandle;
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
+	bool bIsRolling = false;
 	
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	UFUNCTION(BlueprintCallable)
@@ -57,9 +64,11 @@ public:
 	
 	virtual void Skill(); 
 	virtual void WaitSkill(); 
-protected:
+	
 	FTimerHandle HitRecoverTimerHandle;
 	FTimerHandle SkillTimerHandle;
+protected:
+	
 
 	virtual void RecoverFromHit();
 };
