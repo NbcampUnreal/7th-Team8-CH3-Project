@@ -27,6 +27,12 @@ AHDPlayerCharacter::AHDPlayerCharacter()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 
+	PrimaryActorTick.bCanEverTick = true;
+
+	FootstepAudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("FootstepAudioComp"));
+	FootstepAudioComp->SetupAttachment(RootComponent);
+	FootstepAudioComp->bAutoActivate = false;
+
 	if (GetCharacterMovement())
 	{
 		GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -128,7 +134,8 @@ void AHDPlayerCharacter::ResetDash()
 
 void AHDPlayerCharacter::UseMineItem()
 {
-	if (bCanUseMine)
+	float MineCost = 20.0f;
+	if (bCanUseMine && Mana >= MineCost)
 	{
 
 		UWorld* World = GetWorld();
@@ -147,12 +154,13 @@ void AHDPlayerCharacter::UseMineItem()
 
 			if (SpawnedMine)
 			{
+				Mana = FMath::Clamp(Mana - MineCost, 0.0f, MaxMana);
 				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("지뢰 설치 완료!"));
 			}
 		}
 	
 		bCanUseMine = false;
-		float MineCost = 20.0f;
+	
 		GetWorldTimerManager().SetTimer(
 			MineCooldownTimerHandle,
 			this,
@@ -346,4 +354,29 @@ float AHDPlayerCharacter::GetMovementDirection() const
 	if (GetVelocity().IsNearlyZero()) return 0.0f;
 
 	return UKismetAnimationLibrary::CalculateDirection(GetVelocity(), GetActorRotation());
+}
+
+void AHDPlayerCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	float CurrentSpeed = GetVelocity().Size();
+
+	bool bShouldPlayFootstep = (CurrentSpeed > 10.0f) && !bIsRolling && (HP > 0);
+
+	if (bShouldPlayFootstep)
+	{
+		if (FootstepSound && !FootstepAudioComp->IsPlaying())
+		{
+			FootstepAudioComp->SetSound(FootstepSound);
+			FootstepAudioComp->Play();
+		}
+	}
+	else
+	{
+		if (FootstepAudioComp->IsPlaying())
+		{
+			FootstepAudioComp->Stop();
+		}
+	}
 }

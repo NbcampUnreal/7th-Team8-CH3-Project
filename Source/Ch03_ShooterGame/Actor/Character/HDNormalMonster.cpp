@@ -9,6 +9,7 @@
 #include "Components/TextBlock.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 AHDNormalMonster::AHDNormalMonster():
@@ -91,7 +92,35 @@ float AHDNormalMonster::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 void AHDNormalMonster::AttackHitCheck()
 {
 	Super::AttackHitCheck();
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
 
+	bool bResult = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		GetActorLocation(),
+		GetActorLocation() + GetActorForwardVector() * 100.0f, // 사거리 100
+		FQuat::Identity,
+		ECollisionChannel::ECC_Pawn,
+		FCollisionShape::MakeSphere(50.0f),
+		Params
+	);
+
+	if (bResult)
+	{
+		if (AActor* Target = HitResult.GetActor())
+		{
+			// 로그 확인
+			UE_LOG(LogTemp, Warning, TEXT("Hit Target: %s"), *Target->GetName());
+
+			UGameplayStatics::ApplyDamage(
+				Target,
+				Atk, 
+				GetController(),
+				this,
+				UDamageType::StaticClass()
+			);
+		}
+	}
 }
 
 void AHDNormalMonster::OnDeath()
