@@ -27,6 +27,8 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* AttackAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* MineAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
 	TSubclassOf<UUserWidget> HUDWidgetClass;
@@ -36,6 +38,10 @@ public:
 	TSubclassOf<UUserWidget> MainMenuWidgetClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "HUD")
 	UUserWidget* MainMenuWidgetInstance;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+	TSubclassOf<UUserWidget> GameOverWidgetClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "HUD")
+	UUserWidget* GameOverWidgetInstance;
 	
 	
 	UFUNCTION(BlueprintPure, Category = "HUD")
@@ -45,10 +51,18 @@ public:
 	void ShowCharacterHUD();
 	
 	UFUNCTION(BlueprintCallable, Category = "Menu")
-	void ShowMainMenu(bool bIsRestart);
+	void ShowMainMenu();
 	
 	UFUNCTION(BlueprintCallable, Category = "Menu")
+	void ShowGameOverHUD();
+	
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+
+
+
+
 	void StartGame();
+	bool bIsRolling = false;
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;

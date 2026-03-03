@@ -9,6 +9,9 @@
 #include "Components/CapsuleComponent.h"
 #include "Core/HDGameState.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "KismetAnimationLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 AHDPlayerCharacter::AHDPlayerCharacter()
 {
@@ -59,8 +62,9 @@ void AHDPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		if (AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController()))
 		{
-			EnhancedInput->BindAction(PlayerController->DashAction, ETriggerEvent::Triggered, this,
-			                          &AHDPlayerCharacter::Dash);
+
+			EnhancedInput->BindAction(PlayerController->MineAction, ETriggerEvent::Started, this, &AHDPlayerCharacter::UseMineItem);
+			EnhancedInput->BindAction(PlayerController->DashAction,ETriggerEvent::Triggered,this,&AHDPlayerCharacter::Dash);
 		}
 	}
 }
@@ -83,34 +87,94 @@ void AHDPlayerCharacter::Move(const FInputActionValue& value)
 
 void AHDPlayerCharacter::Dash(const FInputActionValue& value)
 {
-	if (value.Get<bool>() && bCanDash)
+	if (!value.Get<bool>() || !bCanDash || bCanAttack) return;
+
+	bIsRolling = true;
+
+	FVector DashDir = GetLastMovementInputVector();
+	if (DashDir.IsNearlyZero()) DashDir = GetActorForwardVector();
+	DashDir.Normalize();
+
+	SetActorRotation(DashDir.Rotation());
+
+	if (DashMontage) PlayAnimMontage(DashMontage);
+
+	if (DashSound)
 	{
-		if (DashMontage)
-		{
-			PlayAnimMontage(DashMontage);
-		}
-		const float DashStrength = 2500.0f;
-		const FVector DashDir = GetActorForwardVector();
-
-		LaunchCharacter(DashDir * DashStrength, true, false);
-
-		bCanDash = false;
-
-		GetWorldTimerManager().SetTimer(
-			DashCooldownTimerHandle,
-			this,
-			&AHDPlayerCharacter::ResetDash,
-			DashCooldown,
-			false);
-		// GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Dash Cooldown Started (3s)"));
+		UGameplayStatics::PlaySoundAtLocation(this, DashSound, GetActorLocation());
 	}
+
+	LaunchCharacter(DashDir * 2500.0f, true, true);
+
+	bCanDash = false;
+	bCanAttack = true;
+
+	GetWorldTimerManager().SetTimer(DashCooldownTimerHandle, this, &AHDPlayerCharacter::ResetDash, DashCooldown, false);
+
+	FTimerHandle RollRestoreHandle;
+	GetWorldTimerManager().SetTimer(RollRestoreHandle, FTimerDelegate::CreateLambda([this]()
+		{
+			bIsRolling = false;
+			bCanAttack = false;
+		}), 0.6f, false);
+
+
 }
 
 void AHDPlayerCharacter::ResetDash()
 {
 	bCanDash = true;
-	// GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Dash Ready!"));
 }
+
+void AHDPlayerCharacter::UseMineItem()
+{
+	if (bCanUseMine)
+	{
+
+		UWorld* World = GetWorld();
+		if (World && MineClass)
+		{
+			// 1. 캐릭터의 현재 위치와 회전값 가져오기
+			FVector SpawnLocation = GetActorLocation();
+			FRotator SpawnRotation = GetActorRotation();
+
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			SpawnParams.Instigator = GetInstigator();
+
+			// 2. 실제 지뢰 액터 생성
+			AActor* SpawnedMine = World->SpawnActor<AActor>(MineClass, SpawnLocation, SpawnRotation, SpawnParams);
+
+			if (SpawnedMine)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("지뢰 설치 완료!"));
+			}
+		}
+	
+		bCanUseMine = false;
+		float MineCost = 20.0f;
+		GetWorldTimerManager().SetTimer(
+			MineCooldownTimerHandle,
+			this,
+			&AHDPlayerCharacter::ResetMineCooldown,
+			MineCooldownTime,
+			false
+		);
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("지뢰 쿨타임 중입니다!"));
+	}
+}
+
+
+
+
+void AHDPlayerCharacter::ResetMineCooldown()
+{
+	bCanUseMine = true;
+}
+
 
 void AHDPlayerCharacter::ResetAttack()
 {
@@ -146,7 +210,6 @@ void AHDPlayerCharacter::Fire()
 			}
 		}
 		
-		// bCanAttack false로 초기화
 		ResetAttack();
 	}
 }
@@ -155,30 +218,31 @@ void AHDPlayerCharacter::Attack(const FInputActionValue& value)
 {
 	if (!Controller) return;
 
+	if (bCanAttack) return;
+
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Attack Function Called!"));
 	}
 	
-	// 플레이어가 공격 중인지 조건 확인
-	if (!bCanAttack)
+	if (AttackMontage)
 	{
-		// 플레이어 공격 몽타주 실행
-		if (AttackMontage)
-		{
-			PlayAnimMontage(AttackMontage);
-		}
-		
-		// 기본 공격 난사를 막기 위해 타이머를 통해 기본공격에 쿨타임 적용, 쿨타임은 0.3초
-		GetWorldTimerManager().SetTimer(
-			AttackCooldownTimerHandle,
-			this,
-			&AHDPlayerCharacter::Fire,
-			AttackCooldown,
-			false
-			);
-		
-		bCanAttack = true;
+		PlayAnimMontage(AttackMontage);
+	}
+	
+	bCanAttack = true;
+
+	GetWorldTimerManager().SetTimer(
+		AttackCooldownTimerHandle,
+		this,
+		&AHDPlayerCharacter::Fire,
+		AttackCooldown,
+		false
+	);
+
+	if (AttackSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, AttackSound, GetActorLocation());
 	}
 }
 
@@ -200,11 +264,17 @@ float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 
 	HP = FMath::Clamp(HP - ActualDamage, 0.0f, MaxHP);
 	UE_LOG(LogTemp, Warning, TEXT("Hit damage: %d / %d"), HP, MaxHP);
+
+	if (HitSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, HitSound, GetActorLocation());
+	}
 	
 	if (HP <= 0)
 	{
 		OnDeath();
 	}
+
 	
 	return ActualDamage;
 }
@@ -245,7 +315,7 @@ void AHDPlayerCharacter::InitializationWeaponMesh()
 	BowStaticMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Bow_Socket"));
 }
 
-float AHDPlayerCharacter::GetDashCooldownPercent() const // 대쉬 타이머 핸들을 이용해 대쉬의 현재 쿨타임을 반환하는 함수
+float AHDPlayerCharacter::GetDashCooldownPercent() const
 {
 	if (!GetWorldTimerManager().IsTimerActive(DashCooldownTimerHandle))
 		return 0.0f;
@@ -254,11 +324,18 @@ float AHDPlayerCharacter::GetDashCooldownPercent() const // 대쉬 타이머 핸
 	return RemainingTime / DashCooldown;
 }
 
-float AHDPlayerCharacter::GetAttackCooldownPercent() const // 공격 타이머 핸들을 이용해 대쉬의 현재 쿨타임을 반환하는 함수
+float AHDPlayerCharacter::GetAttackCooldownPercent() const
 {
 	if (!GetWorldTimerManager().IsTimerActive(AttackCooldownTimerHandle))
 		return 0.0f;
 	
 	float RemainingTime = GetWorldTimerManager().GetTimerElapsed(AttackCooldownTimerHandle);
 	return RemainingTime / AttackCooldown;
+}
+
+float AHDPlayerCharacter::GetMovementDirection() const
+{
+	if (GetVelocity().IsNearlyZero()) return 0.0f;
+
+	return UKismetAnimationLibrary::CalculateDirection(GetVelocity(), GetActorRotation());
 }
