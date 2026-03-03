@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/AudioComponent.h"
 #include "HDPlayerCharacter.generated.h"
 
 class USpringArmComponent;
@@ -49,8 +50,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	class USoundBase* HitSound;
 
-	UFUNCTION(BlueprintCallable, Category = "Animation")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sound")
+	class UAudioComponent* FootstepAudioComp;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	class USoundBase* FootstepSound;
+
+	UFUNCTION(BlueprintCallable, Category = "Animation")
 
 	float GetMovementDirection() const;
 	
@@ -67,7 +73,8 @@ public:
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// 발사체를 발사하는 함수입니다.
+	virtual void Tick(float DeltaTime) override;
+
 	UFUNCTION()
 	void Fire();
 	
