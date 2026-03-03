@@ -11,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "KismetAnimationLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 AHDPlayerCharacter::AHDPlayerCharacter()
 {
@@ -61,8 +62,9 @@ void AHDPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		if (AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController()))
 		{
-			EnhancedInput->BindAction(PlayerController->DashAction, ETriggerEvent::Triggered, this,
-			                          &AHDPlayerCharacter::Dash);
+
+			EnhancedInput->BindAction(PlayerController->MineAction, ETriggerEvent::Started, this, &AHDPlayerCharacter::UseMineItem);
+			EnhancedInput->BindAction(PlayerController->DashAction,ETriggerEvent::Triggered,this,&AHDPlayerCharacter::Dash);
 		}
 	}
 }
@@ -97,6 +99,11 @@ void AHDPlayerCharacter::Dash(const FInputActionValue& value)
 
 	if (DashMontage) PlayAnimMontage(DashMontage);
 
+	if (DashSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DashSound, GetActorLocation());
+	}
+
 	LaunchCharacter(DashDir * 2500.0f, true, true);
 
 	bCanDash = false;
@@ -110,12 +117,64 @@ void AHDPlayerCharacter::Dash(const FInputActionValue& value)
 			bIsRolling = false;
 			bCanAttack = false;
 		}), 0.6f, false);
+
+
 }
 
 void AHDPlayerCharacter::ResetDash()
 {
 	bCanDash = true;
 }
+
+void AHDPlayerCharacter::UseMineItem()
+{
+	if (bCanUseMine)
+	{
+
+		UWorld* World = GetWorld();
+		if (World && MineClass)
+		{
+			// 1. 캐릭터의 현재 위치와 회전값 가져오기
+			FVector SpawnLocation = GetActorLocation();
+			FRotator SpawnRotation = GetActorRotation();
+
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			SpawnParams.Instigator = GetInstigator();
+
+			// 2. 실제 지뢰 액터 생성
+			AActor* SpawnedMine = World->SpawnActor<AActor>(MineClass, SpawnLocation, SpawnRotation, SpawnParams);
+
+			if (SpawnedMine)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("지뢰 설치 완료!"));
+			}
+		}
+	
+		bCanUseMine = false;
+		float MineCost = 20.0f;
+		GetWorldTimerManager().SetTimer(
+			MineCooldownTimerHandle,
+			this,
+			&AHDPlayerCharacter::ResetMineCooldown,
+			MineCooldownTime,
+			false
+		);
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("지뢰 쿨타임 중입니다!"));
+	}
+}
+
+
+
+
+void AHDPlayerCharacter::ResetMineCooldown()
+{
+	bCanUseMine = true;
+}
+
 
 void AHDPlayerCharacter::ResetAttack()
 {
@@ -180,6 +239,11 @@ void AHDPlayerCharacter::Attack(const FInputActionValue& value)
 		AttackCooldown,
 		false
 	);
+
+	if (AttackSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, AttackSound, GetActorLocation());
+	}
 }
 
 float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
@@ -200,11 +264,17 @@ float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 
 	HP = FMath::Clamp(HP - ActualDamage, 0.0f, MaxHP);
 	UE_LOG(LogTemp, Warning, TEXT("Hit damage: %d / %d"), HP, MaxHP);
+
+	if (HitSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, HitSound, GetActorLocation());
+	}
 	
 	if (HP <= 0)
 	{
 		OnDeath();
 	}
+
 	
 	return ActualDamage;
 }

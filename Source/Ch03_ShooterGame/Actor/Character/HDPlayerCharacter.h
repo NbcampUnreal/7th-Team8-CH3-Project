@@ -40,7 +40,18 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
 	bool bIsRolling = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	class USoundBase* DashSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	class USoundBase* AttackSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	class USoundBase* HitSound;
+
 	UFUNCTION(BlueprintCallable, Category = "Animation")
+
+
 	float GetMovementDirection() const;
 	
 	int HP;
@@ -76,7 +87,34 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Projectile)
 	TSubclassOf<AHDBowProjectile> ProjectileClass;
 
-	// 카메라 위치로부터의 총구 오프셋입니다.
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TSubclassOf<AActor> MineClass;
+
+	bool bCanUseMine = true; 
+	FTimerHandle MineCooldownTimerHandle;
+
+	void ResetMineCooldown(); 
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void UseMineItem();
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float MineCooldownTime = 3.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
+	float MaxMP;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Stat")
+	float CurrentMP;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
+	float MPRegenRate; // 초당 회복량
+
+	// MP 사용 가능 여부 확인 함수
+	bool CanUseMP(float Cost);
+	// MP 소모 함수
+	void UseMP(float Cost);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	FVector MuzzleOffset;
 
