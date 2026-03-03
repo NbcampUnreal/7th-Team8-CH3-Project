@@ -7,6 +7,7 @@
 #include "Core/HDGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "HDPlayerCharacter.h"
+#include "NavigationSystemTypes.h"
 
 AHDPlayerController::AHDPlayerController():
 	InputMappingContext(nullptr),
@@ -18,7 +19,9 @@ AHDPlayerController::AHDPlayerController():
 	MainMenuWidgetClass(nullptr),
 	MainMenuWidgetInstance(nullptr),
     GameOverWidgetClass(nullptr),
-    GameOverWidgetInstance(nullptr)
+    GameOverWidgetInstance(nullptr),
+    GameClearWidgetClass(nullptr),
+    GameClearWidgetInstance(nullptr)
 {
 }
 
@@ -146,7 +149,7 @@ void AHDPlayerController::ShowMainMenu()
 	}
 }
 
-void AHDPlayerController::ShowGameOverHUD()
+void AHDPlayerController::ShowGameOverUI()
 {
 	if (GameOverWidgetInstance)
 		return;
@@ -177,6 +180,37 @@ void AHDPlayerController::ShowGameOverHUD()
 			if (UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(UGameplayStatics::GetGameInstance(this)))
 			{
 				TotalScoreText->SetText(FText::FromString(FString::Printf(TEXT("Total Score: %d"), HDGameInstance->TotalScore)));
+			}
+		}
+	}
+}
+
+void AHDPlayerController::ShowGameClearUI()
+{
+	if (GameClearWidgetInstance)
+		return;
+	
+	if (GameClearWidgetClass)
+	{
+		GameClearWidgetInstance = CreateWidget<UUserWidget>(this, GameClearWidgetClass);
+		if (GameClearWidgetInstance)
+		{
+			GameClearWidgetInstance->AddToViewport();
+			
+			bShowMouseCursor = true;
+			SetInputMode(FInputModeGameOnly());
+		}
+		
+		if (UTextBlock* GameClearText = Cast<UTextBlock>(GameClearWidgetInstance->GetWidgetFromName("GameClearText")))
+		{
+			GameClearText->SetText(FText::FromString(FString::Printf(TEXT("퇴치 성공"))));
+		}
+		
+		if (UTextBlock* TotalScoreText = Cast<UTextBlock>(GameClearWidgetInstance->GetWidgetFromName("TotalScoreText")))
+		{
+			if (UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(UGameplayStatics::GetGameInstance(this)))
+			{
+				TotalScoreText->SetText(FText::FromString(FString::Printf(TEXT("최종 점수 : %d"), HDGameInstance->TotalScore)));
 			}
 		}
 	}

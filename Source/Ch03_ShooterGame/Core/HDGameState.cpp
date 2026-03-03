@@ -241,4 +241,13 @@ void AHDGameState::GameClear()
 			HDGameInstance->CurrentLevelIndex = CurrentLevelIndex;
 		}
 	}
+	
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
+		{
+			HDPlayerController->SetPause(true);
+			HDPlayerController->ShowGameClearUI();
+		}
+	}
 }
