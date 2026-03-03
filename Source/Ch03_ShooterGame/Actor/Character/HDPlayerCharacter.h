@@ -103,13 +103,6 @@ protected:
 	// MP 소모 함수
 	void UseMP(float Cost);
 
-
-
-
-	UFUNCTION()
-	void Fire();
-
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	FVector MuzzleOffset;
 
