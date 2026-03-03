@@ -229,6 +229,7 @@ void AHDPlayerController::LookAtMouseCursor(float DeltaTime) // 마우스 위치
 	// bHitSuccessful 변수가 true 라면
 	if (bHitSuccessful)
 	{
+		CachedMouseHitLocation = HitResult.Location;
 		// 캐릭터 회전 속도 설정
 		float RotationSpeed = 60.0f;
 		// 마우스 커서의 보이지 않는 레이저에 맞은 월드의 위치를 저장
@@ -249,6 +250,6 @@ void AHDPlayerController::LookAtMouseCursor(float DeltaTime) // 마우스 위치
 		FRotator SmoothRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, RotationSpeed);
 		
 		// 계산된 회전을 캐릭터에 적용
-		SetControlRotation(SmoothRotation);
+		ControlledActor->SetActorRotation(SmoothRotation);
 	}
 }

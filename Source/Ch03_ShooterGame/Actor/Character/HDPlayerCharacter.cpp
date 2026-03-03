@@ -23,8 +23,7 @@ AHDPlayerCharacter::AHDPlayerCharacter()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
 
-	bUseControllerRotationYaw = true;
-	GetCharacterMovement()->bOrientRotationToMovement = false;
+	bUseControllerRotationYaw = false;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 
@@ -192,6 +191,17 @@ void AHDPlayerCharacter::ResetAttack()
 
 void AHDPlayerCharacter::Fire()
 {
+	if (!ProjectileClass)
+		return;
+	
+	UWorld* World = GetWorld();
+	if (!World)
+		return;
+		
+	AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(GetController());
+	if (!HDPlayerController)
+		return;
+	
 	if (ProjectileClass)
 	{
 		FVector CharacterLocation = GetActorLocation();
@@ -199,22 +209,26 @@ void AHDPlayerCharacter::Fire()
 		
 		MuzzleOffset.Set(150.0f, 0.0f, 00.0f);		
 		FVector MuzzleLocation = CharacterLocation + FTransform(CharacterRotation).TransformVector(MuzzleOffset);
-		FRotator MuzzleRotation = CharacterRotation;		
-		MuzzleRotation.Pitch += 10.0f;
+		// FRotator MuzzleRotation = CharacterRotation;		
+		// MuzzleRotation.Pitch += 10.0f;
 
-		UWorld* World = GetWorld();
-
+		FVector TargetLocation = HDPlayerController->CachedMouseHitLocation;
+		TargetLocation.Z = MuzzleLocation.Z;
+		
 		if (World)
 		{
+			FVector LaunchDirection = (TargetLocation - MuzzleLocation).GetSafeNormal();
+			FRotator SpawnRotation = LaunchDirection.Rotation();
+			
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = this;
 			SpawnParams.Instigator = GetInstigator();
 
 			AHDBowProjectile* Projectile = World->SpawnActor<AHDBowProjectile>(
-				ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+				ProjectileClass, MuzzleLocation, SpawnRotation, SpawnParams);
+			
 			if (Projectile)
 			{
-				FVector LaunchDirection = MuzzleRotation.Vector();
 				Projectile->FireInDirection(LaunchDirection);
 			}
 		}

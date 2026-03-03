@@ -68,6 +68,7 @@ public:
 
 	void StartGame();
 	bool bIsRolling = false;
+	FVector CachedMouseHitLocation;
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
