@@ -42,7 +42,7 @@ float AHDNormalMonster::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	AActor* DamageCauser)
 {
 	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
+	
 	if (DamageCauser && CurrentHP > 0.0f) 
 	{
 		FVector PushDirection = GetActorLocation() - DamageCauser->GetActorLocation();
@@ -132,10 +132,10 @@ void AHDNormalMonster::UpdateOverheadHP() const
 {
 	if (!OverheadWidget) return;
 
-	const UUserWidget* OverheadWidgetInstacne = OverheadWidget->GetUserWidgetObject();
-	if (!OverheadWidgetInstacne) return;
+	const UUserWidget* OverheadWidgetInstance = OverheadWidget->GetUserWidgetObject();
+	if (!OverheadWidgetInstance) return;
 
-	if (UProgressBar* MonsterOverheadHPBar = Cast<UProgressBar>(OverheadWidgetInstacne->GetWidgetFromName("OverheadHP")))
+	if (UProgressBar* MonsterOverheadHPBar = Cast<UProgressBar>(OverheadWidgetInstance->GetWidgetFromName("OverheadHP")))
 	{
 		const float Precent = static_cast<float>(CurrentHP) / MaxHP;
 		MonsterOverheadHPBar->SetPercent(Precent);

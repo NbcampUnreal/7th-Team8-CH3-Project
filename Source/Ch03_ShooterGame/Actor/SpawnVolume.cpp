@@ -84,5 +84,17 @@ AHDMonCharacter* ASpawnVolume::SpawnMonster(TSubclassOf<AHDMonCharacter> Monster
         GetRandomPointInVolume(),
         FRotator::ZeroRotator
     );
+
     return SpawnedMonster;
+}
+
+void ASpawnVolume::SpawnHealingItem(TSubclassOf<AActor> AHealingItem)
+{
+    if (!AHealingItem) return;
+
+    GetWorld()->SpawnActor<AActor>(
+        AHealingItem,
+        GetRandomPointInVolume(),
+        FRotator::ZeroRotator
+    );
 }
