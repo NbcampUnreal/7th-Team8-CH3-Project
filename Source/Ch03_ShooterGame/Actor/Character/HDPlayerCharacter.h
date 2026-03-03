@@ -73,8 +73,8 @@ protected:
 
 	void RecoverMana(float DeltaTime);
 
-	UPROPERTY(EditAnywhere, Category = "Stat")
-	float ManaRegenRate = 0.5f; // 초당 회복량
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
+	float ManaRegenRate = 0.5f; 
 
 
 	// 발사체를 발사하는 함수입니다.
