@@ -46,9 +46,13 @@ void UHDTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
-
+	
+	
 	UAnimInstance* AnimInstance = HDMonCharacter->GetMesh()->GetAnimInstance();
-	if (AnimInstance == nullptr)
+	bool bIsPlaying = AnimInstance->Montage_IsPlaying(AttackMontage);
+    
+	// 2. 애니메이션이 멈췄거나(정상 종료), 다른 몽타주(피격 등)에 의해 밀려났을 때 종료 처리
+	if (!bIsPlaying)
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		return;

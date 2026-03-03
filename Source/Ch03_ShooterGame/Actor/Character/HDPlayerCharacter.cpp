@@ -42,7 +42,7 @@ AHDPlayerCharacter::AHDPlayerCharacter()
 
 	InitializationWeaponMesh();
 
-	MaxHP = 100.0f;
+	MaxHP = 1000.0f;
 	HP = MaxHP;
 
 	MaxMana = 100.0f;

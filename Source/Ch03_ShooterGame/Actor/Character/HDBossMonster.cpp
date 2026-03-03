@@ -3,6 +3,7 @@
 
 #include "Actor/Character/HDBossMonster.h"
 #include "Actor/Character/HDMonCharacter.h"
+#include "Actor/Character/HDPlayerCharacter.h"
 #include "AIController.h"
 #include "BrainComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -13,14 +14,15 @@
 AHDBossMonster::AHDBossMonster()
 {
 	
+	bHasUsed50PercentSkill = false;
 }
 void AHDBossMonster::BeginPlay()
 {
 	Super::BeginPlay();
-	MoveSpeed = 200.0f;
+	MoveSpeed = 300.0f;
 	MaxHP = 300.f;
 	CurrentHP = MaxHP;
-	Atk = 40.f;
+	Atk = 40.0f;
 	Def = 5.0f;
 	PointValue = 1000;
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
@@ -36,60 +38,97 @@ void AHDBossMonster::Skill()
 {
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && SkillMontage)
 	{
-		AnimInstance->Montage_Play(SkillMontage,2.0f);
+		AnimInstance->Montage_Play(SkillMontage, 1.0f);
 	}
-	
-	
-	float CapsuleRadius = GetCapsuleComponent()->GetScaledCapsuleRadius();
-	FVector StartLoc = GetActorLocation() + (GetActorForwardVector() * CapsuleRadius);
-	FVector EndLoc = StartLoc + (GetActorForwardVector() * 300.0f);
-	
-	FHitResult HitResult;
-	FCollisionQueryParams Params(NAME_None, false, this);
     
-	bool bResult = GetWorld()->SweepSingleByChannel(
-		 HitResult,
-		 StartLoc, 
-		 EndLoc,  
-		 FQuat::Identity,
-		 ECollisionChannel::ECC_Pawn,
-		 FCollisionShape::MakeSphere(50.0f),
-		 Params
-	  );
-
+	TArray<FHitResult> HitResults;
+	FCollisionQueryParams Params(NAME_None, false, this);
+	FVector StartLoc = GetActorLocation();
+	FVector EndLoc = StartLoc + (GetActorForwardVector() * 300.0f);
+	float AttackRadius = 500.0f;
+	
+	bool bResult = GetWorld()->SweepMultiByChannel(
+		HitResults, StartLoc, EndLoc, FQuat::Identity,
+		ECollisionChannel::ECC_Pawn, FCollisionShape::MakeSphere(AttackRadius), Params
+	);
 
 	if (bResult)
 	{
-		if (AActor* Target = HitResult.GetActor())
+		for (const FHitResult& Hit : HitResults)
 		{
-			// 로그 확인
-			UE_LOG(LogTemp, Warning, TEXT("Hit Target: %s"), *Target->GetName());
-
-			UGameplayStatics::ApplyDamage(
-				Target,
-				Atk * 2,      // 헤더에 선언한 공격력 변수
-				GetController(),   // 가해자(몬스터)의 컨트롤러
-				this,              // 가해자(몬스터) 자신
-				UDamageType::StaticClass()
-			);
+			if (AActor* Target = Hit.GetActor())
+			{
+				if (Target != this && Target->IsA(AHDPlayerCharacter::StaticClass()))
+				{
+					UGameplayStatics::ApplyDamage(
+						Target,
+						Atk * 2, 
+						GetController(),
+						this,
+						nullptr);
+					UE_LOG(LogTemp, Warning, TEXT("광역 스킬 히트: %s"), *Target->GetName());
+				}
+			}
 		}
 	}
+
+	if (AAIController* AiController = Cast<AAIController>(GetController()))
+	{
+		if (UBrainComponent* BC = AiController->GetBrainComponent())
+		{
+			BC->ResumeLogic("BossSkill");
+			BC->RestartLogic();
+			UE_LOG(LogTemp, Warning, TEXT("스킬 완료 (AI 재개)"));
+		}
+	}
+}
+bool AHDBossMonster::SkillReadyIsActive()
+{
+	if (MaxHP <= 0.f) return false;
+	float HPPercentage = CurrentHP / MaxHP;
+	if (GetWorld()->GetTimerManager().IsTimerActive(SkillTimerHandle)) return false;
+	
+	if (HPPercentage <= 0.5f && !bHasUsed50PercentSkill)
+	{
+		bHasUsed50PercentSkill = true; 
+		return true;
+	}    
+
+	return false;
 }
 
 void AHDBossMonster::WaitSkill()
 {
+	if (GetWorld()->GetTimerManager().IsTimerActive(SkillTimerHandle))
+	{
+		return;
+	}
+	if (AAIController* AIC = Cast<AAIController>(GetController()))
+	{
+		if (AIC->BrainComponent)
+		{
+			AIC->BrainComponent->PauseLogic("BossSkill"); // 태그 통일
+		}
+		AIC->StopMovement();
+	}
+
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && SkillReadyMontage)
 	{
 		AnimInstance->Montage_Play(SkillReadyMontage);
 	}
+    
+	UE_LOG(LogTemp, Error, TEXT("보스 스킬 대기중 (AI 일시정지)"));
+
+	
 	GetWorld()->GetTimerManager().SetTimer(
-		SkillTimerHandle, 
-		this, 
-		&AHDBossMonster::Skill, 
-		2.0f, 
-		false 
+	   SkillTimerHandle, 
+	   this, 
+	   &AHDBossMonster::Skill, 
+	   1.0f, 
+	   false 
 	);
 }
+
 
 void AHDBossMonster::RecoverFromHit()
 {
@@ -100,35 +139,21 @@ float AHDBossMonster::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
                                  AActor* DamageCauser)
 {
 	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	UE_LOG(LogTemp, Error, TEXT("나는 보스다! 넉백 코드가 없다!"));
-	
+
 	if (CurrentHP <= 0.0f)
 	{
 		OnDeath();
 		return ActualDamage;
 	}
-	if (AAIController* AIController = Cast<AAIController>(GetController()))
-	{
-      
-		AIController->StopMovement();
 	
-		if (AIController->GetBrainComponent())
+	if (!GetWorld()->GetTimerManager().IsTimerActive(SkillTimerHandle))
+	{
+		if (SkillReadyIsActive())
 		{
-			AIController->GetBrainComponent()->PauseLogic("HitStun");
+			WaitSkill();
 		}
-		if (HitRecoverTimerHandle.IsValid())
-		{
-			AIController->GetWorldTimerManager().ClearTimer(HitRecoverTimerHandle);
-		}
-     
-		GetWorld()->GetTimerManager().SetTimer(
-			HitRecoverTimerHandle,
-			this,
-			&AHDBossMonster::RecoverFromHit,
-			0.3f, 
-			false
-		);
 	}
+	
 	
 	return ActualDamage;
 }
@@ -147,33 +172,44 @@ void AHDBossMonster::AttackHitCheck()
 	FHitResult HitResult;
 	FCollisionQueryParams Params(NAME_None, false, this);
     
-	float AttackRadius = 200.0f;
+	float AttackRadius = 150.0f;
 
 	DrawDebugSphere(GetWorld(), EndLoc, AttackRadius, 16, FColor::Green, false, 2.0f);
-    
+
+
 	bool bResult = GetWorld()->SweepSingleByChannel(
 		HitResult,
-		StartLoc, 
-		EndLoc,  
+		StartLoc,
+		EndLoc,
 		FQuat::Identity,
 		ECollisionChannel::ECC_Pawn,
-		FCollisionShape::MakeSphere(AttackRadius), // 여기도 하드코딩된 200.0f 대신 변수 사용
+		FCollisionShape::MakeSphere(150.0f),
 		Params
-	  );
-    
-	if (bResult)
-	{
-		if (AActor* Target = HitResult.GetActor())
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Hit Target: %s"), *Target->GetName());
+		);
 
-			UGameplayStatics::ApplyDamage(
-			   Target,
-			   Atk,      
-			   GetController(),   
-			   this,              
-			   UDamageType::StaticClass()
-			);
+	if (AAIController* AIController = Cast<AAIController>(GetController()))
+	{
+		if (HitRecoverTimerHandle.IsValid())
+		{
+			AIController->GetWorldTimerManager().ClearTimer(HitRecoverTimerHandle);
+		}
+		if (bResult)
+		{
+			if (AActor* Target = HitResult.GetActor())
+			{
+				if (AHDPlayerCharacter* Player = Cast<AHDPlayerCharacter>(Target))
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Hit Target: %s"), *Target->GetName());
+
+					UGameplayStatics::ApplyDamage(
+						Target,
+						Atk,
+						GetController(),
+						this,
+						UDamageType::StaticClass()
+					);
+				}
+			}
 		}
 	}
 }
