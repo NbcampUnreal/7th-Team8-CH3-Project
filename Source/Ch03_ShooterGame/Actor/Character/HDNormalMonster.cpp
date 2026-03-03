@@ -26,14 +26,14 @@ OverheadTakeDamageWidget(nullptr)
 void AHDNormalMonster::BeginPlay()
 {
 	Super::BeginPlay();
-	UpdateOverheadHP();
 	MoveSpeed = 150.0f;
-	MaxHP = 60.f;
+	MaxHP = 100.f;
 	CurrentHP = MaxHP;
 	Atk = 20.f;
 	Def = 4.0f;
 	PointValue = 100;
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+	UpdateOverheadHP();
 }
 
 
@@ -50,8 +50,19 @@ float AHDNormalMonster::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	
 		LaunchCharacter(PushDirection * 1000.0f, true, false);
 	}
+	if (CurrentHP <= 0.0f)
+	{
+		OnDeath();
+		return ActualDamage;
+	}
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		if (TakeDamageMontage) AnimInstance->Montage_Play(TakeDamageMontage,1.2f);
+	}
+	
 	UpdateOverheadHP();
 	UpdateOverheadTakeDamage(ActualDamage);
+	
 	if (AAIController* AIController = Cast<AAIController>(GetController()))
 	{
       
@@ -70,7 +81,7 @@ float AHDNormalMonster::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 			HitRecoverTimerHandle,
 			this,
 			&AHDNormalMonster::RecoverFromHit,
-			1.0f, 
+			0.6f, 
 			false
 		);
 	}
@@ -80,9 +91,7 @@ float AHDNormalMonster::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 void AHDNormalMonster::AttackHitCheck()
 {
 	Super::AttackHitCheck();
-	
-	
-	
+
 }
 
 void AHDNormalMonster::OnDeath()
@@ -140,9 +149,9 @@ void AHDNormalMonster::HideOverheadTakeDamage() const
 	}
 }
 
-
 void AHDNormalMonster::RecoverFromHit()
 {
 	Super::RecoverFromHit();
-
 }
+
+

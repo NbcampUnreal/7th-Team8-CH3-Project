@@ -34,8 +34,9 @@ void AHDBossMonster::Skill()
 {
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && SkillMontage)
 	{
-		AnimInstance->Montage_Play(SkillMontage);
+		AnimInstance->Montage_Play(SkillMontage,2.0f);
 	}
+	
 	FHitResult HitResult;
 	FCollisionQueryParams Params(NAME_None, false, this);
 	
@@ -87,26 +88,22 @@ void AHDBossMonster::RecoverFromHit()
 	Super::RecoverFromHit();
 }
 
-
 float AHDBossMonster::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
                                  AActor* DamageCauser)
 {
 	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	UE_LOG(LogTemp, Error, TEXT("나는 보스다! 넉백 코드가 없다!"));
 	
-	
-	if (DamageCauser && CurrentHP > 0.0f) 
+	if (CurrentHP <= 0.0f)
 	{
-		FVector PushDirection = GetActorLocation() - DamageCauser->GetActorLocation();
-		PushDirection.Z = 0.0f;
-		PushDirection.Normalize();
-
-		LaunchCharacter(PushDirection * 1000.0f, true, false);
+		OnDeath();
+		return ActualDamage;
 	}
 	if (AAIController* AIController = Cast<AAIController>(GetController()))
 	{
       
 		AIController->StopMovement();
-
+	
 		if (AIController->GetBrainComponent())
 		{
 			AIController->GetBrainComponent()->PauseLogic("HitStun");
@@ -120,14 +117,16 @@ float AHDBossMonster::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 			HitRecoverTimerHandle,
 			this,
 			&AHDBossMonster::RecoverFromHit,
-			1.0f, 
+			0.3f, 
 			false
 		);
 	}
+	
 	return ActualDamage;
 }
 
 void AHDBossMonster::AttackHitCheck()
 {
 	Super::AttackHitCheck();
+	
 }

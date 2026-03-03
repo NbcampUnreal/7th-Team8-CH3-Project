@@ -40,13 +40,25 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
 	bool bIsRolling = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	class USoundBase* DashSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	class USoundBase* AttackSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	class USoundBase* HitSound;
+
 	UFUNCTION(BlueprintCallable, Category = "Animation")
+
+
 	float GetMovementDirection() const;
 	
 	int HP;
 	int MaxHP;
 	float Mana;
 	float MaxMana;
+	float Atk;
 	float DashCooldown;
 	float AttackCooldown;
 	
