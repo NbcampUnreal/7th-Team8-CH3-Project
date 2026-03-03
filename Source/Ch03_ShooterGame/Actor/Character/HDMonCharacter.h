@@ -30,15 +30,20 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Monster")
 	int PointValue;
 	
+	bool bHasUsed50PercentSkill = false;
+	bool bHasUsed30PercentSkill = false;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
 	UAnimMontage* TakeDamageMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
 	UAnimMontage* DeathMontage;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
 	UAnimMontage* SkillMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "AI Animation")
 	UAnimMontage* SkillReadyMontage;
-	
+
+	bool SkillReadyIsActive();
 	
 	FTimerHandle HideOverheadTakeDamageHUDHandle;
 
@@ -50,7 +55,8 @@ public:
 	virtual void BeginPlay() override;
 	virtual void OnDeath();
 	
-
+	virtual void Skill(); 
+	virtual void WaitSkill(); 
 protected:
 	FTimerHandle HitRecoverTimerHandle;
 	FTimerHandle SkillTimerHandle;
