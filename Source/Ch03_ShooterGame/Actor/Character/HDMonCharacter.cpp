@@ -115,37 +115,7 @@ void AHDMonCharacter::WaitSkill()
 
 void AHDMonCharacter::AttackHitCheck()
 {
-    FHitResult HitResult;
-    FCollisionQueryParams Params(NAME_None, false, this);
-    
    
-    bool bResult = GetWorld()->SweepSingleByChannel(
-        HitResult,
-        GetActorLocation(),
-        GetActorLocation() + GetActorForwardVector() * 100.0f, // 사거리 100
-        FQuat::Identity,
-        ECollisionChannel::ECC_Pawn,
-        FCollisionShape::MakeSphere(50.0f),
-        Params
-    );
-    
-
-    if (bResult)
-    {
-        if (AActor* Target = HitResult.GetActor())
-        {
-            // 로그 확인
-            UE_LOG(LogTemp, Warning, TEXT("Hit Target: %s"), *Target->GetName());
-
-            UGameplayStatics::ApplyDamage(
-                Target,
-                Atk,      // 헤더에 선언한 공격력 변수
-                GetController(),   // 가해자(몬스터)의 컨트롤러
-                this,              // 가해자(몬스터) 자신
-                UDamageType::StaticClass()
-            );
-        }
-    }
 }
 
 

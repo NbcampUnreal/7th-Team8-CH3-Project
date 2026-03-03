@@ -5,8 +5,10 @@
 #include "Actor/Character/HDMonCharacter.h"
 #include "AIController.h"
 #include "BrainComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
 
 AHDBossMonster::AHDBossMonster()
 {
@@ -37,18 +39,24 @@ void AHDBossMonster::Skill()
 		AnimInstance->Montage_Play(SkillMontage,2.0f);
 	}
 	
+	
+	float CapsuleRadius = GetCapsuleComponent()->GetScaledCapsuleRadius();
+	FVector StartLoc = GetActorLocation() + (GetActorForwardVector() * CapsuleRadius);
+	FVector EndLoc = StartLoc + (GetActorForwardVector() * 300.0f);
+	
 	FHitResult HitResult;
 	FCollisionQueryParams Params(NAME_None, false, this);
-	
+    
 	bool bResult = GetWorld()->SweepSingleByChannel(
-	   HitResult,
-	   GetActorLocation(),
-	   GetActorLocation() + GetActorForwardVector() * 300.0f, 
-	   FQuat::Identity,
-	   ECollisionChannel::ECC_Pawn,
-	   FCollisionShape::MakeSphere(50.0f),
-	   Params
-   );
+		 HitResult,
+		 StartLoc, 
+		 EndLoc,  
+		 FQuat::Identity,
+		 ECollisionChannel::ECC_Pawn,
+		 FCollisionShape::MakeSphere(50.0f),
+		 Params
+	  );
+
 
 	if (bResult)
 	{
@@ -127,6 +135,45 @@ float AHDBossMonster::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 
 void AHDBossMonster::AttackHitCheck()
 {
-	Super::AttackHitCheck();
+    
+	float CapsuleRadius = GetCapsuleComponent()->GetScaledCapsuleRadius();
+	UE_LOG(LogTemp, Warning, TEXT("공격중"));
 	
+	FVector HeightOffset = FVector(0.0f, 0.0f, -150.0f);
+    
+	FVector StartLoc = GetActorLocation() + (GetActorForwardVector() * CapsuleRadius) + HeightOffset;
+	FVector EndLoc = StartLoc + (GetActorForwardVector() * 150.0f);
+    
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
+    
+	float AttackRadius = 200.0f;
+
+	DrawDebugSphere(GetWorld(), EndLoc, AttackRadius, 16, FColor::Green, false, 2.0f);
+    
+	bool bResult = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		StartLoc, 
+		EndLoc,  
+		FQuat::Identity,
+		ECollisionChannel::ECC_Pawn,
+		FCollisionShape::MakeSphere(AttackRadius), // 여기도 하드코딩된 200.0f 대신 변수 사용
+		Params
+	  );
+    
+	if (bResult)
+	{
+		if (AActor* Target = HitResult.GetActor())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Hit Target: %s"), *Target->GetName());
+
+			UGameplayStatics::ApplyDamage(
+			   Target,
+			   Atk,      
+			   GetController(),   
+			   this,              
+			   UDamageType::StaticClass()
+			);
+		}
+	}
 }
