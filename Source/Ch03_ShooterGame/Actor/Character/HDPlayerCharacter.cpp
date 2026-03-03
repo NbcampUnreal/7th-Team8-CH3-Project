@@ -252,6 +252,9 @@ float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	HP = FMath::Clamp(HP - ActualDamage, 0.0f, MaxHP);
 	UE_LOG(LogTemp, Warning, TEXT("Hit damage: %d / %d"), HP, MaxHP);
 	
+	AHDGameState* HDGameState = Cast<AHDGameState>(GetWorld()->GetGameState());
+	HDGameState->UpdateHUD();
+	
 	if (HP <= 0)
 	{
 		OnDeath();
