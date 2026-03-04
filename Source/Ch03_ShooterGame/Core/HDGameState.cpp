@@ -140,7 +140,7 @@ void AHDGameState::StartLevel()
 	TArray<AActor*> FoundVolumes;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnVolume::StaticClass(), FoundVolumes);
 
-	const int32 MonsterToSpawn = (CurrentLevelIndex+1)*3;
+	const int32 MonsterToSpawn = 20;
 
 	if (FoundVolumes.Num() > 0)
 	{
