@@ -82,7 +82,7 @@ protected:
 	void RecoverMana(float DeltaTime);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
-	float ManaRegenRate = 0.5f; 
+	float ManaRegenRate = 0.8f; 
 
 
 	// 발사체를 발사하는 함수입니다.
@@ -109,7 +109,7 @@ protected:
 
 	bool bCanUseMine = true; 
 
-	void ResetMineCooldown(); 
+	void ResetMineCooldown();
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void UseMineItem();

@@ -23,7 +23,9 @@ AHDPlayerController::AHDPlayerController():
     GameClearWidgetClass(nullptr),
     GameClearWidgetInstance(nullptr),
     GameRuleWidgetClass(nullptr),
-    GameRuleWidgetInstance(nullptr)
+    GameRuleWidgetInstance(nullptr),
+    BossWidgetClass(nullptr),
+    BossWidgetInstance(nullptr)
 {
 }
 
@@ -88,7 +90,7 @@ void AHDPlayerController::StartGame()
 		Viewport->RemoveAllViewportWidgets();
 	}
 
-	UGameplayStatics::OpenLevel(this, FName("L_Geunjeongjeon"));
+	UGameplayStatics::OpenLevel(this, FName("L_Stage01"));
 	SetPause(false);
 }
 
@@ -224,6 +226,30 @@ void AHDPlayerController::ShowGameClearUI()
 	}
 }
 
+void AHDPlayerController::ShowBossHUD()
+{
+	if (BossWidgetInstance)
+		return;
+	
+	if (BossWidgetClass)
+	{
+		BossWidgetInstance = CreateWidget<UUserWidget>(this, BossWidgetClass);
+		if (BossWidgetInstance)
+		{
+			BossWidgetInstance->AddToViewport();
+			
+			bShowMouseCursor = false;
+			SetInputMode(FInputModeGameOnly());
+		}
+		
+		AHDGameState* HDGameState = GetWorld() ? GetWorld()->GetGameState<AHDGameState>() : nullptr;
+		if (HDGameState)
+		{
+			HDGameState->UpdateHUD();
+		}
+	}
+}
+
 void AHDPlayerController::ShowGameRule()
 {
 	if (!GameRuleWidgetClass)
@@ -281,4 +307,9 @@ void AHDPlayerController::LookAtMouseCursor(float DeltaTime) // 마우스 위치
 		// 계산된 회전을 캐릭터에 적용
 		ControlledActor->SetActorRotation(SmoothRotation);
 	}
+}
+
+void AHDPlayerController::ExitGame()
+{
+	UKismetSystemLibrary::QuitGame(GetWorld(), this, EQuitPreference::Quit, true);
 }

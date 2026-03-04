@@ -42,7 +42,7 @@ AHDPlayerCharacter::AHDPlayerCharacter()
 
 	InitializationWeaponMesh();
 
-	MaxHP = 1000.0f;
+	MaxHP = 100.0f;
 	HP = MaxHP;
 
 	MaxMana = 100.0f;
@@ -190,9 +190,6 @@ void AHDPlayerCharacter::UseMineItem()
 	}
 	
 }
-
-
-
 
 void AHDPlayerCharacter::ResetMineCooldown()
 {

@@ -7,15 +7,17 @@
 #include "Actor/Character/HDPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Actor/SpawnVolume.h"
+#include "Actor/Character/HDBossMonster.h"
 #include "Actor/Character/HDMonCharacter.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Image.h"
 
 AHDGameState::AHDGameState()
 {
 	Score = 0;
-	LevelDuration = 115.0f; 
+	LevelDuration = 60.0f; 
 	CurrentLevelIndex = 0;
 	MaxLevels = 5;
 }
@@ -116,6 +118,30 @@ void AHDGameState::UpdateHUD()
 						}
 					}
 				}
+				
+				if (UImage* BossHPBarImage = Cast<UImage>(HUDWidget->GetWidgetFromName(TEXT("BossHPBarImage"))))
+				{
+					if (UProgressBar* BossHPProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("BossHPBar"))))
+					{
+						if (CurrentLevelIndex < 4)
+						{
+							BossHPBarImage->SetVisibility(ESlateVisibility::Hidden);
+							BossHPProgressBar->SetVisibility(ESlateVisibility::Hidden);
+						}
+						else
+						{
+							BossHPBarImage->SetVisibility(ESlateVisibility::Visible);
+							BossHPProgressBar->SetVisibility(ESlateVisibility::Visible);
+							
+							AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(), AHDBossMonster::StaticClass());
+							
+							if (AHDBossMonster* HdBossMonster = Cast<AHDBossMonster>(FoundActor))
+							{
+								BossHPProgressBar->SetPercent(HdBossMonster->CurrentHP / HdBossMonster->MaxHP);
+							}
+						}
+					}
+				}
 
 				if (UTextBlock* TimeText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("TimeText"))))
 				{
@@ -138,7 +164,7 @@ void AHDGameState::UpdateHUD()
 				
 				if (UTextBlock* GameRuleText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("GameRuleText"))))
 				{
-					GameRuleText->SetText(FText::FromString(FString::Printf(TEXT("괴물들의 공격을 피하고 사살하여 점수를 얻고 끝까지 생존하라"))));
+					GameRuleText->SetText(FText::FromString(FString::Printf(TEXT("괴물들의 공격을 피하고 퇴치하여 점수를 얻고 끝까지 생존하라"))));
 					if (CurrentLevelIndex >= 1)
 					{
 						GameRuleText->SetVisibility(ESlateVisibility::Hidden);
@@ -156,7 +182,8 @@ void AHDGameState::StartLevel()
 	{
 		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
 		{
-			HDPlayerController->ShowCharacterHUD();
+	
+				HDPlayerController->ShowCharacterHUD();
 		}
 	}
 
@@ -173,19 +200,40 @@ void AHDGameState::StartLevel()
 	TArray<AActor*> FoundVolumes;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnVolume::StaticClass(), FoundVolumes);
 
-	const int32 MonsterToSpawn = 20;
+	const int32 MonsterToSpawn = 50 + CurrentLevelIndex * 5;
+	const int32 BossStageMonsterToSpawn = 10;
 
-	if (FoundVolumes.Num() > 0)
+	if (CurrentLevelIndex < 4)
 	{
-		for (int32 i = 0; i < MonsterToSpawn; i++)
+		if (FoundVolumes.Num() > 0)
 		{
-			int32 TargetIdx = FMath::RandRange(0, FoundVolumes.Num() - 1);
-			ASpawnVolume* SpawnVolume = Cast<ASpawnVolume>(FoundVolumes[TargetIdx]);
-
-			if (SpawnVolume)
+			for (int32 i = 0; i < MonsterToSpawn; i++)
 			{
-				AHDMonCharacter* SpawnedMonster = SpawnVolume->SpawnRandomMonster();
-				UE_LOG(LogTemp, Warning, TEXT("Spawned at Volume Index: %d"), TargetIdx);
+				int32 TargetIdx = FMath::RandRange(0, FoundVolumes.Num() - 1);
+				ASpawnVolume* SpawnVolume = Cast<ASpawnVolume>(FoundVolumes[TargetIdx]);
+			
+				if (SpawnVolume)
+				{
+					AHDMonCharacter* SpawnedMonster = SpawnVolume->SpawnRandomMonster();
+					UE_LOG(LogTemp, Warning, TEXT("Spawned at Volume Index: %d"), TargetIdx);
+				}
+			}
+		}
+	}
+	else
+	{
+		if (FoundVolumes.Num() > 0)
+		{
+			for (int32 i = 0; i < BossStageMonsterToSpawn; i++)
+			{
+				int32 TargetIdx = FMath::RandRange(0, FoundVolumes.Num() - 1);
+				ASpawnVolume* SpawnVolume = Cast<ASpawnVolume>(FoundVolumes[TargetIdx]);
+			
+				if (SpawnVolume)
+				{
+					AHDMonCharacter* SpawnedMonster = SpawnVolume->SpawnRandomMonster();
+					UE_LOG(LogTemp, Warning, TEXT("Spawned at Volume Index: %d"), TargetIdx);
+				}
 			}
 		}
 	}

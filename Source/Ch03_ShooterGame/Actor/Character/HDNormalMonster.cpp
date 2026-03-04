@@ -28,8 +28,8 @@ OverheadTakeDamageWidget(nullptr)
 void AHDNormalMonster::BeginPlay()
 {
 	Super::BeginPlay();
-	MoveSpeed = 200.0f;
-	MaxHP = 100.f;
+	MoveSpeed = 450.0f;
+	MaxHP = 60.f;
 	CurrentHP = MaxHP;
 	Atk = 20.f;
 	Def = 4.0f;
@@ -113,14 +113,17 @@ void AHDNormalMonster::AttackHitCheck()
 		{
 			// 로그 확인
 			UE_LOG(LogTemp, Warning, TEXT("Hit Target: %s"), *Target->GetName());
-
-			UGameplayStatics::ApplyDamage(
-				Target,
-				Atk, 
-				GetController(),
-				this,
-				UDamageType::StaticClass()
-			);
+			
+			if (Target->ActorHasTag("Player"))
+			{
+				UGameplayStatics::ApplyDamage(
+					Target,
+					Atk, 
+					GetController(),
+					this,
+					UDamageType::StaticClass()
+					);
+			}
 		}
 	}
 }

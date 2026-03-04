@@ -19,7 +19,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Score")
 	int32 Score;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level")
 	float LevelDuration;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level")

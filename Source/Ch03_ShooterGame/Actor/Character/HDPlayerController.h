@@ -50,6 +50,10 @@ public:
 	TSubclassOf<UUserWidget> GameRuleWidgetClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "HUD")
 	UUserWidget* GameRuleWidgetInstance;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+	TSubclassOf<UUserWidget> BossWidgetClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "HUD")
+	UUserWidget* BossWidgetInstance;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Text")
 	UWidgetAnimation* FadeAnimation;
 	
@@ -65,7 +69,12 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void ShowGameOverUI();
+	
+	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void ShowGameClearUI();
+	
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+	void ShowBossHUD();
 	
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void ShowGameRule();
@@ -82,4 +91,5 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	void LookAtMouseCursor(float DeltaTime);
+	void ExitGame();
 };
