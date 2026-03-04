@@ -29,5 +29,10 @@ public:
     FMonsterSpawnRow* GetRandomMonster() const;
     AHDMonCharacter* SpawnMonster(TSubclassOf<AHDMonCharacter> MonsterClass);
     FVector GetRandomPointInVolume() const;
-
+    // // 특정 아이템 클래스를 스폰하는 함수
+    // UFUNCTION(BlueprintCallable, Category = "Spawning")
+    // void SpawnMonster(TSubclassOf<ACharacter> AHDMonCharacter);
+	
+	UFUNCTION(BlueprintCallable, Category = "Spawning")
+	void SpawnHealingItem(TSubclassOf<AActor> AHealingItem);
 };

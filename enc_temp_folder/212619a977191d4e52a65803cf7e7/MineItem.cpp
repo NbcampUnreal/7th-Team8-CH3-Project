@@ -11,7 +11,7 @@ AMineItem::AMineItem()
 {
 	ExplosionDelay = 2.0f;
 	ExplosionRadius = 300.0f;
-	ExplosionDamage = 40.0f;
+	ExplosionDamage = 50.0f;
 	ItemType = "Mine";
     bHasExploded = false;
 
@@ -78,6 +78,7 @@ void AMineItem::Explode()
 
 
             );
+            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Player damaged %d by MineItem"), ExplosionDamage));
         }
     }
     SetActorEnableCollision(false);

@@ -7,6 +7,7 @@
 #include "Core/HDGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "HDPlayerCharacter.h"
+#include "NavigationSystemTypes.h"
 
 AHDPlayerController::AHDPlayerController():
 	InputMappingContext(nullptr),
@@ -18,7 +19,9 @@ AHDPlayerController::AHDPlayerController():
 	MainMenuWidgetClass(nullptr),
 	MainMenuWidgetInstance(nullptr),
     GameOverWidgetClass(nullptr),
-    GameOverWidgetInstance(nullptr)
+    GameOverWidgetInstance(nullptr),
+    GameClearWidgetClass(nullptr),
+    GameClearWidgetInstance(nullptr)
 {
 }
 
@@ -146,7 +149,7 @@ void AHDPlayerController::ShowMainMenu()
 	}
 }
 
-void AHDPlayerController::ShowGameOverHUD()
+void AHDPlayerController::ShowGameOverUI()
 {
 	if (GameOverWidgetInstance)
 		return;
@@ -182,6 +185,37 @@ void AHDPlayerController::ShowGameOverHUD()
 	}
 }
 
+void AHDPlayerController::ShowGameClearUI()
+{
+	if (GameClearWidgetInstance)
+		return;
+	
+	if (GameClearWidgetClass)
+	{
+		GameClearWidgetInstance = CreateWidget<UUserWidget>(this, GameClearWidgetClass);
+		if (GameClearWidgetInstance)
+		{
+			GameClearWidgetInstance->AddToViewport();
+			
+			bShowMouseCursor = true;
+			SetInputMode(FInputModeGameOnly());
+		}
+		
+		if (UTextBlock* GameClearText = Cast<UTextBlock>(GameClearWidgetInstance->GetWidgetFromName("GameClearText")))
+		{
+			GameClearText->SetText(FText::FromString(FString::Printf(TEXT("퇴치 성공"))));
+		}
+		
+		if (UTextBlock* TotalScoreText = Cast<UTextBlock>(GameClearWidgetInstance->GetWidgetFromName("TotalScoreText")))
+		{
+			if (UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(UGameplayStatics::GetGameInstance(this)))
+			{
+				TotalScoreText->SetText(FText::FromString(FString::Printf(TEXT("최종 점수 : %d"), HDGameInstance->TotalScore)));
+			}
+		}
+	}
+}
+
 void AHDPlayerController::LookAtMouseCursor(float DeltaTime) // 마우스 위치를 따라 캐릭터가 회전하게 만들어주는 함수
 {
 	// 조종 중인 캐릭터 가져오기, 없으면 리턴
@@ -195,6 +229,7 @@ void AHDPlayerController::LookAtMouseCursor(float DeltaTime) // 마우스 위치
 	// bHitSuccessful 변수가 true 라면
 	if (bHitSuccessful)
 	{
+		CachedMouseHitLocation = HitResult.Location;
 		// 캐릭터 회전 속도 설정
 		float RotationSpeed = 60.0f;
 		// 마우스 커서의 보이지 않는 레이저에 맞은 월드의 위치를 저장
