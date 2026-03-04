@@ -14,7 +14,7 @@
 AHDGameState::AHDGameState()
 {
 	Score = 0;
-	LevelDuration = 15.0f; 
+	LevelDuration = 115.0f; 
 	CurrentLevelIndex = 0;
 	MaxLevels = 10;
 }
