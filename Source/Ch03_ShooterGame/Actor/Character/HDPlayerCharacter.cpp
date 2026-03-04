@@ -15,7 +15,7 @@
 
 AHDPlayerCharacter::AHDPlayerCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArmComp->SetupAttachment(RootComponent);
 	SpringArmComp->TargetArmLength = 1000.0f;
@@ -50,6 +50,26 @@ AHDPlayerCharacter::AHDPlayerCharacter()
 
 	DashCooldown = 3.0f;
 	AttackCooldown = 0.3f;
+
+
+}
+
+void AHDPlayerCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	RecoverMana(DeltaTime);
+}
+
+void AHDPlayerCharacter::RecoverMana(float DeltaTime)
+{
+	if (Mana >= MaxMana) return; 
+
+	Mana = FMath::Clamp(
+		Mana + ManaRegenRate * DeltaTime,
+		0.0f,
+		MaxMana
+	);
 }
 
 void AHDPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -155,7 +175,6 @@ void AHDPlayerCharacter::UseMineItem()
 			if (SpawnedMine)
 			{
 				Mana = FMath::Clamp(Mana - MineCost, 0.0f, MaxMana);
-				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("지뢰 설치 완료!"));
 			}
 		}
 	
@@ -169,10 +188,7 @@ void AHDPlayerCharacter::UseMineItem()
 			false
 		);
 	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("지뢰 쿨타임 중입니다!"));
-	}
+	
 }
 
 
@@ -191,6 +207,17 @@ void AHDPlayerCharacter::ResetAttack()
 
 void AHDPlayerCharacter::Fire()
 {
+	if (!ProjectileClass)
+		return;
+	
+	UWorld* World = GetWorld();
+	if (!World)
+		return;
+		
+	AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(GetController());
+	if (!HDPlayerController)
+		return;
+	
 	if (ProjectileClass)
 	{
 		FVector CharacterLocation = GetActorLocation();
@@ -198,22 +225,26 @@ void AHDPlayerCharacter::Fire()
 		
 		MuzzleOffset.Set(150.0f, 0.0f, 00.0f);		
 		FVector MuzzleLocation = CharacterLocation + FTransform(CharacterRotation).TransformVector(MuzzleOffset);
-		FRotator MuzzleRotation = CharacterRotation;		
-		MuzzleRotation.Pitch += 10.0f;
+		// FRotator MuzzleRotation = CharacterRotation;		
+		// MuzzleRotation.Pitch += 10.0f;
 
-		UWorld* World = GetWorld();
-
+		FVector TargetLocation = HDPlayerController->CachedMouseHitLocation;
+		TargetLocation.Z = MuzzleLocation.Z;
+		
 		if (World)
 		{
+			FVector LaunchDirection = (TargetLocation - MuzzleLocation).GetSafeNormal();
+			FRotator SpawnRotation = LaunchDirection.Rotation();
+			
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = this;
 			SpawnParams.Instigator = GetInstigator();
 
 			AHDBowProjectile* Projectile = World->SpawnActor<AHDBowProjectile>(
-				ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+				ProjectileClass, MuzzleLocation, SpawnRotation, SpawnParams);
+			
 			if (Projectile)
 			{
-				FVector LaunchDirection = MuzzleRotation.Vector();
 				Projectile->FireInDirection(LaunchDirection);
 			}
 		}
@@ -228,10 +259,6 @@ void AHDPlayerCharacter::Attack(const FInputActionValue& value)
 
 	if (bCanAttack) return;
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Attack Function Called!"));
-	}
 	
 	if (AttackMontage)
 	{
@@ -356,27 +383,3 @@ float AHDPlayerCharacter::GetMovementDirection() const
 	return UKismetAnimationLibrary::CalculateDirection(GetVelocity(), GetActorRotation());
 }
 
-void AHDPlayerCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	float CurrentSpeed = GetVelocity().Size();
-
-	bool bShouldPlayFootstep = (CurrentSpeed > 10.0f) && !bIsRolling && (HP > 0);
-
-	if (bShouldPlayFootstep)
-	{
-		if (FootstepSound && !FootstepAudioComp->IsPlaying())
-		{
-			FootstepAudioComp->SetSound(FootstepSound);
-			FootstepAudioComp->Play();
-		}
-	}
-	else
-	{
-		if (FootstepAudioComp->IsPlaying())
-		{
-			FootstepAudioComp->Stop();
-		}
-	}
-}

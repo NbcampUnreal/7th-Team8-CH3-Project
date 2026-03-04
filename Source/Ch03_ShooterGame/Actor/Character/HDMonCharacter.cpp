@@ -43,7 +43,16 @@ void AHDMonCharacter::BeginPlay()
     
     if (FootstepSound)
     {
-        UGameplayStatics::PlaySoundAtLocation(this, FootstepSound, GetActorLocation());
+        UGameplayStatics::PlaySoundAtLocation(
+            this, 
+            FootstepSound, 
+            GetActorLocation(), 
+            FRotator::ZeroRotator, 
+            1.0f, 
+            1.0f, 
+            0.0f, 
+            FootstepAttenuation 
+        );
     }
 }
 
@@ -94,7 +103,7 @@ void AHDMonCharacter::OnDeath()
     GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     DetachFromControllerPendingDestroy();
 
-    SetLifeSpan(3.0f);
+    SetLifeSpan(2.0f);
 }
 
 void AHDMonCharacter::Skill()

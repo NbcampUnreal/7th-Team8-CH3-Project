@@ -112,10 +112,7 @@ void AHDBowProjectile::FireInDirection(const FVector& ShootDirection)
 
 void AHDBowProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (OtherActor && GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString::Printf(TEXT("Arrow Hit: %s"), *OtherActor->GetName()));
-	}
+
 
 	if (OtherActor != nullptr && OtherActor != this)
 	{

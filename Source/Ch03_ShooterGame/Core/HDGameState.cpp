@@ -14,7 +14,7 @@
 AHDGameState::AHDGameState()
 {
 	Score = 0;
-	LevelDuration = 15.0f; 
+	LevelDuration = 115.0f; 
 	CurrentLevelIndex = 0;
 	MaxLevels = 10;
 }
@@ -223,7 +223,7 @@ void AHDGameState::OnGameOver()
 		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
 		{
 			HDPlayerController->SetPause(true);
-			HDPlayerController->ShowGameOverHUD();
+			HDPlayerController->ShowGameOverUI();
 		}
 	}
 }
@@ -239,6 +239,15 @@ void AHDGameState::GameClear()
 			HDGameInstance->TotalScore += Score;
 			CurrentLevelIndex = 0;
 			HDGameInstance->CurrentLevelIndex = CurrentLevelIndex;
+		}
+	}
+	
+	if (APlayerController* PlayerController = GetWorld()->GetFirstPlayerController())
+	{
+		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
+		{
+			HDPlayerController->SetPause(true);
+			HDPlayerController->ShowGameClearUI();
 		}
 	}
 }
