@@ -31,7 +31,7 @@ void AMineItem::ActivateItem(AActor* Activator)
 
     Super::ActivateItem(Activator);
 
-   
+    Explode();
 }
 
 void AMineItem::Explode()
@@ -81,7 +81,9 @@ void AMineItem::Explode()
             GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Player damaged %d by MineItem"), ExplosionDamage));
         }
     }
-    DestroyItem();
+    SetActorEnableCollision(false);
+    SetActorHiddenInGame(true);
+    Destroy();
 
     if (Particle)
     {

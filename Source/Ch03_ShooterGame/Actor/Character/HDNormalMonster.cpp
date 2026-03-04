@@ -126,6 +126,8 @@ void AHDNormalMonster::AttackHitCheck()
 void AHDNormalMonster::OnDeath()
 {
 	Super::OnDeath();
+	UpdateOverheadHP();
+	
 }
 
 void AHDNormalMonster::UpdateOverheadHP() const
@@ -177,6 +179,7 @@ void AHDNormalMonster::HideOverheadTakeDamage() const
 		OverheadTakeDamageText->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
+
 
 void AHDNormalMonster::RecoverFromHit()
 {
