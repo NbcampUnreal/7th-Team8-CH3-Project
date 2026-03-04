@@ -17,6 +17,7 @@ class CH03_SHOOTERGAME_API AHDBossMonster : public AHDMonCharacter
 	
 	
 	AHDBossMonster();
+	 
 	
 	GENERATED_BODY()
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;

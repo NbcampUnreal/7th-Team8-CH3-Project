@@ -104,7 +104,7 @@ void AHDMonCharacter::OnDeath()
     DetachFromControllerPendingDestroy();
 
     SetLifeSpan(2.0f);
-}
+} 
 
 void AHDMonCharacter::Skill()
 {

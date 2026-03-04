@@ -81,7 +81,8 @@ void AHDBossMonster::Skill()
 			UE_LOG(LogTemp, Warning, TEXT("스킬 완료 (AI 재개)"));
 		}
 	}
-}
+} 
+
 bool AHDBossMonster::SkillReadyIsActive()
 {
 	if (MaxHP <= 0.f) return false;
