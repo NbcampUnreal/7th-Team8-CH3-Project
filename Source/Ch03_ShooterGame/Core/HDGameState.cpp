@@ -10,6 +10,7 @@
 #include "Actor/Character/HDMonCharacter.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
+#include "Blueprint/UserWidget.h"
 
 AHDGameState::AHDGameState()
 {
@@ -99,7 +100,7 @@ void AHDGameState::UpdateHUD()
 				if (UTextBlock* TimeText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("TimeText"))))
 				{
 					float RemainingTime = GetWorldTimerManager().GetTimerRemaining(LevelTimerHandle);
-					TimeText->SetText(FText::FromString(FString::Printf(TEXT("남은시간 : %.1f"), RemainingTime)));
+					TimeText->SetText(FText::FromString(FString::Printf(TEXT("남은시간 : %.f"), RemainingTime)));
 				}
 
 				if (UTextBlock* ScoreText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("ScoreText"))))
@@ -110,6 +111,15 @@ void AHDGameState::UpdateHUD()
 				if (UTextBlock* StageIndexText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("StageText"))))
 				{
 					StageIndexText->SetText(FText::FromString(FString::Printf(TEXT("제 %d 장"), CurrentLevelIndex + 1)));
+				}
+				
+				if (UTextBlock* GameRuleText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("GameRuleText"))))
+				{
+					GameRuleText->SetText(FText::FromString(FString::Printf(TEXT("괴물들의 공격을 피하고 사살하여 점수를 얻고 끝까지 생존하라"))));
+					if (CurrentLevelIndex >= 1)
+					{
+						GameRuleText->SetVisibility(ESlateVisibility::Hidden);
+					}
 				}
 			}
 		}
