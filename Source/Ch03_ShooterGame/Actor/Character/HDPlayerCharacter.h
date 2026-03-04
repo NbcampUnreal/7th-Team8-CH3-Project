@@ -70,6 +70,7 @@ public:
 	
 	float GetDashCooldownPercent() const;
 	float GetAttackCooldownPercent() const;
+	void AddHealth(float Amount);
 	
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

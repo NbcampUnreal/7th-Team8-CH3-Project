@@ -82,21 +82,16 @@ void ABaseMine::ActivateItem(AActor* Activator)
 			},
 			2.0f,
 			false
-
 		);
 	}
-
 }
-	FName ABaseMine::GetItemType() const
-	{
-		return ItemType;
-	}
 
+FName ABaseMine::GetItemType() const
+{
+	return ItemType;
+}
 
-
-	void ABaseMine::DestroyItem()
-	{
-		Destroy();
-	}
-
-	
+void ABaseMine::DestroyItem()
+{
+	Destroy();
+}

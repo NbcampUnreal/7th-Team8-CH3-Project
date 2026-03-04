@@ -42,7 +42,7 @@ AHDPlayerCharacter::AHDPlayerCharacter()
 
 	InitializationWeaponMesh();
 
-	MaxHP = 100.0f;
+	MaxHP = 1000.0f;
 	HP = MaxHP;
 
 	MaxMana = 100.0f;
@@ -278,6 +278,9 @@ float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		UGameplayStatics::PlaySoundAtLocation(this, HitSound, GetActorLocation());
 	}
 	
+	AHDGameState* HDGameState = Cast<AHDGameState>(GetWorld()->GetGameState());
+	HDGameState->UpdateHUD();
+	
 	if (HP <= 0)
 	{
 		OnDeath();
@@ -321,6 +324,11 @@ void AHDPlayerCharacter::InitializationWeaponMesh()
 	}
 
 	BowStaticMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Bow_Socket"));
+}
+
+void AHDPlayerCharacter::AddHealth(float Amount)
+{
+	HP = FMath::Clamp(HP + Amount, 0.0f, MaxHP);
 }
 
 float AHDPlayerCharacter::GetDashCooldownPercent() const
