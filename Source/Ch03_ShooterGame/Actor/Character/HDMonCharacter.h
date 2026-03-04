@@ -30,7 +30,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Monster")
 	int PointValue;
 	
-	bool bHasUsed50PercentSkill = false;
+
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	class USoundBase* FootstepSound;

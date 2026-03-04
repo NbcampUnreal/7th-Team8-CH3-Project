@@ -14,7 +14,6 @@
 AHDBossMonster::AHDBossMonster()
 {
 	
-	bHasUsed50PercentSkill = false;
 }
 void AHDBossMonster::BeginPlay()
 {
@@ -32,6 +31,7 @@ void AHDBossMonster::BeginPlay()
 void AHDBossMonster::OnDeath()
 {
 	Super::OnDeath();
+	
 }
 
 void AHDBossMonster::Skill()
@@ -172,9 +172,9 @@ void AHDBossMonster::AttackHitCheck()
 	FHitResult HitResult;
 	FCollisionQueryParams Params(NAME_None, false, this);
     
-	float AttackRadius = 150.0f;
-
-	DrawDebugSphere(GetWorld(), EndLoc, AttackRadius, 16, FColor::Green, false, 2.0f);
+	// float AttackRadius = 150.0f;
+	//
+	// DrawDebugSphere(GetWorld(), EndLoc, AttackRadius, 16, FColor::Green, false, 2.0f);
 
 
 	bool bResult = GetWorld()->SweepSingleByChannel(

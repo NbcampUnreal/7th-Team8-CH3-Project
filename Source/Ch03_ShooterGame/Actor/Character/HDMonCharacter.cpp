@@ -103,7 +103,7 @@ void AHDMonCharacter::OnDeath()
     GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     DetachFromControllerPendingDestroy();
 
-    SetLifeSpan(3.0f);
+    SetLifeSpan(2.0f);
 }
 
 void AHDMonCharacter::Skill()
