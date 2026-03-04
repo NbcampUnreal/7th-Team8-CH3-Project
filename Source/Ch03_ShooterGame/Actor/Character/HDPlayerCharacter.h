@@ -70,6 +70,7 @@ public:
 	
 	float GetDashCooldownPercent() const;
 	float GetAttackCooldownPercent() const;
+	float GetMineCooldownPercent() const;
 	void AddHealth(float Amount);
 	
 protected:
@@ -107,7 +108,6 @@ protected:
 	TSubclassOf<AActor> MineClass;
 
 	bool bCanUseMine = true; 
-	FTimerHandle MineCooldownTimerHandle;
 
 	void ResetMineCooldown(); 
 
@@ -143,6 +143,7 @@ protected:
 	bool bCanAttack = false;
 	FTimerHandle DashCooldownTimerHandle;
 	FTimerHandle AttackCooldownTimerHandle;
+	FTimerHandle MineCooldownTimerHandle;
 	
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 };

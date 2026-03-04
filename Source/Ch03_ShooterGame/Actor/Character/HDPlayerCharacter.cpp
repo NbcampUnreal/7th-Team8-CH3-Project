@@ -376,6 +376,15 @@ float AHDPlayerCharacter::GetAttackCooldownPercent() const
 	return RemainingTime / AttackCooldown;
 }
 
+float AHDPlayerCharacter::GetMineCooldownPercent() const
+{
+	if (!GetWorldTimerManager().IsTimerActive(MineCooldownTimerHandle))
+		return 0.0f;
+
+	float RemainingTime = GetWorldTimerManager().GetTimerElapsed(MineCooldownTimerHandle);
+	return RemainingTime / MineCooldownTime;
+}
+
 float AHDPlayerCharacter::GetMovementDirection() const
 {
 	if (GetVelocity().IsNearlyZero()) return 0.0f;

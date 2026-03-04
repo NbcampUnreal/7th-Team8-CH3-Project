@@ -46,6 +46,12 @@ public:
 	TSubclassOf<UUserWidget> GameClearWidgetClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "HUD")
 	UUserWidget* GameClearWidgetInstance;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+	TSubclassOf<UUserWidget> GameRuleWidgetClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "HUD")
+	UUserWidget* GameRuleWidgetInstance;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Text")
+	UWidgetAnimation* FadeAnimation;
 	
 	
 	UFUNCTION(BlueprintPure, Category = "HUD")
@@ -60,6 +66,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void ShowGameOverUI();
 	void ShowGameClearUI();
+	
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+	void ShowGameRule();
 
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 

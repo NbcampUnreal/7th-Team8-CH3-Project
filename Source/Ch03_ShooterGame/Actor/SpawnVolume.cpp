@@ -22,6 +22,8 @@ AHDMonCharacter* ASpawnVolume::SpawnRandomMonster()
 {
     if (FMonsterSpawnRow* SelectedRow = GetRandomMonster())
     {
+        SpawnHealingItemClass = SelectedRow->HealingItemClass;
+        
         if (UClass* ActualClass = SelectedRow->MonsterClass.Get())
         {
             return SpawnMonster(ActualClass);
@@ -39,7 +41,7 @@ FMonsterSpawnRow* ASpawnVolume::GetRandomMonster() const
     MonsterDataTable->GetAllRows(ContextString, AllRows);
 
     if (AllRows.IsEmpty()) return nullptr;
-
+    
     float TotalChance = 0.0f;
     for (const FMonsterSpawnRow* Row : AllRows)
     {
@@ -88,12 +90,15 @@ AHDMonCharacter* ASpawnVolume::SpawnMonster(TSubclassOf<AHDMonCharacter> Monster
     return SpawnedMonster;
 }
 
-void ASpawnVolume::SpawnHealingItem(TSubclassOf<AActor> AHealingItem)
+AActor* ASpawnVolume::SpawnHealingItem()
 {
-    if (!AHealingItem) return;
-
-    GetWorld()->SpawnActor<AActor>(
-        AHealingItem,
+    if (!SpawnHealingItemClass)
+    {
+        return nullptr;
+    }
+    
+    return GetWorld()->SpawnActor<AHealingItem>(
+        SpawnHealingItemClass,
         GetRandomPointInVolume(),
         FRotator::ZeroRotator
     );

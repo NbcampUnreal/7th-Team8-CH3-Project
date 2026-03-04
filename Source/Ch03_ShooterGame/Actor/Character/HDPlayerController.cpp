@@ -21,7 +21,9 @@ AHDPlayerController::AHDPlayerController():
     GameOverWidgetClass(nullptr),
     GameOverWidgetInstance(nullptr),
     GameClearWidgetClass(nullptr),
-    GameClearWidgetInstance(nullptr)
+    GameClearWidgetInstance(nullptr),
+    GameRuleWidgetClass(nullptr),
+    GameRuleWidgetInstance(nullptr)
 {
 }
 
@@ -79,6 +81,12 @@ void AHDPlayerController::StartGame()
 			HDGameState->CurrentLevelIndex = 0;
 			HDGameInstance->TotalScore = 0;
 		}
+
+	UGameViewportClient* Viewport = GetWorld()->GetGameViewport();
+	if (Viewport)
+	{
+		Viewport->RemoveAllViewportWidgets();
+	}
 
 	UGameplayStatics::OpenLevel(this, FName("L_Geunjeongjeon"));
 	SetPause(false);
@@ -144,7 +152,7 @@ void AHDPlayerController::ShowMainMenu()
 
 		if (UTextBlock* ButtonText = Cast<UTextBlock>(MainMenuWidgetInstance->GetWidgetFromName(TEXT("StartButtonText"))))
 		{
-				ButtonText->SetText(FText::FromString(TEXT("게임 시작")));
+			ButtonText->SetText(FText::FromString(TEXT("게임 시작")));
 		}
 	}
 }
@@ -198,7 +206,7 @@ void AHDPlayerController::ShowGameClearUI()
 			GameClearWidgetInstance->AddToViewport();
 			
 			bShowMouseCursor = true;
-			SetInputMode(FInputModeGameOnly());
+			SetInputMode(FInputModeUIOnly());
 		}
 		
 		if (UTextBlock* GameClearText = Cast<UTextBlock>(GameClearWidgetInstance->GetWidgetFromName("GameClearText")))
@@ -215,6 +223,27 @@ void AHDPlayerController::ShowGameClearUI()
 		}
 	}
 }
+
+void AHDPlayerController::ShowGameRule()
+{
+	if (!GameRuleWidgetClass)
+		return;
+	
+	if (!GameRuleWidgetInstance)
+	{
+		GameRuleWidgetInstance = CreateWidget<UUserWidget>(this, GameRuleWidgetClass);
+	}
+	
+	
+	if (GameRuleWidgetInstance)
+	{
+		GameRuleWidgetInstance->AddToViewport();
+			
+		bShowMouseCursor = true;
+		SetInputMode(FInputModeUIOnly());
+	}
+}
+
 
 void AHDPlayerController::LookAtMouseCursor(float DeltaTime) // 마우스 위치를 따라 캐릭터가 회전하게 만들어주는 함수
 {

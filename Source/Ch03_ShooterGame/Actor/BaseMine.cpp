@@ -18,7 +18,7 @@ ABaseMine::ABaseMine()
 	Collision->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	StaticMesh->SetupAttachment(Collision);
-
+	
 	Collision->OnComponentBeginOverlap.AddDynamic(this, &ABaseMine::OnItemOverlap);
 	Collision->OnComponentEndOverlap.AddDynamic(this, &ABaseMine::OnItemEndOverlap);
 
@@ -32,11 +32,12 @@ void ABaseMine::OnItemOverlap(
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	if (OtherActor && OtherActor->ActorHasTag("Player"))
+	if (OtherActor && OtherActor->ActorHasTag("Player") || OtherActor->ActorHasTag("Monster"))
 	{
 		ActivateItem(OtherActor);
 	}
 }
+
 void ABaseMine::OnItemEndOverlap(
 	UPrimitiveComponent* OverlappedComp,
 	AActor* OtherActor,
