@@ -27,7 +27,7 @@ OverheadTakeDamageWidget(nullptr)
 void AHDNormalMonster::BeginPlay()
 {
 	Super::BeginPlay();
-	MoveSpeed = 150.0f;
+	MoveSpeed = 200.0f;
 	MaxHP = 100.f;
 	CurrentHP = MaxHP;
 	Atk = 20.f;
