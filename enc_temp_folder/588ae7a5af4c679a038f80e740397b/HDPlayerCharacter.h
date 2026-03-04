@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Components/AudioComponent.h"
 #include "HDPlayerCharacter.generated.h"
 
 class USpringArmComponent;
@@ -50,13 +49,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	class USoundBase* HitSound;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sound")
-	class UAudioComponent* FootstepAudioComp;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
-	class USoundBase* FootstepSound;
-
 	UFUNCTION(BlueprintCallable, Category = "Animation")
+
 
 	float GetMovementDirection() const;
 	
@@ -70,7 +64,6 @@ public:
 	
 	float GetDashCooldownPercent() const;
 	float GetAttackCooldownPercent() const;
-	void AddHealth(float Amount);
 	
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -80,8 +73,8 @@ protected:
 
 	void RecoverMana(float DeltaTime);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
-	float ManaRegenRate = 0.5f; 
+	UPROPERTY(EditAnywhere, Category = "Stat")
+	float ManaRegenRate = 1.5f; // 초당 회복량
 
 
 	// 발사체를 발사하는 함수입니다.
@@ -115,7 +108,7 @@ protected:
 	void UseMineItem();
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
-	float MineCooldownTime = 5.0f;
+	float MineCooldownTime = 10.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
 	float MaxMP;
