@@ -36,6 +36,9 @@ public:
 	class USoundBase* FootstepSound;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sound")
 	class UAudioComponent* FootstepAudioComp;
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	USoundAttenuation* FootstepAttenuation;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	class USoundBase* AttackSound;
 	

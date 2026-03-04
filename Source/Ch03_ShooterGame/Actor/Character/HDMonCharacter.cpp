@@ -43,7 +43,16 @@ void AHDMonCharacter::BeginPlay()
     
     if (FootstepSound)
     {
-        UGameplayStatics::PlaySoundAtLocation(this, FootstepSound, GetActorLocation());
+        UGameplayStatics::PlaySoundAtLocation(
+            this, 
+            FootstepSound, 
+            GetActorLocation(), 
+            FRotator::ZeroRotator, 
+            1.0f, 
+            1.0f, 
+            0.0f, 
+            FootstepAttenuation 
+        );
     }
 }
 
