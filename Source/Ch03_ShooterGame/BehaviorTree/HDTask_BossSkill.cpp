@@ -4,6 +4,8 @@
 #include "BehaviorTree/HDTask_BossSkill.h"
 #include "Actor/Character/HDMonCharacter.h"
 #include "Actor/Character/HDMonController.h"
+#include "BehaviorTree/BlackboardComponent.h"
+
 
 UHDTask_BossSkill::UHDTask_BossSkill()
 {
@@ -12,21 +14,21 @@ UHDTask_BossSkill::UHDTask_BossSkill()
 
 EBTNodeResult::Type UHDTask_BossSkill::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	
+	UE_LOG(LogTemp, Error, TEXT("!!! TRIGER CHECK: Skill Task Entry !!!"));
+
 	AAIController* Owner = OwnerComp.GetAIOwner();
-	if (Owner == nullptr)
-	{
-		return EBTNodeResult::Aborted;
-	}
-	
 	AHDMonCharacter* Boss = Cast<AHDMonCharacter>(Owner->GetPawn());
-	if (Boss->SkillReadyIsActive())
-	{
-		Boss->WaitSkill();
-    
-		return EBTNodeResult::InProgress;
-	}
+
 	
-	return Super::ExecuteTask(OwnerComp, NodeMemory);
+	if (Boss && Boss->SkillReadyIsActive())
+	{
+		UE_LOG(LogTemp, Error, TEXT("!!! SUCCESS: WaitSkill Called !!!"));
+		Boss->WaitSkill();
+		return EBTNodeResult::Succeeded; 
+	}
+    
+	return EBTNodeResult::Failed;
 }
 
 void UHDTask_BossSkill::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
@@ -64,8 +66,16 @@ EBTNodeResult::Type UHDTask_BossSkill::AbortTask(UBehaviorTreeComponent& OwnerCo
 	return Super::AbortTask(OwnerComp, NodeMemory);
 }
 
-void UHDTask_BossSkill::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
-                                       EBTNodeResult::Type TaskResult)
+void UHDTask_BossSkill::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult)
 {
+	if (TaskResult == EBTNodeResult::Succeeded)
+	{
+		UBlackboardComponent* BBComp = OwnerComp.GetBlackboardComponent();
+		if (BBComp)
+		{
+			BBComp->SetValueAsBool(TEXT("bCanUseSkill"), false);
+		}
+	}
+
 	Super::OnTaskFinished(OwnerComp, NodeMemory, TaskResult);
 }

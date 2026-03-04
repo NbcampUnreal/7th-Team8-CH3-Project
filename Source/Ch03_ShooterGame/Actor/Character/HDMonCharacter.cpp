@@ -27,6 +27,8 @@ AHDMonCharacter::AHDMonCharacter()
     bUseControllerRotationYaw = false;
     bUseControllerRotationRoll = false;
 
+    FootstepAudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("FootstepAudioComp"));
+    
     GetCharacterMovement()->bOrientRotationToMovement = true;
     GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
     GetCharacterMovement()->GetNavMovementProperties()->bUseAccelerationForPaths = true;
@@ -38,22 +40,15 @@ void AHDMonCharacter::BeginPlay()
 {
     Super::BeginPlay();
     GetCharacterMovement()->bEnablePhysicsInteraction = false;
+    
+    if (FootstepSound)
+    {
+        UGameplayStatics::PlaySoundAtLocation(this, FootstepSound, GetActorLocation());
+    }
 }
 
 bool AHDMonCharacter::SkillReadyIsActive()
 {
-    float HPPercentage = CurrentHP / MaxHP;
-    
-    if ( HPPercentage <= 0.3f && !bHasUsed30PercentSkill)
-    {
-        bHasUsed50PercentSkill = true; // 이제 썼다고 기억함
-        return true;
-    }
-    if (HPPercentage <= 0.5f && !bHasUsed30PercentSkill)
-    {
-        bHasUsed30PercentSkill = true; // 이제 썼다고 기억함
-        return true;
-    }    
     
     return false;
 }
@@ -99,7 +94,7 @@ void AHDMonCharacter::OnDeath()
     GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     DetachFromControllerPendingDestroy();
 
-    SetLifeSpan(2.0f);
+    SetLifeSpan(3.0f);
 }
 
 void AHDMonCharacter::Skill()
@@ -109,13 +104,19 @@ void AHDMonCharacter::Skill()
 
 void AHDMonCharacter::WaitSkill()
 {
-    
+    if (AttackSound)
+    {
+        UGameplayStatics::PlaySoundAtLocation(this, AttackSound, GetActorLocation());
+    }
 }
 
 
 void AHDMonCharacter::AttackHitCheck()
 {
-   
+    if (AttackSound)
+    {
+        UGameplayStatics::PlaySoundAtLocation(this, AttackSound, GetActorLocation());
+    }
 }
 
 

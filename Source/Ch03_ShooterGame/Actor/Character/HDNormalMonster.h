@@ -32,5 +32,6 @@ protected:
 	FTimerHandle HitRecoverTimerHandle;
 	FTimerHandle HideOverheadTakeDamageHUDHandle;
 	
+
 	virtual void RecoverFromHit() override;
 };

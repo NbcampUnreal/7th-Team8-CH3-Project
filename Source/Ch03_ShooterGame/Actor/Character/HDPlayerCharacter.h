@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/AudioComponent.h"
 #include "HDPlayerCharacter.generated.h"
 
 class USpringArmComponent;
@@ -49,8 +50,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	class USoundBase* HitSound;
 
-	UFUNCTION(BlueprintCallable, Category = "Animation")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sound")
+	class UAudioComponent* FootstepAudioComp;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	class USoundBase* FootstepSound;
+
+	UFUNCTION(BlueprintCallable, Category = "Animation")
 
 	float GetMovementDirection() const;
 	
@@ -64,6 +70,7 @@ public:
 	
 	float GetDashCooldownPercent() const;
 	float GetAttackCooldownPercent() const;
+	void AddHealth(float Amount);
 	
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
