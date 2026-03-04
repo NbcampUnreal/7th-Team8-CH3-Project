@@ -73,7 +73,7 @@ float AHDMonCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 void AHDMonCharacter::OnDeath()
 {
     UE_LOG(LogTemp, Warning, TEXT("Monster Died!"));
-
+    
     if (UWorld* World = GetWorld())
     {
         if (AHDGameState* GameState = World->GetGameState<AHDGameState>())
@@ -81,6 +81,7 @@ void AHDMonCharacter::OnDeath()
             GameState->AddScore(PointValue);
         }
     }
+    
 
     if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance(); AnimInstance && DeathMontage)
     {

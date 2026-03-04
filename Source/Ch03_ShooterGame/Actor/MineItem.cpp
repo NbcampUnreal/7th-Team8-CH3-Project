@@ -2,6 +2,7 @@
 
 
 #include "MineItem.h"
+#include "Actor/Character/HDNormalMonster.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -19,19 +20,23 @@ AMineItem::AMineItem()
     ExplosionCollision->InitSphereRadius(ExplosionRadius);
     ExplosionCollision->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
     ExplosionCollision->SetupAttachment(Scene);
+    
+    ExplosionCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    ExplosionCollision->SetCollisionResponseToAllChannels(ECR_Ignore);
+    ExplosionCollision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 }
 
 
 
 void AMineItem::ActivateItem(AActor* Activator)
 {
-
     if (bHasExploded) return;
-
-
-    Super::ActivateItem(Activator);
-
-    Explode();
+    
+    if (Activator->ActorHasTag("Monster"))
+    {
+        Super::ActivateItem(Activator);
+        Explode();
+    }
 }
 
 void AMineItem::Explode()
@@ -64,7 +69,7 @@ void AMineItem::Explode()
 
     for (AActor* Actor : OverlappingActors)
     {
-        if (Actor && Actor->ActorHasTag("Player"))
+        if (Actor && Actor->ActorHasTag("Monster"))
         {
 
             UGameplayStatics::ApplyDamage(

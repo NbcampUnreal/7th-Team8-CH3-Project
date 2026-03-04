@@ -28,6 +28,12 @@ int32 AHDGameState::GetScore() const
 void AHDGameState::AddScore(int32 Amount)
 {
 	Score += Amount;
+
+	if (UHDGameInstance* GameInstance = Cast<UHDGameInstance>(GetGameInstance()))
+	{
+		GameInstance->AddToScore(Amount);
+	}
+	
 	UE_LOG(LogTemp, Warning, TEXT("Score: %d"), Score);
 }
 
@@ -95,6 +101,20 @@ void AHDGameState::UpdateHUD()
 							PlayerAttackProgressBar->SetVisibility(ESlateVisibility::Hidden);
 						}
 					}
+					
+					if (UProgressBar* PlayerMineProgressBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("Mine_CoolDown"))))
+					{
+						float Cooldown = HDPlayerCharacter->GetMineCooldownPercent();
+						if (Cooldown > 0.0f)
+						{
+							PlayerMineProgressBar->SetVisibility(ESlateVisibility::Visible);
+							PlayerMineProgressBar->SetPercent(1.0 - HDPlayerCharacter->GetMineCooldownPercent());
+						}
+						else
+						{
+							PlayerMineProgressBar->SetVisibility(ESlateVisibility::Hidden);
+						}
+					}
 				}
 
 				if (UTextBlock* TimeText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("TimeText"))))
@@ -105,7 +125,10 @@ void AHDGameState::UpdateHUD()
 
 				if (UTextBlock* ScoreText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("ScoreText"))))
 				{
-					ScoreText->SetText(FText::FromString(FString::Printf(TEXT("점수: %d"), Score)));
+					if (UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(GetGameInstance()))
+					{
+						ScoreText->SetText(FText::FromString(FString::Printf(TEXT("점수: %d"), HDGameInstance->TotalScore)));
+					}
 				}
 
 				if (UTextBlock* StageIndexText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("StageText"))))
@@ -166,8 +189,25 @@ void AHDGameState::StartLevel()
 			}
 		}
 	}
+	
+	const int32 HealItemToSpawn = 5;
+	
+	if (FoundVolumes.Num() > 0)
+	{
+		for (int32 i = 0; i < HealItemToSpawn; i++)
+		{
+			int32 ItemTargetIdx = FMath::RandRange(0, FoundVolumes.Num() - 1);
+			ASpawnVolume* SpawnVolume = Cast<ASpawnVolume>(FoundVolumes[ItemTargetIdx]);
 
-
+			if (SpawnVolume)
+			{
+				SpawnVolume->SpawnHealingItem();
+				UE_LOG(LogTemp, Warning, TEXT("Spawned at Volume Index: %d"), ItemTargetIdx);
+			}
+		}
+	}
+	
+	
 	GetWorldTimerManager().SetTimer(
 		LevelTimerHandle,
 		this,
@@ -193,7 +233,6 @@ void AHDGameState::EndLevel()
 
 		if (HDGameInstance)
 		{
-			HDGameInstance->TotalScore += Score;
 			CurrentLevelIndex++;
 			HDGameInstance->CurrentLevelIndex = CurrentLevelIndex;
 		}
@@ -223,7 +262,6 @@ void AHDGameState::OnGameOver()
 
 		if (HDGameInstance)
 		{
-			HDGameInstance->TotalScore += Score;
 			CurrentLevelIndex = 0;
 			HDGameInstance->CurrentLevelIndex = CurrentLevelIndex;
 		}
@@ -243,10 +281,9 @@ void AHDGameState::GameClear()
 	if (UGameInstance* GameInstance = GetGameInstance())
 	{
 		UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(GameInstance);
-
+		
 		if (HDGameInstance)
 		{
-			HDGameInstance->TotalScore += Score;
 			CurrentLevelIndex = 0;
 			HDGameInstance->CurrentLevelIndex = CurrentLevelIndex;
 		}
@@ -256,6 +293,19 @@ void AHDGameState::GameClear()
 	{
 		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
 		{
+			if (UUserWidget* HUDWidget = HDPlayerController->GetHUDWidget())
+			{
+				if (UGameInstance* GameInstance = GetGameInstance())
+				{
+					UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(GameInstance);
+					
+					if (UTextBlock* TotalScoreText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("TotalScoreText"))))
+					{
+						float RemainingTime = GetWorldTimerManager().GetTimerRemaining(LevelTimerHandle);
+						TotalScoreText->SetText(FText::FromString(FString::Printf(TEXT("최종 점수 : %d"), HDGameInstance->TotalScore)));
+					}
+				}
+			}
 			HDPlayerController->SetPause(true);
 			HDPlayerController->ShowGameClearUI();
 		}

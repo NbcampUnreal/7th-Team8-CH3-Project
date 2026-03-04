@@ -8,6 +8,7 @@
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Components/WidgetComponent.h"
+#include "Core/HDGameState.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -51,6 +52,7 @@ float AHDNormalMonster::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	
 		LaunchCharacter(PushDirection * 1000.0f, true, false);
 	}
+	
 	if (CurrentHP <= 0.0f)
 	{
 		OnDeath();
