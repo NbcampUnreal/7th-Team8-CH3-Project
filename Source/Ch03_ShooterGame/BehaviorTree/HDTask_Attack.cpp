@@ -1,0 +1,77 @@
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "HDTask_Attack.h"
+#include "AIController.h"
+#include "Actor/Character/HDMonCharacter.h"
+
+
+UHDTask_Attack::UHDTask_Attack()
+{
+	bNotifyTick = true;
+}
+
+EBTNodeResult::Type UHDTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+	AAIController* Owner = OwnerComp.GetAIOwner();
+	if (Owner == nullptr)
+	{
+		return EBTNodeResult::Aborted;
+	}
+	
+	auto HadMonCharacter = Cast<AHDMonCharacter>(Owner->GetPawn());
+
+	if (HadMonCharacter == nullptr || AttackMontage == nullptr)
+	{
+		return EBTNodeResult::Failed;
+	}
+		
+	HadMonCharacter->PlayAnimMontage(AttackMontage);
+	
+	return EBTNodeResult::InProgress;
+}
+
+void UHDTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+{
+	AAIController* Owner = OwnerComp.GetAIOwner();
+	if (Owner == nullptr)
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		return;
+	}
+
+	auto HDMonCharacter = Cast<AHDMonCharacter>(Owner->GetPawn());
+	if (HDMonCharacter == nullptr || AttackMontage == nullptr)
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		return;
+	}
+	
+	
+	UAnimInstance* AnimInstance = HDMonCharacter->GetMesh()->GetAnimInstance();
+	bool bIsPlaying = AnimInstance->Montage_IsPlaying(AttackMontage);
+    
+	// 2. 애니메이션이 멈췄거나(정상 종료), 다른 몽타주(피격 등)에 의해 밀려났을 때 종료 처리
+	if (!bIsPlaying)
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		return;
+	}
+
+	bool bStopped = AnimInstance->Montage_GetIsStopped(AttackMontage);
+	if (bStopped)
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+	}
+
+}
+
+EBTNodeResult::Type UHDTask_Attack::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+	return Super::AbortTask(OwnerComp, NodeMemory);
+}
+
+void UHDTask_Attack::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult)
+{
+	Super::OnTaskFinished(OwnerComp, NodeMemory, TaskResult);
+}
