@@ -88,6 +88,12 @@ void AHDMonCharacter::OnDeath()
         if (AHDGameState* GameState = World->GetGameState<AHDGameState>())
         {
             GameState->AddScore(PointValue);
+            GameState->AddKillCount(1);
+            
+            if (GameState->KillCount >= GameState->MonsterToSpawn)
+            {
+                GameState->EndLevel();
+            }
         }
     }
     
@@ -128,9 +134,6 @@ void AHDMonCharacter::AttackHitCheck()
         UGameplayStatics::PlaySoundAtLocation(this, AttackSound, GetActorLocation());
     }
 }
-
-
-
 
 void AHDMonCharacter::RecoverFromHit()
 {

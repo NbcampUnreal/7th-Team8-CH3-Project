@@ -46,6 +46,7 @@ AHDBowProjectile::AHDBowProjectile()
 		CollisionComponent->SetNotifyRigidBodyCollision(true);
 
 		CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		
 		CollisionComponent->SetCollisionResponseToAllChannels(ECR_Block);
 
 		CollisionComponent->OnComponentHit.AddDynamic(this, &AHDBowProjectile::OnHit);
@@ -95,7 +96,6 @@ AHDBowProjectile::AHDBowProjectile()
 void AHDBowProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 void AHDBowProjectile::Tick(float DeltaTime)
@@ -112,10 +112,13 @@ void AHDBowProjectile::FireInDirection(const FVector& ShootDirection)
 
 void AHDBowProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
-
-
 	if (OtherActor != nullptr && OtherActor != this)
 	{
+		if (OtherActor->ActorHasTag("Player"))
+		{
+			return;
+		}
+		
 		float TestDamage = 20.0f;
 		UGameplayStatics::ApplyDamage(
 			OtherActor,
@@ -125,6 +128,6 @@ void AHDBowProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 			UDamageType::StaticClass()
 		);
 	}
+	
 	Destroy();
-
 }

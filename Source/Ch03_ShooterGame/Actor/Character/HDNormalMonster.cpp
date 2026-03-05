@@ -5,6 +5,7 @@
 
 #include "AIController.h"
 #include "BrainComponent.h"
+#include "ScreenPass.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Components/WidgetComponent.h"
@@ -35,7 +36,6 @@ void AHDNormalMonster::BeginPlay()
 	Def = 4.0f;
 	PointValue = 100;
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
-	UpdateOverheadHP();
 }
 
 
@@ -44,7 +44,10 @@ float AHDNormalMonster::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 {
 	float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	
-	if (DamageCauser && CurrentHP > 0.0f) 
+	UpdateOverheadHP();
+	UpdateOverheadTakeDamage(ActualDamage);
+	
+	if (DamageCauser && CurrentHP > 0.0f)
 	{
 		FVector PushDirection = GetActorLocation() - DamageCauser->GetActorLocation();
 		PushDirection.Z = 0.0f;
@@ -55,16 +58,15 @@ float AHDNormalMonster::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	
 	if (CurrentHP <= 0.0f)
 	{
+		UpdateOverheadTakeDamage(ActualDamage);
 		OnDeath();
 		return ActualDamage;
 	}
+	
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 	{
 		if (TakeDamageMontage) AnimInstance->Montage_Play(TakeDamageMontage,1.2f);
 	}
-	
-	UpdateOverheadHP();
-	UpdateOverheadTakeDamage(ActualDamage);
 	
 	if (AAIController* AIController = Cast<AAIController>(GetController()))
 	{
@@ -94,35 +96,41 @@ float AHDNormalMonster::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 void AHDNormalMonster::AttackHitCheck()
 {
 	Super::AttackHitCheck();
-	FHitResult HitResult;
+	TArray<FHitResult> HitResult;
 	FCollisionQueryParams Params(NAME_None, false, this);
+	Params.AddIgnoredActor(this);
 
-	bool bResult = GetWorld()->SweepSingleByChannel(
+	bool bResult = GetWorld()->SweepMultiByChannel(
 		HitResult,
 		GetActorLocation(),
 		GetActorLocation() + GetActorForwardVector() * 100.0f, // 사거리 100
 		FQuat::Identity,
 		ECollisionChannel::ECC_Pawn,
-		FCollisionShape::MakeSphere(50.0f),
+		FCollisionShape::MakeSphere(80.0f),
 		Params
 	);
 
 	if (bResult)
 	{
-		if (AActor* Target = HitResult.GetActor())
+		for (const FHitResult& Hit : HitResult)
 		{
-			// 로그 확인
-			UE_LOG(LogTemp, Warning, TEXT("Hit Target: %s"), *Target->GetName());
-			
-			if (Target->ActorHasTag("Player"))
+			if (AActor* Target = Hit.GetActor())
 			{
-				UGameplayStatics::ApplyDamage(
-					Target,
-					Atk, 
-					GetController(),
-					this,
-					UDamageType::StaticClass()
-					);
+				// 로그 확인
+				UE_LOG(LogTemp, Warning, TEXT("Hit Target: %s"), *Target->GetName());
+			
+				if (Target->ActorHasTag("Player"))
+				{
+					UGameplayStatics::ApplyDamage(
+						Target,
+						Atk,
+						GetController(),
+						this,
+						UDamageType::StaticClass()
+						);
+					
+					break;
+				}
 			}
 		}
 	}
@@ -132,7 +140,6 @@ void AHDNormalMonster::OnDeath()
 {
 	Super::OnDeath();
 	UpdateOverheadHP();
-	
 }
 
 void AHDNormalMonster::UpdateOverheadHP() const
@@ -142,8 +149,9 @@ void AHDNormalMonster::UpdateOverheadHP() const
 	const UUserWidget* OverheadWidgetInstance = OverheadWidget->GetUserWidgetObject();
 	if (!OverheadWidgetInstance) return;
 
-	if (UProgressBar* MonsterOverheadHPBar = Cast<UProgressBar>(OverheadWidgetInstance->GetWidgetFromName("OverheadHP")))
+	if (UProgressBar* MonsterOverheadHPBar = Cast<UProgressBar>(OverheadWidgetInstance->GetWidgetFromName(TEXT("OverheadHP"))))
 	{
+		MonsterOverheadHPBar->SetVisibility(ESlateVisibility::Visible);
 		const float Precent = static_cast<float>(CurrentHP) / MaxHP;
 		MonsterOverheadHPBar->SetPercent(Precent);
 	}

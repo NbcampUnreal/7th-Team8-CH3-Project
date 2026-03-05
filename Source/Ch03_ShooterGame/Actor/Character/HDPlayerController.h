@@ -61,6 +61,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "HUD")
 	UUserWidget* GetHUDWidget() const { return HUDWidgetInstance; }
 	
+	UFUNCTION(BlueprintPure, Category = "HUD")
+	UUserWidget* GetGameOverWidget() const { return GameOverWidgetInstance; }
+	
 	UFUNCTION(BlueprintCallable, Category = "HUD")
 	void ShowCharacterHUD();
 	
@@ -78,14 +81,13 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 	void ShowGameRule();
-
+	
 	UFUNCTION(BlueprintCallable, Category = "Menu")
-
-
-
-
 	void StartGame();
+	
 	bool bIsRolling = false;
+	bool bIsDead = false;
+	bool bIsClear = false;
 	FVector CachedMouseHitLocation;
 
 	virtual void BeginPlay() override;

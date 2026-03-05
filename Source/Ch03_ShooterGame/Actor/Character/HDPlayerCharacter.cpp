@@ -236,12 +236,17 @@ void AHDPlayerCharacter::Fire()
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = this;
 			SpawnParams.Instigator = GetInstigator();
+			SpawnParams.SpawnCollisionHandlingOverride =
+				ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 			AHDBowProjectile* Projectile = World->SpawnActor<AHDBowProjectile>(
 				ProjectileClass, MuzzleLocation, SpawnRotation, SpawnParams);
 			
 			if (Projectile)
 			{
+				Projectile->CollisionComponent->IgnoreActorWhenMoving(this, true);
+				Projectile->CollisionComponent->MoveIgnoreActors.Add(this);
+				
 				Projectile->FireInDirection(LaunchDirection);
 			}
 		}
@@ -255,7 +260,6 @@ void AHDPlayerCharacter::Attack(const FInputActionValue& value)
 	if (!Controller) return;
 
 	if (bCanAttack) return;
-
 	
 	if (AttackMontage)
 	{
@@ -309,17 +313,28 @@ float AHDPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	{
 		OnDeath();
 	}
-
 	
 	return ActualDamage;
 }
 
 void AHDPlayerCharacter::OnDeath() // 플레이어 죽었을 때 호출되는 함수
 {
+	AHDPlayerController* PlayerController = Cast<AHDPlayerController>(GetController());
+	if (PlayerController)
+	{
+		PlayerController->bIsDead = true;
+	}
+	
 	AHDGameState* GameState = Cast<AHDGameState>(GetWorld()->GetGameState());
 	if (GameState)
 	{
-		GameState->OnGameOver();
+		GetWorldTimerManager().SetTimer(
+			GameOverTimerHandle,
+			this,
+			&AHDPlayerCharacter::CallGameOver,
+			1.7f,
+			false
+			);
 	}
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -389,3 +404,10 @@ float AHDPlayerCharacter::GetMovementDirection() const
 	return UKismetAnimationLibrary::CalculateDirection(GetVelocity(), GetActorRotation());
 }
 
+void AHDPlayerCharacter::CallGameOver()
+{
+	if (AHDGameState* GameState = Cast<AHDGameState>(GetWorld()->GetGameState()))
+	{
+		GameState->OnGameOver();
+	}
+}

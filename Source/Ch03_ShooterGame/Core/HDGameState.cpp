@@ -11,6 +11,7 @@
 #include "Actor/Character/HDMonCharacter.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
+#include "GameFramework/PlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Image.h"
 
@@ -39,11 +40,26 @@ void AHDGameState::AddScore(int32 Amount)
 	UE_LOG(LogTemp, Warning, TEXT("Score: %d"), Score);
 }
 
+void AHDGameState::AddKillCount(int32 Amount)
+{
+	KillCount += Amount;
+	
+	if (UHDGameInstance* GameInstance = Cast<UHDGameInstance>(GetGameInstance()))
+	{
+		GameInstance->AddToKillCount(Amount);
+	}
+}
+
 void AHDGameState::BeginPlay()
 {
 	Super::BeginPlay();
 
-	StartLevel();
+	FString MapName = GetWorld()->GetMapName();
+	
+	if (!MapName.Contains(TEXT("MainMenu")))
+	{
+		StartLevel();
+	}
 
 	GetWorldTimerManager().SetTimer(
 		HUDUpdateTimerHandle,
@@ -149,11 +165,16 @@ void AHDGameState::UpdateHUD()
 					TimeText->SetText(FText::FromString(FString::Printf(TEXT("남은시간 : %.f"), RemainingTime)));
 				}
 
-				if (UTextBlock* ScoreText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("ScoreText"))))
+				if (UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(GetGameInstance()))
 				{
-					if (UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(GetGameInstance()))
+					if (UTextBlock* ScoreText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("ScoreText"))))
 					{
 						ScoreText->SetText(FText::FromString(FString::Printf(TEXT("점수: %d"), HDGameInstance->TotalScore)));
+					}
+					
+					if (UTextBlock* KillCountText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("KillCountText"))))
+					{
+						KillCountText->SetText(FText::FromString(FString::Printf(TEXT("처치 수: %d"), HDGameInstance->TotalKillCount)));
 					}
 				}
 
@@ -164,10 +185,16 @@ void AHDGameState::UpdateHUD()
 				
 				if (UTextBlock* GameRuleText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("GameRuleText"))))
 				{
-					GameRuleText->SetText(FText::FromString(FString::Printf(TEXT("괴물들의 공격을 피하고 퇴치하여 점수를 얻고 끝까지 생존하라"))));
+					GameRuleText->SetText(FText::FromString(
+						FString::Printf(TEXT("괴물들의 공격을 피하고 퇴치하여 점수를 얻고 끝까지 생존하여라"))));
 					if (CurrentLevelIndex >= 1)
 					{
 						GameRuleText->SetVisibility(ESlateVisibility::Hidden);
+					}
+					if (CurrentLevelIndex >= 4)
+					{
+						GameRuleText->SetVisibility(ESlateVisibility::Visible);
+						GameRuleText->SetText(FText::FromString(FString::Printf(TEXT("        거대한 괴물을 피해 처치하거나 생존하여라      "))));
 					}
 				}
 			}
@@ -182,7 +209,7 @@ void AHDGameState::StartLevel()
 	{
 		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
 		{
-	
+			
 				HDPlayerController->ShowCharacterHUD();
 		}
 	}
@@ -200,8 +227,8 @@ void AHDGameState::StartLevel()
 	TArray<AActor*> FoundVolumes;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnVolume::StaticClass(), FoundVolumes);
 
-	const int32 MonsterToSpawn = 50 + CurrentLevelIndex * 5;
-	const int32 BossStageMonsterToSpawn = 10;
+	MonsterToSpawn = 50 + CurrentLevelIndex * 5;
+	BossStageMonsterToSpawn = 20;
 
 	if (CurrentLevelIndex < 4)
 	{
@@ -255,7 +282,6 @@ void AHDGameState::StartLevel()
 		}
 	}
 	
-	
 	GetWorldTimerManager().SetTimer(
 		LevelTimerHandle,
 		this,
@@ -263,7 +289,6 @@ void AHDGameState::StartLevel()
 		LevelDuration,
 		false
 	);
-
 }
 
 void AHDGameState::OnLevelTimeUp()
@@ -341,7 +366,9 @@ void AHDGameState::GameClear()
 	{
 		if (AHDPlayerController* HDPlayerController = Cast<AHDPlayerController>(PlayerController))
 		{
-			if (UUserWidget* HUDWidget = HDPlayerController->GetHUDWidget())
+			HDPlayerController->bIsClear = true;
+			
+			if (UUserWidget* HUDWidget = HDPlayerController->GetGameOverWidget())
 			{
 				if (UGameInstance* GameInstance = GetGameInstance())
 				{
@@ -349,11 +376,16 @@ void AHDGameState::GameClear()
 					
 					if (UTextBlock* TotalScoreText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("TotalScoreText"))))
 					{
-						float RemainingTime = GetWorldTimerManager().GetTimerRemaining(LevelTimerHandle);
 						TotalScoreText->SetText(FText::FromString(FString::Printf(TEXT("최종 점수 : %d"), HDGameInstance->TotalScore)));
+					}
+					
+					if (UTextBlock* TotalKillCountText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("TotalKillCountText"))))
+					{
+						TotalKillCountText->SetText(FText::FromString(FString::Printf(TEXT("최종 처치 수 : %d"), HDGameInstance->TotalKillCount)));
 					}
 				}
 			}
+			
 			HDPlayerController->SetPause(true);
 			HDPlayerController->ShowGameClearUI();
 		}

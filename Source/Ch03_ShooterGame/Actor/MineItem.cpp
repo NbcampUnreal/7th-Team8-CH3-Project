@@ -66,22 +66,27 @@ void AMineItem::Explode()
 
     TArray<AActor*> OverlappingActors;
     ExplosionCollision->GetOverlappingActors(OverlappingActors);
+    
+    UKismetSystemLibrary::SphereOverlapActors(
+        GetWorld(),
+        GetActorLocation(),
+        ExplosionRadius, // 폭발 반경
+        TArray<TEnumAsByte<EObjectTypeQuery>>(),
+        AActor::StaticClass(),
+        TArray<AActor*>(),
+        OverlappingActors
+    );
 
     for (AActor* Actor : OverlappingActors)
     {
         if (Actor && Actor->ActorHasTag("Monster"))
         {
-
             UGameplayStatics::ApplyDamage(
                 Actor,             
                 ExplosionDamage,    
                 GetInstigatorController(), 
                 this,              
-                UDamageType::StaticClass() 
-
-            
-
-
+                UDamageType::StaticClass()
             );
         }
     }

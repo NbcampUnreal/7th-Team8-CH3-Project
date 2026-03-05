@@ -69,7 +69,7 @@ void AHDPlayerController::Tick(float DeltaSeconds)
 
 	AHDPlayerCharacter* MyCharacter = Cast<AHDPlayerCharacter>(GetPawn());
 
-	if (MyCharacter && MyCharacter->bIsRolling == false)
+	if (MyCharacter && MyCharacter->bIsRolling == false && !bIsDead && !bIsClear)
 	{
 		LookAtMouseCursor(DeltaSeconds);
 	}
@@ -77,12 +77,16 @@ void AHDPlayerController::Tick(float DeltaSeconds)
 
 void AHDPlayerController::StartGame()
 {
+	
 	if (AHDGameState* HDGameState = GetWorld()->GetGameState<AHDGameState>())
+	{
 		if (UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(UGameplayStatics::GetGameInstance(this)))
 		{
 			HDGameState->CurrentLevelIndex = 0;
 			HDGameInstance->TotalScore = 0;
+			HDGameInstance->TotalKillCount = 0;
 		}
+	}
 
 	UGameViewportClient* Viewport = GetWorld()->GetGameViewport();
 	if (Viewport)
@@ -185,11 +189,16 @@ void AHDPlayerController::ShowGameOverUI()
 			RestartText->SetText(FText::FromString(FString::Printf(TEXT("재시작"))));
 		}
 		
-		if (UTextBlock* TotalScoreText = Cast<UTextBlock>(GameOverWidgetInstance->GetWidgetFromName("TotalScoreText")))
+		if (UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(UGameplayStatics::GetGameInstance(this)))
 		{
-			if (UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(UGameplayStatics::GetGameInstance(this)))
+			if (UTextBlock* TotalScoreText = Cast<UTextBlock>(GameOverWidgetInstance->GetWidgetFromName("TotalScoreText")))
 			{
-				TotalScoreText->SetText(FText::FromString(FString::Printf(TEXT("Total Score: %d"), HDGameInstance->TotalScore)));
+				TotalScoreText->SetText(FText::FromString(FString::Printf(TEXT("최종 점수: %d"), HDGameInstance->TotalScore)));
+			}
+			
+			if (UTextBlock* TotalKillCountText = Cast<UTextBlock>(GameOverWidgetInstance->GetWidgetFromName("TotalKillCountText")))
+			{
+				TotalKillCountText->SetText(FText::FromString(FString::Printf(TEXT("최종 처치 수: %d"), HDGameInstance->TotalKillCount)));
 			}
 		}
 	}
@@ -216,11 +225,16 @@ void AHDPlayerController::ShowGameClearUI()
 			GameClearText->SetText(FText::FromString(FString::Printf(TEXT("퇴치 성공"))));
 		}
 		
-		if (UTextBlock* TotalScoreText = Cast<UTextBlock>(GameClearWidgetInstance->GetWidgetFromName("TotalScoreText")))
+		if (UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(UGameplayStatics::GetGameInstance(this)))
 		{
-			if (UHDGameInstance* HDGameInstance = Cast<UHDGameInstance>(UGameplayStatics::GetGameInstance(this)))
+			if (UTextBlock* TotalScoreText = Cast<UTextBlock>(GameClearWidgetInstance->GetWidgetFromName("TotalScoreText")))
 			{
 				TotalScoreText->SetText(FText::FromString(FString::Printf(TEXT("최종 점수 : %d"), HDGameInstance->TotalScore)));
+			}
+			
+			if (UTextBlock* TotalKillCountText = Cast<UTextBlock>(GameClearWidgetInstance->GetWidgetFromName("TotalKillCountText")))
+			{
+				TotalKillCountText->SetText(FText::FromString(FString::Printf(TEXT("최종 처치 수: %d"), HDGameInstance->TotalKillCount)));
 			}
 		}
 	}

@@ -59,7 +59,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 
 	float GetMovementDirection() const;
-	
+	void CallGameOver();
+
 	int HP;
 	int MaxHP;
 	float Mana;
@@ -108,7 +109,6 @@ protected:
 	TSubclassOf<AActor> MineClass;
 
 	bool bCanUseMine = true; 
-
 	void ResetMineCooldown();
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
@@ -144,6 +144,7 @@ protected:
 	FTimerHandle DashCooldownTimerHandle;
 	FTimerHandle AttackCooldownTimerHandle;
 	FTimerHandle MineCooldownTimerHandle;
+	FTimerHandle GameOverTimerHandle;
 	
 	float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser);
 };

@@ -19,19 +19,17 @@ void AHDBossMonster::BeginPlay()
 {
 	Super::BeginPlay();
 	MoveSpeed = 300.0f;
-	MaxHP = 300.f;
+	MaxHP = 900.f;
 	CurrentHP = MaxHP;
 	Atk = 40.0f;
 	Def = 5.0f;
-	PointValue = 1000;
+	PointValue = 9999;
 	GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
-	
 }
 
 void AHDBossMonster::OnDeath()
 {
 	Super::OnDeath();
-	
 }
 
 void AHDBossMonster::Skill()

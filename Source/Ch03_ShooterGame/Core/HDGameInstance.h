@@ -19,4 +19,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "GameData")
 	void AddToScore(int32 Amount);
+	
+	int32 TotalKillCount;
+	
+	void AddToKillCount(int32 Amount);
 };

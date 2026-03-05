@@ -31,6 +31,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level")
 	TArray<FName> LevelMapNames;
 
+	int32 MonsterToSpawn;
+	int32 BossStageMonsterToSpawn;
+	int32 KillCount;
 	FTimerHandle HUDUpdateTimerHandle;
 	FTimerHandle LevelTimerHandle;
 
@@ -39,6 +42,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Score")
 	void AddScore(int32 Amount);
+	void AddKillCount(int32 Amount);
 
 	virtual void BeginPlay() override;
 	void UpdateHUD();
