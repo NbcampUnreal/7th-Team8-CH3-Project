@@ -10,7 +10,7 @@
 붉은 달이 뜨는 밤, 죽은 자들이 되살아나는 **'역천(逆天)'** 현상이 발생한다.  
 플레이어는 어사 **홍길동**이 되어 밀려드는 언데드 무리를 막아내야 한다.
 
-![](./Content/HDContent/Start.png)
+![](https://media.githubusercontent.com/media/NbcampUnreal/7th-Team8-CH3-Project/main/Content/HDContent/Texture/Start.png)
 
 | 항목 | 내용 |
 |------|------|
@@ -21,7 +21,7 @@
 | **개발 엔진** | Unreal Engine 5.5|
 
 ---
-![](./Content/HDContent/image.png)
+![](https://media.githubusercontent.com/media/NbcampUnreal/7th-Team8-CH3-Project/main/Content/HDContent/Texture/image.png
 
 ## 👥 팀원 소개
 
