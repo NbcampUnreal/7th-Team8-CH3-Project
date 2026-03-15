@@ -21,7 +21,7 @@
 | **개발 엔진** | Unreal Engine 5.5|
 
 ---
-![](https://media.githubusercontent.com/media/NbcampUnreal/7th-Team8-CH3-Project/main/Content/HDContent/Texture/image.png
+![](https://media.githubusercontent.com/media/NbcampUnreal/7th-Team8-CH3-Project/main/Content/HDContent/Texture/image.png)
 
 ## 👥 팀원 소개
 
