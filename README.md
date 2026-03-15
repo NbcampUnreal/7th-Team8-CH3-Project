@@ -61,3 +61,6 @@
 | 이동 | `W`, `A`, `S`, `D` |
 | 공격 | `Mouse Left Click` |
 | 일시정지 | `ESC` |
+
+### 📺 플레이 영상
+[![역천의 밤 플레이 영상](https://img.youtube.com/vi/SFYpYYsxVfk/0.jpg)](https://youtu.be/SFYpYYsxVfk)
